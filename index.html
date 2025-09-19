@@ -1,577 +1,219 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TeaLuxe - Premium Bubble Tea & Catering</title>
+    <title>Sinensthesia - Sensational Tea</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        /* Custom styles to extend Tailwind */
         body {
-            font-family: 'Arial', sans-serif;
-            line-height: 1.6;
-            color: #2d1810;
-            overflow-x: hidden;
+            font-family: 'Inter', sans-serif;
+            background-color: #FDFBF5; /* Cream background from logo */
+            color: #1E2A4A; /* Darker blue for better contrast */
         }
-
-        /* Header */
-        header {
-            position: fixed;
-            top: 0;
-            width: 100%;
-            background: rgba(45, 24, 16, 0.95);
-            backdrop-filter: blur(10px);
-            z-index: 1000;
-            padding: 1rem 0;
-            transition: all 0.3s ease;
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 700;
         }
-
-        nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 2rem;
+        .text-brand-blue {
+            color: #002366; /* Blue from logo */
         }
-
-        .logo {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #f4a261;
-            text-decoration: none;
-            letter-spacing: -1px;
+        .bg-brand-blue {
+            background-color: #002366;
         }
-
-        .nav-links {
-            display: flex;
-            gap: 2rem;
-            list-style: none;
+        .border-brand-blue {
+            border-color: #002366;
         }
-
-        .nav-links a {
-            color: #e9c46a;
-            text-decoration: none;
-            transition: color 0.3s ease;
-            position: relative;
-        }
-
-        .nav-links a:hover {
-            color: #f4a261;
-        }
-
-        .nav-links a::after {
-            content: '';
-            position: absolute;
-            bottom: -5px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: #f4a261;
-            transition: width 0.3s ease;
-        }
-
-        .nav-links a:hover::after {
-            width: 100%;
-        }
-
-        /* Hero Section */
-        .hero {
-            height: 100vh;
-            background: linear-gradient(135deg, #2a9d8f 0%, #e76f51 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            color: white;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .hero::before {
-            content: '';
+        .washi-pattern {
+            background-image: url('WashiPattern.png');
+            background-repeat: repeat;
+            background-size: 400px;
+            opacity: 0.1;
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="25" cy="25" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1.5" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="10" r="1" fill="rgba(255,255,255,0.1)"/></svg>');
-            animation: float 20s infinite linear;
+            z-index: 0;
         }
-
-        @keyframes float {
-            0% { transform: translateY(0); }
-            100% { transform: translateY(-100px); }
+        .menu-card {
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
         }
-
-        .hero-content {
-            max-width: 800px;
-            z-index: 2;
-            position: relative;
-        }
-
-        .hero h1 {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-            opacity: 0;
-            animation: fadeInUp 1s ease 0.5s forwards;
-        }
-
-        .hero p {
-            font-size: 1.5rem;
-            margin-bottom: 2rem;
-            opacity: 0;
-            animation: fadeInUp 1s ease 1s forwards;
-        }
-
-        .cta-button {
-            display: inline-block;
-            background: linear-gradient(45deg, #f4a261, #e76f51);
-            color: white;
-            padding: 1rem 2rem;
-            text-decoration: none;
-            border-radius: 50px;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            opacity: 0;
-            animation: fadeInUp 1s ease 1.5s forwards;
-            box-shadow: 0 10px 30px rgba(244, 162, 97, 0.3);
-        }
-
-        .cta-button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 40px rgba(244, 162, 97, 0.4);
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Featured Section */
-        .featured {
-            padding: 6rem 2rem;
-            background: linear-gradient(135deg, #e9c46a 0%, #f4a261 100%);
-            text-align: center;
-        }
-
-        .featured h2 {
-            font-size: 3rem;
-            margin-bottom: 3rem;
-            color: #2d1810;
-        }
-
-        .drink-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .drink-card {
-            background: rgba(255, 255, 255, 0.9);
-            padding: 2rem;
-            border-radius: 20px;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .drink-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 50px rgba(45, 24, 16, 0.2);
-        }
-
-        .drink-icon {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 1rem;
-            background: linear-gradient(45deg, #2a9d8f, #e76f51);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            color: white;
-        }
-
-        .drink-card h3 {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-            color: #2d1810;
-        }
-
-        .drink-card p {
-            color: #5a4037;
-            line-height: 1.6;
-        }
-
-        /* About Section */
-        .about {
-            padding: 6rem 2rem;
-            background: #2d1810;
-            color: white;
-        }
-
-        .about-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 4rem;
-            align-items: center;
-        }
-
-        .about-text h2 {
-            font-size: 3rem;
-            margin-bottom: 2rem;
-            color: #f4a261;
-        }
-
-        .about-text p {
-            font-size: 1.2rem;
-            margin-bottom: 2rem;
-            line-height: 1.8;
-        }
-
-        .about-image {
-            position: relative;
-            height: 400px;
-            background: linear-gradient(45deg, #2a9d8f, #e76f51);
-            border-radius: 20px;
-            overflow: hidden;
-        }
-
-        .about-image::before {
-            content: '🧋';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 6rem;
-            opacity: 0.7;
-        }
-
-        /* Services Section */
-        .services {
-            padding: 6rem 2rem;
-            background: linear-gradient(135deg, #264653 0%, #2a9d8f 100%);
-            color: white;
-        }
-
-        .services h2 {
-            text-align: center;
-            font-size: 3rem;
-            margin-bottom: 3rem;
-            color: #e9c46a;
-        }
-
-        .services-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-
-        .service-card {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 2rem;
-            border-radius: 15px;
-            text-align: center;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .service-card:hover {
-            transform: translateY(-5px);
-            background: rgba(255, 255, 255, 0.2);
-        }
-
-        .service-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            display: block;
-        }
-
-        .service-card h3 {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-            color: #f4a261;
-        }
-
-        /* Contact Section */
-        .contact {
-            padding: 6rem 2rem;
-            background: #e76f51;
-            color: white;
-            text-align: center;
-        }
-
-        .contact h2 {
-            font-size: 3rem;
-            margin-bottom: 2rem;
-        }
-
-        .contact-info {
-            display: flex;
-            justify-content: center;
-            gap: 4rem;
-            margin-bottom: 3rem;
-            flex-wrap: wrap;
-        }
-
-        .contact-item {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            font-size: 1.2rem;
-        }
-
-        .social-links {
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-            margin-top: 2rem;
-        }
-
-        .social-links a {
-            color: white;
-            font-size: 2rem;
-            transition: all 0.3s ease;
-            text-decoration: none;
-        }
-
-        .social-links a:hover {
-            transform: scale(1.2);
-            color: #f4a261;
-        }
-
-        /* Footer */
-        footer {
-            background: #2d1810;
-            color: white;
-            text-align: center;
-            padding: 2rem;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .nav-links {
-                display: none;
-            }
-
-            .hero h1 {
-                font-size: 2.5rem;
-            }
-
-            .hero p {
-                font-size: 1.2rem;
-            }
-
-            .about-content {
-                grid-template-columns: 1fr;
-            }
-
-            .contact-info {
-                flex-direction: column;
-                gap: 2rem;
-            }
-        }
-
-        /* Scroll animations */
-        .scroll-fade {
-            opacity: 0;
-            transform: translateY(50px);
-            transition: all 0.8s ease;
-        }
-
-        .scroll-fade.visible {
-            opacity: 1;
-            transform: translateY(0);
+        .menu-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 10px 25px -5px rgba(0, 35, 102, 0.1), 0 8px 10px -6px rgba(0, 35, 102, 0.1);
         }
     </style>
 </head>
-<body>
-    <header>
-        <nav>
-            <a href="#" class="logo">Sinensthesia</a>
-            <ul class="nav-links">
-                <li><a href="#home">Home</a></li>
-                <li><a href="#menu">Menu</a></li>
-                <li><a href="#about">About</a></li>
-                <li><a href="#services">Services</a></li>
-                <li><a href="#contact">Contact</a></li>
-            </ul>
-        </nav>
+<body class="antialiased">
+
+    <!-- Header -->
+    <header class="bg-[#FDFBF5] bg-opacity-90 backdrop-blur-md sticky top-0 z-50 shadow-sm">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="#" class="flex items-center space-x-3">
+                <img src="Sinensthesia-Logo-Teacup-Icon-RGB.png" alt="Sinensthesia Icon" class="h-10 w-10 object-contain">
+                <span class="text-2xl font-semibold text-brand-blue tracking-wider font-serif">Sinensthesia</span>
+            </a>
+            <nav class="hidden md:flex space-x-8">
+                <a href="#about" class="text-brand-blue hover:opacity-75 transition-opacity duration-300">Our Story</a>
+                <a href="#menu" class="text-brand-blue hover:opacity-75 transition-opacity duration-300">Menu</a>
+                <a href="#contact" class="text-brand-blue hover:opacity-75 transition-opacity duration-300">Visit Us</a>
+            </nav>
+            <button id="mobile-menu-button" class="md:hidden text-brand-blue">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+            </button>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden px-6 pb-4">
+            <a href="#about" class="block py-2 text-brand-blue text-center">Our Story</a>
+            <a href="#menu" class="block py-2 text-brand-blue text-center">Menu</a>
+            <a href="#contact" class="block py-2 text-brand-blue text-center">Visit Us</a>
+        </div>
     </header>
 
-    <section class="hero" id="home">
-        <div class="hero-content">
-            <h1>Premium Bubble Tea Experience</h1>
-            <p>Handcrafted with the finest ingredients, served with passion</p>
-            <a href="#menu" class="cta-button">Explore Our Menu</a>
-        </div>
-    </section>
+    <main>
+        <!-- Hero Section -->
+        <section class="relative min-h-[60vh] md:min-h-[80vh] flex items-center justify-center text-center overflow-hidden">
+            <div class="washi-pattern"></div>
+            <div class="relative z-10 p-6">
+                <img src="Sinensthesia-Logo-Teacup-Icon-CreamBG-RGB.png" alt="Sinensthesia Logo Icon" class="h-40 w-40 object-contain mx-auto mb-4">
+                <h1 class="text-5xl md:text-7xl lg:text-8xl text-brand-blue leading-tight">Sinensthesia</h1>
+                <p class="text-xl md:text-2xl mt-2 text-brand-blue opacity-90 font-medium">S E N S A T I O N A L &nbsp; T E A</p>
+                <a href="#menu" class="mt-8 inline-block bg-brand-blue text-[#FDFBF5] py-3 px-8 rounded-full text-lg font-semibold hover:bg-opacity-90 transition-all duration-300 shadow-lg">Discover Our Creations</a>
+            </div>
+        </section>
 
-    <section class="featured" id="menu">
-        <h2 class="scroll-fade">Signature Creations</h2>
-        <div class="drink-grid">
-            <div class="drink-card scroll-fade">
-                <div class="drink-icon">🧋</div>
-                <h3>Classic Milk Tea</h3>
-                <p>Rich Ceylon tea blended with premium milk and perfectly chewy tapioca pearls. A timeless favorite crafted to perfection.</p>
+        <!-- About Section -->
+        <section id="about" class="py-20 md:py-32">
+            <div class="container mx-auto px-6 text-center max-w-4xl">
+                <h2 class="text-4xl md:text-5xl text-brand-blue mb-6">Where Senses Collide</h2>
+                <p class="text-lg md:text-xl leading-relaxed opacity-80">
+                    At Sinensthesia, we believe a drink should be more than a drink—it should be an experience. Our name reflects the beautiful merging of senses, where taste evokes color and aroma paints a memory. We blend the art of mixology with the precision of molecular gastronomy to create sensational teas that surprise and delight. Using seasonal ingredients, we craft our own vibrant <span class="font-semibold text-brand-blue">cheong</span> syrups and innovative toppings in-house, ensuring every sip is a unique journey.
+                </p>
             </div>
-            <div class="drink-card scroll-fade">
-                <div class="drink-icon">🍃</div>
-                <h3>Matcha Supreme</h3>
-                <p>Authentic Japanese matcha powder whisked with creamy milk and our signature pearls. Pure zen in every sip.</p>
-            </div>
-            <div class="drink-card scroll-fade">
-                <div class="drink-icon">🥭</div>
-                <h3>Tropical Mango</h3>
-                <p>Fresh mango puree combined with jasmine tea and bursting fruit pearls. Summer vibes all year round.</p>
-            </div>
-            <div class="drink-card scroll-fade">
-                <div class="drink-icon">🌸</div>
-                <h3>Rose Lychee</h3>
-                <p>Delicate rose petals infused with sweet lychee and our house-made honey pearls. Elegance in a cup.</p>
-            </div>
-        </div>
-    </section>
+        </section>
 
-    <section class="about scroll-fade" id="about">
-        <div class="about-content">
-            <div class="about-text">
-                <h2>Our Story</h2>
-                <p>Founded with a passion for authentic Asian tea culture, TeaLuxe brings you the finest bubble tea experience with a modern twist. We source our tea leaves directly from premium gardens and craft each drink with meticulous attention to detail.</p>
-                <p>Every cup tells a story of tradition, innovation, and the pursuit of perfect flavor harmony. Our commitment to quality extends from our ingredients to our service, creating moments of joy one sip at a time.</p>
-            </div>
-            <div class="about-image"></div>
-        </div>
-    </section>
+        <!-- Menu Section -->
+        <section id="menu" class="py-20 md:py-32 bg-[#F6F4EE]">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-4xl md:text-5xl text-brand-blue mb-4">The Autumn Collection</h2>
+                    <p class="text-lg opacity-70 max-w-2xl mx-auto">A curated selection of our current seasonal offerings. All drinks are fully customizable.</p>
+                </div>
 
-    <section class="services scroll-fade" id="services">
-        <h2>Our Services</h2>
-        <div class="services-grid">
-            <div class="service-card">
-                <span class="service-icon">🏪</span>
-                <h3>Café Experience</h3>
-                <p>Visit our beautifully designed space for the full TeaLuxe experience with Instagram-worthy ambiance.</p>
-            </div>
-            <div class="service-card">
-                <span class="service-icon">🎉</span>
-                <h3>Event Catering</h3>
-                <p>Elevate your events with our premium bubble tea catering service. Perfect for parties, corporate events, and celebrations.</p>
-            </div>
-            <div class="service-card">
-                <span class="service-icon">🚚</span>
-                <h3>Delivery</h3>
-                <p>Enjoy TeaLuxe from the comfort of your home with our reliable delivery service covering the entire city.</p>
-            </div>
-            <div class="service-card">
-                <span class="service-icon">🎨</span>
-                <h3>Custom Orders</h3>
-                <p>Create your perfect drink with our endless customization options. From sweetness levels to toppings, make it yours.</p>
-            </div>
-        </div>
-    </section>
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Menu Item 1 -->
+                    <div class="bg-[#FDFBF5] rounded-lg shadow-md p-6 menu-card">
+                        <h3 class="text-2xl text-brand-blue mb-2">Spiced Persimmon Fizz</h3>
+                        <p class="opacity-70 mb-4">Housemade persimmon cheong, sparkling oolong tea, a hint of star anise, and topped with cinnamon foam.</p>
+                        <span class="font-semibold text-brand-blue">$7.50</span>
+                    </div>
 
-    <section class="contact scroll-fade" id="contact">
-        <h2>Get In Touch</h2>
-        <div class="contact-info">
-            <div class="contact-item">
-                <span>📍</span>
-                <span>123 Tea Street, Bubble City, BC 12345</span>
-            </div>
-            <div class="contact-item">
-                <span>📞</span>
-                <span>(555) 123-TEA</span>
-            </div>
-            <div class="contact-item">
-                <span>✉️</span>
-                <span>hello@tealuxe.com</span>
-            </div>
-        </div>
-        <p style="font-size: 1.2rem; margin-bottom: 2rem;">Open Daily: 8:00 AM - 10:00 PM</p>
-        <a href="#" class="cta-button">Order Now</a>
-        <div class="social-links">
-            <a href="#">📱</a>
-            <a href="#">📘</a>
-            <a href="#">📸</a>
-        </div>
-    </section>
+                    <!-- Menu Item 2 -->
+                    <div class="bg-[#FDFBF5] rounded-lg shadow-md p-6 menu-card">
+                        <h3 class="text-2xl text-brand-blue mb-2">Orchard Haze</h3>
+                        <p class="opacity-70 mb-4">Cloudy jasmine green tea shaken with crisp apple syrup, pear nectar, and served over lychee popping boba.</p>
+                        <span class="font-semibold text-brand-blue">$8.00</span>
+                    </div>
+                    
+                    <!-- Menu Item 3 -->
+                    <div class="bg-[#FDFBF5] rounded-lg shadow-md p-6 menu-card">
+                        <h3 class="text-2xl text-brand-blue mb-2">Velvet Ube Cloud</h3>
+                        <p class="opacity-70 mb-4">Rich ube and coconut milk blend, layered with robust black tea, and crowned with a salted cheese foam.</p>
+                        <span class="font-semibold text-brand-blue">$7.75</span>
+                    </div>
 
-    <footer>
-        <p>&copy; 2025 TeaLuxe. All rights reserved. Crafted with ❤️ and premium tea leaves.</p>
+                    <!-- Toppings Section -->
+                    <div class="md:col-span-2 lg:col-span-3 bg-white/50 rounded-lg border-2 border-dashed border-brand-blue/20 p-6 text-center">
+                         <h4 class="text-2xl text-brand-blue mb-3">Housemade Toppings</h4>
+                         <p class="opacity-70">
+                            Honey Boba &bull; Crystal Boba &bull; Passionfruit Jelly &bull; Brown Sugar Panna Cotta &bull; Osmanthus Raindrop Cake &bull; Sea Salt Cheese Foam
+                         </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Philosophy/Experience Section -->
+        <section class="py-20 md:py-32">
+            <div class="container mx-auto px-6 grid md:grid-cols-3 gap-12 text-center">
+                <div>
+                    <img src="Sinensthesia-Logo-Teacup-Icon-RGB.png" alt="Seasonality Icon" class="h-12 w-12 mx-auto mb-4 opacity-80">
+                    <h3 class="text-2xl text-brand-blue mb-2">Peak Seasonality</h3>
+                    <p class="opacity-70">Our menu evolves with nature. We source the best ingredients at their peak to capture the true flavor of each season.</p>
+                </div>
+                <div>
+                    <img src="Sinensthesia-Logo-Teacup-Icon-RGB.png" alt="Technique Icon" class="h-12 w-12 mx-auto mb-4 opacity-80">
+                    <h3 class="text-2xl text-brand-blue mb-2">Modern Technique</h3>
+                    <p class="opacity-70">From foams and fizzes to textures you've never experienced, we use modern methods to redefine what tea can be.</p>
+                </div>
+                <div>
+                    <img src="Sinensthesia-Logo-Teacup-Icon-RGB.png" alt="In-House Icon" class="h-12 w-12 mx-auto mb-4 opacity-80">
+                    <h3 class="text-2xl text-brand-blue mb-2">Crafted In-House</h3>
+                    <p class="opacity-70">We take pride in making our syrups, toppings, and purees from scratch. It's a labor of love you can taste.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact" class="py-20 md:py-32 bg-brand-blue text-[#FDFBF5]">
+            <div class="container mx-auto px-6 text-center">
+                <h2 class="text-4xl md:text-5xl mb-4">Come Say Hello</h2>
+                <p class="text-lg opacity-80 mb-8 max-w-xl mx-auto">Find us in the heart of the city, ready to craft your next favorite drink.</p>
+                
+                <div class="space-y-4">
+                    <p class="text-xl">123 Artisan Way, Edison, NJ 08820</p>
+                    <p class="text-xl">(732) 555-1234</p>
+                    <div>
+                        <p class="font-semibold">Hours:</p>
+                        <p>Tuesday - Sunday: 11:00 AM - 9:00 PM</p>
+                        <p>Monday: Closed</p>
+                    </div>
+                </div>
+                
+                <div class="flex justify-center space-x-6 mt-8">
+                    <a href="#" class="opacity-80 hover:opacity-100 transition-opacity">
+                        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M12.315 2c-4.418 0-8 3.582-8 8s3.582 8 8 8 8-3.582 8-8-3.582-8-8-8zM12 15c-1.657 0-3-1.343-3-3s1.343-3 3-3 3 1.343 3 3-1.343 3-3 3zm0-10c-4.418 0-8 3.582-8 8s3.582 8 8 8 8-3.582 8-8-3.582-8-8-8zm0 13c-2.761 0-5-2.239-5-5s2.239-5 5-5 5 2.239 5 5-2.239 5-5 5z" clip-rule="evenodd" /></svg>
+                    </a>
+                    <a href="#" class="opacity-80 hover:opacity-100 transition-opacity">
+                        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm3.48 12.87h-2.1v-6.04h2.1v6.04zM12 10.15c-.7 0-1.26-.56-1.26-1.26s.56-1.26 1.26-1.26c.7 0 1.26.56 1.26 1.26s-.56 1.26-1.26 1.26zm5.52 4.72h-2.1v-3.4c0-.81-.02-1.86-.91-1.86-1.14 0-1.32.89-1.32 1.8v3.46h-2.1v-6.04h2.02v.92h.03c.28-.53.96-1.1 2-1.1 2.14 0 2.53 1.41 2.53 3.24v3.52z" /></svg>
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-[#F6F4EE] py-8">
+        <div class="container mx-auto px-6 text-center text-brand-blue">
+            <a href="#" class="flex items-center justify-center space-x-3 mb-4">
+                <img src="Sinensthesia-Logo-Teacup-Icon-RGB.png" alt="Sinensthesia Icon" class="h-8 w-8 object-contain">
+                <span class="text-xl font-semibold tracking-wider font-serif">Sinensthesia</span>
+            </a>
+            <p class="opacity-70">&copy; 2025 Sinensthesia. All Rights Reserved.</p>
+        </div>
     </footer>
 
     <script>
-        // Smooth scrolling
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            });
+        // Mobile menu toggle
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
         });
 
-        // Scroll animations
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                }
+        // Close mobile menu when a link is clicked
+        const mobileMenuLinks = mobileMenu.getElementsByTagName('a');
+        for (let i = 0; i < mobileMenuLinks.length; i++) {
+            mobileMenuLinks[i].addEventListener('click', () => {
+                mobileMenu.classList.add('hidden');
             });
-        }, observerOptions);
-
-        document.querySelectorAll('.scroll-fade').forEach(el => {
-            observer.observe(el);
-        });
-
-        // Header background on scroll
-        window.addEventListener('scroll', () => {
-            const header = document.querySelector('header');
-            if (window.scrollY > 100) {
-                header.style.background = 'rgba(45, 24, 16, 0.98)';
-            } else {
-                header.style.background = 'rgba(45, 24, 16, 0.95)';
-            }
-        });
-
-        // Drink card hover effects
-        document.querySelectorAll('.drink-card').forEach(card => {
-            card.addEventListener('mouseenter', () => {
-                card.style.transform = 'translateY(-10px) scale(1.02)';
-            });
-            
-            card.addEventListener('mouseleave', () => {
-                card.style.transform = 'translateY(0) scale(1)';
-            });
-        });
+        }
     </script>
 </body>
 </html>
+
