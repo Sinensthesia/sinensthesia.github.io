@@ -19,55 +19,80 @@
             font-family: 'Cormorant Garamond', serif;
             font-weight: 700;
         }
-        .text-brand-blue {
-            color: #002366; /* Blue from logo */
-        }
-        .bg-brand-blue {
-            background-color: #002366;
-        }
-        .border-brand-blue {
-            border-color: #002366;
-        }
-        .washi-pattern {
+        .text-brand-blue { color: #002366; }
+        .bg-brand-blue { background-color: #002366; }
+        .border-brand-blue { border-color: #002366; }
+        .bg-brand-cream { background-color: #eae4da; }
+
+        .washi-row {
+            height: 5.8vw;
             background-image: url('Resources/WashiPattern.png');
-            background-repeat: repeat;
-            background-size: 400px;
-            opacity: 0.1;
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            z-index: 0;
+            background-repeat: repeat-x;
+            background-size: auto 100%;
+            background-position: center;
+            -webkit-mask-image: linear-gradient(to right, transparent -20%, rgba(0,0,0,0.3) 25%, rgba(0,0,0,0.3) 75%, transparent 120%);
+            mask-image: linear-gradient(to right, transparent -20%, rgba(0,0,0,0.3) 25%, rgba(0,0,0,0.3) 75%, transparent 120%);
+            transition: opacity 0.2s linear;
         }
-        .menu-card {
-            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+
+        .menu-card, .toppings-card {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+        }
+        .menu-card.is-visible, .toppings-card.is-visible {
+            opacity: 1;
+            transform: translateY(0);
         }
         .menu-card:hover {
             transform: translateY(-8px);
             box-shadow: 0 10px 25px -5px rgba(0, 35, 102, 0.1), 0 8px 10px -6px rgba(0, 35, 102, 0.1);
         }
+
+        /* SVG Particle Animation */
+        #particle-container {
+            opacity: 0;
+            transition: opacity 3s ease-in-out;
+        }
+        #particle-container.particles-visible {
+            opacity: 1;
+        }
+        @keyframes float-bright {
+            0% { transform: translateY(0px) rotate(0deg); opacity: 0.7; }
+            50% { transform: translateY(-15px) rotate(180deg); opacity: 0.3; }
+            100% { transform: translateY(0px) rotate(360deg); opacity: 0.7; }
+        }
+        @keyframes float-subtle {
+            0% { transform: translateY(0px) rotate(0deg); opacity: 0.3; }
+            50% { transform: translateY(-20px) rotate(180deg); opacity: 0.1; }
+            100% { transform: translateY(0px) rotate(360deg); opacity: 0.3; }
+        }
+        .particle {
+            position: absolute;
+            animation-timing-function: ease-in-out;
+            animation-iteration-count: infinite;
+        }
+        .particle-bright { animation-name: float-bright; }
+        .particle-subtle { animation-name: float-subtle; }
     </style>
 </head>
 <body class="antialiased">
 
-    <!-- Header -->
     <header class="bg-[#FDFBF5] bg-opacity-90 backdrop-blur-md sticky top-0 z-50 shadow-sm">
-        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+        <div class="container mx-auto px-6 py-2 flex justify-between items-center">
             <a href="#" class="flex items-center space-x-3">
-                <img src="Resources/Sinensthesia-Logo-Teacup-Icon-RGB.png" alt="Sinensthesia Icon" class="h-10 w-10 object-contain">
-                <span class="text-2xl font-semibold text-brand-blue tracking-wider font-serif">Sinensthesia</span>
+                <img src="Resources/Sinensthesia-Logo-Teacup-Icon-RGB.png" alt="Sinensthesia Icon" class="h-12 w-12 object-contain">
+                <span class="text-3xl font-semibold text-brand-blue tracking-wider font-serif">Sinensthesia</span>
             </a>
-            <nav class="hidden md:flex space-x-8">
-                <a href="#about" class="text-brand-blue hover:opacity-75 transition-opacity duration-300">Our Story</a>
-                <a href="#menu" class="text-brand-blue hover:opacity-75 transition-opacity duration-300">Menu</a>
-                <a href="#contact" class="text-brand-blue hover:opacity-75 transition-opacity duration-300">Visit Us</a>
+            <nav class="hidden md:flex space-x-10">
+                <a href="#about" class="text-brand-blue hover:opacity-75 transition-opacity duration-300 text-lg font-medium tracking-wide">Our Story</a>
+                <a href="#menu" class="text-brand-blue hover:opacity-75 transition-opacity duration-300 text-lg font-medium tracking-wide">Menu</a>
+                <a href="#contact" class="text-brand-blue hover:opacity-75 transition-opacity duration-300 text-lg font-medium tracking-wide">Visit Us</a>
             </nav>
             <button id="mobile-menu-button" class="md:hidden text-brand-blue">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
             </button>
         </div>
-        <!-- Mobile Menu -->
         <div id="mobile-menu" class="hidden md:hidden px-6 pb-4">
             <a href="#about" class="block py-2 text-brand-blue text-center">Our Story</a>
             <a href="#menu" class="block py-2 text-brand-blue text-center">Menu</a>
@@ -76,29 +101,28 @@
     </header>
 
     <main>
-        <!-- Hero Section -->
-        <section class="relative min-h-[60vh] md:min-h-[80vh] flex items-center justify-center text-center overflow-hidden">
-            <div class="washi-pattern"></div>
-            <div class="relative z-10 p-6">
-                <img src="Resources/Sinensthesia-Logo-Teacup-Icon-RGB.png" alt="Sinensthesia Logo Icon" class="h-40 w-40 object-contain mx-auto mb-4">
-                <h1 class="text-5xl md:text-7xl lg:text-8xl text-brand-blue leading-tight">Sinensthesia</h1>
-                <p class="text-xl md:text-2xl mt-2 text-brand-blue opacity-90 font-medium">S E N S A T I O N A L &nbsp; T E A</p>
-                <a href="#menu" class="mt-8 inline-block bg-brand-blue text-[#FDFBF5] py-3 px-8 rounded-full text-lg font-semibold hover:bg-opacity-90 transition-all duration-300 shadow-lg">Discover Our Creations</a>
+        <section class="relative min-h-[90vh] flex items-center justify-center text-center overflow-hidden p-4">
+            <div id="washi-container" class="absolute inset-0 z-0"></div>
+            <div class="relative z-10 p-4 py-8 sm:p-6 sm:py-12 bg-[#eae4da]/40 backdrop-blur-sm rounded-3xl shadow-lg">
+                <img src="Resources/Sinensthesia-Logo-Teacup-Icon-RGB.png" alt="Sinensthesia Logo Icon" class="h-28 w-28 md:h-40 md:w-40 object-contain mx-auto mb-4">
+                <h1 class="text-4xl sm:text-5xl md:text-7xl lg:text-8xl text-brand-blue leading-tight">Sinensthesia</h1>
+                <p class="text-base sm:text-xl md:text-2xl mt-2 text-brand-blue opacity-90 font-medium">S E N S A T I O N A L &nbsp; T E A</p>
+                <a href="#menu" class="mt-8 inline-block bg-[#eae4da] text-brand-blue py-2 px-6 text-base sm:py-3 sm:px-8 sm:text-lg rounded-full font-semibold hover:bg-[#dcd5c9] transition-all duration-300 shadow-lg border-2 border-brand-blue/50">Discover Our Creations</a>
             </div>
         </section>
-
-        <!-- About Section -->
-        <section id="about" class="py-20 md:py-32">
-            <div class="container mx-auto px-6 text-center max-w-4xl">
+        <section id="about" class="py-14 md:py-24 relative overflow-hidden">
+            <div id="particle-container" class="absolute inset-0 z-0"></div>
+            <div class="container mx-auto px-6 text-center max-w-4xl relative z-10">
                 <h2 class="text-4xl md:text-5xl text-brand-blue mb-6">Where Senses Collide</h2>
                 <p class="text-lg md:text-xl leading-relaxed opacity-80">
-                    At Sinensthesia, we believe a drink should be more than a drink—it should be an experience. Our name reflects the beautiful merging of senses, where taste evokes color and aroma paints a memory. We blend the art of mixology with the precision of molecular gastronomy to create sensational teas that surprise and delight. Using seasonal ingredients, we craft our own vibrant <span class="font-semibold text-brand-blue">cheong</span> syrups and innovative toppings in-house, ensuring every sip is a unique journey.
+                    At Sinensthesia, we believe a drink should be more than a drink—it should be an experience. Our name reflects the beautiful merging of senses, where taste evokes color and aroma paints a memory. We blend the art of mixology with the precision of molecular gastronomy, but our craft truly begins with a single leaf: the Camellia sinensis.
+                    <br><br>
+                    This remarkable plant is the soul of all tea, yet its character is never constant. Shaped by sun, soil, and the slightest shift in weather, each harvest captures a fleeting moment in the season. This inherent variability means every cup is an ephemeral experience—a taste of a specific time and place, impossible to replicate. To honor this beautiful impermanence, we use seasonal ingredients to craft vibrant <span class="font-semibold text-brand-blue">cheong</span> syrups and innovative toppings in-house, ensuring every sip is a unique journey from leaf to cup.
                 </p>
             </div>
         </section>
 
-        <!-- Menu Section -->
-        <section id="menu" class="py-20 md:py-32 bg-[#F6F4EE]">
+        <section id="menu" class="py-14 md:py-24 bg-[#F6F4EE]">
             <div class="container mx-auto px-6">
                 <div class="text-center mb-12">
                     <h2 class="text-4xl md:text-5xl text-brand-blue mb-4">The Autumn Collection</h2>
@@ -106,29 +130,25 @@
                 </div>
 
                 <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <!-- Menu Item 1 -->
                     <div class="bg-[#FDFBF5] rounded-lg shadow-md p-6 menu-card">
                         <h3 class="text-2xl text-brand-blue mb-2">Spiced Persimmon Fizz</h3>
                         <p class="opacity-70 mb-4">Housemade persimmon cheong, sparkling oolong tea, a hint of star anise, and topped with cinnamon foam.</p>
                         <span class="font-semibold text-brand-blue">$7.50</span>
                     </div>
 
-                    <!-- Menu Item 2 -->
                     <div class="bg-[#FDFBF5] rounded-lg shadow-md p-6 menu-card">
                         <h3 class="text-2xl text-brand-blue mb-2">Orchard Haze</h3>
                         <p class="opacity-70 mb-4">Cloudy jasmine green tea shaken with crisp apple syrup, pear nectar, and served over lychee popping boba.</p>
                         <span class="font-semibold text-brand-blue">$8.00</span>
                     </div>
-                    
-                    <!-- Menu Item 3 -->
+
                     <div class="bg-[#FDFBF5] rounded-lg shadow-md p-6 menu-card">
                         <h3 class="text-2xl text-brand-blue mb-2">Velvet Ube Cloud</h3>
                         <p class="opacity-70 mb-4">Rich ube and coconut milk blend, layered with robust black tea, and crowned with a salted cheese foam.</p>
                         <span class="font-semibold text-brand-blue">$7.75</span>
                     </div>
 
-                    <!-- Toppings Section -->
-                    <div class="md:col-span-2 lg:col-span-3 bg-white/50 rounded-lg border-2 border-dashed border-brand-blue/20 p-6 text-center">
+                    <div class="md:col-span-2 lg:col-span-3 bg-white/50 rounded-lg border-2 border-dashed border-brand-blue/20 p-6 text-center toppings-card">
                          <h4 class="text-2xl text-brand-blue mb-3">Housemade Toppings</h4>
                          <p class="opacity-70">
                             Honey Boba &bull; Crystal Boba &bull; Passionfruit Jelly &bull; Brown Sugar Panna Cotta &bull; Osmanthus Raindrop Cake &bull; Sea Salt Cheese Foam
@@ -137,9 +157,8 @@
                 </div>
             </div>
         </section>
-        
-        <!-- Philosophy/Experience Section -->
-        <section class="py-20 md:py-32">
+
+        <section class="py-14 md:py-24">
             <div class="container mx-auto px-6 grid md:grid-cols-3 gap-12 text-center">
                 <div>
                     <img src="Resources/Camellia_Stella.png" alt="Seasonality Icon" class="h-12 w-12 mx-auto mb-4 opacity-80">
@@ -159,12 +178,13 @@
             </div>
         </section>
 
-        <!-- Contact Section -->
-        <section id="contact" class="py-20 md:py-32 bg-brand-blue text-[#FDFBF5]">
-            <div class="container mx-auto px-6 text-center">
+        <section id="contact" class="relative overflow-hidden py-14 md:py-24 bg-brand-blue text-[#FDFBF5]">
+            <div class="absolute inset-0 bg-repeat bg-center opacity-5" style="background-image: url('Resources/WashiPattern.png'); background-size: 24vw;"></div>
+
+            <div class="container mx-auto px-6 text-center relative z-10">
                 <h2 class="text-4xl md:text-5xl mb-4">Sensational Tea</h2>
                 <p class="text-lg opacity-80 mb-8 max-w-xl mx-auto">Coming soon to Events & Farmers Markets in New Jersey</p>
-                
+
                 <div class="space-y-4">
                     <p class="text-xl">Hello@sinensthesia.com</p>
                     <div>
@@ -177,7 +197,6 @@
         </section>
     </main>
 
-    <!-- Footer -->
     <footer class="bg-[#F6F4EE] py-8">
         <div class="container mx-auto px-6 text-center text-brand-blue">
             <a href="#" class="flex items-center justify-center space-x-3 mb-4">
@@ -203,7 +222,167 @@
                 mobileMenu.classList.add('hidden');
             });
         }
+
+        // Handle all scroll-based animations
+        document.addEventListener('DOMContentLoaded', () => {
+            // Generate and animate washi pattern rows
+            const washiContainer = document.getElementById('washi-container');
+            if (washiContainer) {
+                const rowHeightVw = 6;
+                const rowHeightPx = (window.innerWidth * rowHeightVw) / 100;
+                const heroHeight = window.innerHeight * 0.9;
+                const numRows = Math.ceil(heroHeight / rowHeightPx) + 2;
+
+                for (let i = 0; i < numRows; i++) {
+                    const row = document.createElement('div');
+                    row.classList.add('washi-row');
+                    washiContainer.appendChild(row);
+                }
+
+                const washiRows = document.querySelectorAll('.washi-row');
+                if (washiRows.length > 0) {
+                    window.addEventListener('scroll', () => {
+                        const scrollPosition = window.scrollY;
+                        const staggerAmount = 30;
+                        const fadeDuration = 250;
+
+                        washiRows.forEach((row, index) => {
+                            const rowTriggerScroll = index * staggerAmount;
+                            const scrollPastTrigger = scrollPosition - rowTriggerScroll;
+
+                            if (scrollPastTrigger > 0) {
+                                let newOpacity = 1 - (scrollPastTrigger / fadeDuration);
+                                row.style.opacity = Math.max(0, newOpacity).toFixed(2);
+                            } else {
+                                row.style.opacity = 1;
+                            }
+                        });
+                    }, { passive: true });
+                }
+            }
+
+            // Staggered fade-in for menu items
+            const animatedItems = document.querySelectorAll('.menu-card, .toppings-card');
+            if (animatedItems.length > 0) {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('is-visible');
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.1 });
+
+                animatedItems.forEach((item, index) => {
+                    item.style.transitionDelay = `${index * 150}ms`;
+                    observer.observe(item);
+                });
+            }
+
+            // Generate SVG particle effects that avoid the text
+            const particleContainer = document.getElementById('particle-container');
+            const textContent = document.querySelector('#about .container');
+
+            if(particleContainer && textContent) {
+                const fragment = document.createDocumentFragment();
+                const textRect = textContent.getBoundingClientRect();
+                const containerRect = particleContainer.getBoundingClientRect();
+
+                const leftBoundary = textRect.left - containerRect.left;
+                const rightBoundary = textRect.right - containerRect.left;
+                const containerWidth = containerRect.width;
+
+                const accentColors = ['#34D399', '#FB7185', '#f9c74f'];
+                const colorChance = 0.15; // 15% chance
+                const defaultColor = '#002366';
+
+                const starburstSVG = `<svg class="particle" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L9.5 9.5 2 12l7.5 2.5L12 22l2.5-7.5L22 12l-7.5-2.5z"/></svg>`;
+                const specialImagePaths = [
+                    'Resources/KrikosInner.png',
+                    'Resources/StellaInner.png'
+                ];
+                // Create brighter particles for the sides
+                for(let i = 0; i < 20; i++) {
+                    let particle;
+
+                    // On the first loop, create an image particle instead of an SVG
+                    if (i === 0) {
+                        // Create a random image particle
+                        const chosenImage = specialImagePaths[Math.floor(Math.random() * specialImagePaths.length)];
+                        particle = document.createElement('img');
+                        particle.src = chosenImage;
+                        particle.alt = 'Floating decorative element';
+                    } else {
+                        const particleWrapper = document.createElement('div');
+                        particleWrapper.innerHTML = starburstSVG;
+                        particle = particleWrapper.firstChild;
+
+                        // Set color only for SVG particles
+                        if (Math.random() < colorChance) {
+                            particle.style.color = accentColors[Math.floor(Math.random() * accentColors.length)];
+                        } else {
+                            particle.style.color = defaultColor;
+                        }
+                    }
+
+                    particle.classList.add('particle');
+                    particle.classList.add('particle-bright');
+
+                    const size = Math.random() * 20 + 5;
+                    const duration = Math.random() * 8 + 4;
+                    const delay = Math.random() * 2;
+
+                    particle.style.width = `${size}px`;
+                    particle.style.height = `${size}px`;
+                    particle.style.opacity = `0.7`;
+                    particle.style.top = `${Math.random() * 100}%`;
+                    particle.style.animationDuration = `${duration}s`;
+                    particle.style.animationDelay = `${delay}s`;
+
+                    if (Math.random() > 0.5) {
+                        particle.style.left = `${Math.random() * leftBoundary}px`;
+                    } else {
+                        particle.style.left = `${rightBoundary + (Math.random() * (containerWidth - rightBoundary))}px`;
+                    }
+
+                    fragment.appendChild(particle);
+                }
+
+                // Create subtle particles for the background
+                for(let i = 0; i < 15; i++) {
+                    const particleWrapper = document.createElement('div');
+                    particleWrapper.innerHTML = starburstSVG;
+                    const particle = particleWrapper.firstChild;
+                    particle.classList.add('particle-subtle');
+
+                    const size = Math.random() * 12 + 4; // smaller
+                    const duration = Math.random() * 10 + 8; // slower
+                    const delay = Math.random() * 3;
+
+                    particle.style.width = `${size}px`;
+                    particle.style.height = `${size}px`;
+                    particle.style.opacity = `0.3`;
+                    particle.style.top = `${Math.random() * 100}%`;
+                    particle.style.left = `${Math.random() * 100}%`; // anywhere
+                    particle.style.animationDuration = `${duration}s`;
+                    particle.style.animationDelay = `${delay}s`;
+
+                    if (Math.random() < colorChance) {
+                        particle.style.color = accentColors[Math.floor(Math.random() * accentColors.length)];
+                    } else {
+                        particle.style.color = defaultColor;
+                    }
+
+                    fragment.appendChild(particle);
+                }
+                particleContainer.appendChild(fragment);
+
+                // Fade in the container now that all particles are loaded
+                setTimeout(() => {
+                    particleContainer.classList.add('particles-visible');
+                }, 200);
+            }
+        });
     </script>
 </body>
 </html>
-
