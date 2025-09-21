@@ -35,6 +35,15 @@
             transition: opacity 0.2s linear;
         }
 
+        /* Add this media query for smaller screens */
+        @media (max-width: 768px) {
+            .washi-row {
+                /* Set a larger, fixed width for the pattern on small screens */
+                background-size: 400px auto;
+                height: 15vw;
+            }
+        }
+
         .menu-card, .toppings-card {
             opacity: 0;
             transform: translateY(20px);
