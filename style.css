@@ -1,0 +1,90 @@
+/* Custom styles to extend Tailwind */
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #FDFBF5; /* Cream background from logo */
+    color: #1E2A4A; /* Darker blue for better contrast */
+}
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 700;
+}
+.text-brand-blue { color: #002366; }
+.bg-brand-blue { background-color: #002366; }
+.border-brand-blue { border-color: #002366; }
+.bg-brand-cream { background-color: #eae4da; }
+
+.washi-row {
+    height: 5.8vw;
+    background-image: url('Resources/WashiPattern.png');
+    background-repeat: repeat-x;
+    background-size: auto 100%;
+    background-position: center;
+    -webkit-mask-image: linear-gradient(to right, transparent -20%, rgba(0,0,0,0.3) 25%, rgba(0,0,0,0.3) 75%, transparent 120%);
+    mask-image: linear-gradient(to right, transparent -20%, rgba(0,0,0,0.3) 25%, rgba(0,0,0,0.3) 75%, transparent 120%);
+    transition: opacity 0.2s linear;
+}
+
+#washi-container {
+-webkit-mask-image: linear-gradient(to bottom, black 90%, transparent 120%);
+mask-image: linear-gradient(to bottom, black 90%, transparent 120%);
+}
+
+/* Add this media query for smaller screens */
+@media (max-width: 768px) {
+    .washi-row {
+        /* Set a larger, fixed width for the pattern on small screens */
+        background-size: 400px auto;
+        height: 15vw;
+    }
+}
+
+.menu-card, .toppings-card {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+.menu-card.is-visible, .toppings-card.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+.menu-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 10px 25px -5px rgba(0, 35, 102, 0.1), 0 8px 10px -6px rgba(0, 35, 102, 0.1);
+}
+
+/* New animation rules for the about section */
+.fade-in-section {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+.fade-in-section.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* SVG Particle Animation */
+#particle-container {
+opacity: 0;
+transition: opacity 0.5s ease-in-out; /* Faster transition for resizing */
+}
+#particle-container.particles-visible {
+opacity: 1;
+}
+@keyframes float-bright {
+    0% { transform: translateY(0px) rotate(0deg); opacity: 0.7; }
+    50% { transform: translateY(-15px) rotate(180deg); opacity: 0.3; }
+    100% { transform: translateY(0px) rotate(360deg); opacity: 0.7; }
+}
+@keyframes float-subtle {
+    0% { transform: translateY(0px) rotate(0deg); opacity: 0.3; }
+    50% { transform: translateY(-20px) rotate(180deg); opacity: 0.1; }
+    100% { transform: translateY(0px) rotate(360deg); opacity: 0.3; }
+}
+.particle {
+    position: absolute;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+}
+.particle-bright { animation-name: float-bright; }
+.particle-subtle { animation-name: float-subtle; }
