@@ -52,7 +52,7 @@
         /* SVG Particle Animation */
         #particle-container {
             opacity: 0;
-            transition: opacity 3s ease-in-out;
+            transition: opacity 0.5s ease-in-out; /* Faster transition for resizing */
         }
         #particle-container.particles-visible {
             opacity: 1;
@@ -228,6 +228,7 @@
             // Generate and animate washi pattern rows
             const washiContainer = document.getElementById('washi-container');
             if (washiContainer) {
+                // This logic could also be refactored to be responsive, but is okay for now.
                 const rowHeightVw = 6;
                 const rowHeightPx = (window.innerWidth * rowHeightVw) / 100;
                 const heroHeight = window.innerHeight * 0.9;
@@ -279,108 +280,110 @@
                 });
             }
 
-            // Generate SVG particle effects that avoid the text
+            // --- Responsive Particle Effect Logic ---
             const particleContainer = document.getElementById('particle-container');
             const textContent = document.querySelector('#about .container');
 
             if(particleContainer && textContent) {
-                const fragment = document.createDocumentFragment();
-                const textRect = textContent.getBoundingClientRect();
-                const containerRect = particleContainer.getBoundingClientRect();
 
-                const leftBoundary = textRect.left - containerRect.left;
-                const rightBoundary = textRect.right - containerRect.left;
-                const containerWidth = containerRect.width;
+                function debounce(func, wait) {
+                    let timeout;
+                    return function executedFunction(...args) {
+                        const later = () => {
+                            clearTimeout(timeout);
+                            func(...args);
+                        };
+                        clearTimeout(timeout);
+                        timeout = setTimeout(later, wait);
+                    };
+                }
 
-                const accentColors = ['#34D399', '#FB7185', '#f9c74f'];
-                const colorChance = 0.15; // 15% chance
-                const defaultColor = '#002366';
+                const generateParticles = () => {
+                    // Start fade-out
+                    particleContainer.classList.remove('particles-visible');
 
-                const starburstSVG = `<svg class="particle" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L9.5 9.5 2 12l7.5 2.5L12 22l2.5-7.5L22 12l-7.5-2.5z"/></svg>`;
-                const specialImagePaths = [
-                    'Resources/KrikosInner.png',
-                    'Resources/StellaInner.png'
-                ];
-                // Create brighter particles for the sides
-                for(let i = 0; i < 20; i++) {
-                    let particle;
+                    // Wait for fade-out to finish, then regenerate
+                    setTimeout(() => {
+                        particleContainer.innerHTML = ''; // Clear existing particles
+                        const fragment = document.createDocumentFragment();
 
-                    // On the first loop, create an image particle instead of an SVG
-                    if (i === 0) {
-                        // Create a random image particle
-                        const chosenImage = specialImagePaths[Math.floor(Math.random() * specialImagePaths.length)];
-                        particle = document.createElement('img');
-                        particle.src = chosenImage;
-                        particle.alt = 'Floating decorative element';
-                    } else {
-                        const particleWrapper = document.createElement('div');
-                        particleWrapper.innerHTML = starburstSVG;
-                        particle = particleWrapper.firstChild;
+                        // --- Particle Count Scaling Logic ---
+                        const minWidth = 320;
+                        const maxWidth = 1280;
+                        const currentWidth = Math.max(minWidth, Math.min(window.innerWidth, maxWidth));
+                        const scaleFactor = (currentWidth - minWidth) / (maxWidth - minWidth); // 0.0 to 1.0
 
-                        // Set color only for SVG particles
-                        if (Math.random() < colorChance) {
-                            particle.style.color = accentColors[Math.floor(Math.random() * accentColors.length)];
-                        } else {
-                            particle.style.color = defaultColor;
+                        const brightCount = Math.round(1 + 19 * scaleFactor); // Scales from 1 to 20
+                        const subtleCount = Math.round(15 + 15 * scaleFactor); // Scales from 15 to 30
+                        // ---
+
+                        const textRect = textContent.getBoundingClientRect();
+                        const containerRect = particleContainer.getBoundingClientRect();
+                        const leftBoundary = textRect.left - containerRect.left;
+                        const rightBoundary = textRect.right - containerRect.left;
+
+                        const accentColors = ['#34D399', '#FB7185', '#f9c74f'];
+                        const colorChance = 0.15;
+                        const defaultColor = '#002366';
+
+                        const starburstSVG = `<svg class="particle" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L9.5 9.5 2 12l7.5 2.5L12 22l2.5-7.5L22 12l-7.5-2.5z"/></svg>`;
+                        const specialImagePaths = ['Resources/KrikosInner.png', 'Resources/StellaInner.png'];
+
+                        for(let i = 0; i < brightCount; i++) {
+                            let particle;
+                            if (i === 0) {
+                                const chosenImage = specialImagePaths[Math.floor(Math.random() * specialImagePaths.length)];
+                                particle = document.createElement('img');
+                                particle.src = chosenImage;
+                                particle.alt = 'Floating decorative element';
+                            } else {
+                                const particleWrapper = document.createElement('div');
+                                particleWrapper.innerHTML = starburstSVG;
+                                particle = particleWrapper.firstChild;
+                                if (Math.random() < colorChance) particle.style.color = accentColors[Math.floor(Math.random() * accentColors.length)]; else particle.style.color = defaultColor;
+                            }
+
+                            particle.classList.add('particle', 'particle-bright');
+                            particle.style.width = `${Math.random() * 20 + 5}px`;
+                            particle.style.height = particle.style.width;
+                            particle.style.opacity = `0.7`;
+                            particle.style.top = `${Math.random() * 100}%`;
+                            particle.style.animationDuration = `${Math.random() * 8 + 4}s`;
+                            particle.style.animationDelay = `${Math.random() * 2}s`;
+
+                            if (window.innerWidth < 768) {
+                                particle.style.left = `${Math.random() * 100}%`;
+                            } else {
+                                if (Math.random() > 0.5) particle.style.left = `${Math.random() * leftBoundary}px`; else particle.style.left = `${rightBoundary + (Math.random() * (containerRect.width - rightBoundary))}px`;
+                            }
+                            fragment.appendChild(particle);
                         }
-                    }
 
-                    particle.classList.add('particle');
-                    particle.classList.add('particle-bright');
+                        for(let i = 0; i < subtleCount; i++) {
+                            const particleWrapper = document.createElement('div');
+                            particleWrapper.innerHTML = starburstSVG;
+                            const particle = particleWrapper.firstChild;
+                            particle.classList.add('particle-subtle');
+                            particle.style.width = `${Math.random() * 12 + 4}px`;
+                            particle.style.height = particle.style.width;
+                            particle.style.opacity = `0.3`;
+                            particle.style.top = `${Math.random() * 100}%`;
+                            particle.style.left = `${Math.random() * 100}%`;
+                            particle.style.animationDuration = `${Math.random() * 10 + 8}s`;
+                            particle.style.animationDelay = `${Math.random() * 3}s`;
+                            if (Math.random() < colorChance) particle.style.color = accentColors[Math.floor(Math.random() * accentColors.length)]; else particle.style.color = defaultColor;
+                            fragment.appendChild(particle);
+                        }
+                        particleContainer.appendChild(fragment);
 
-                    const size = Math.random() * 20 + 5;
-                    const duration = Math.random() * 8 + 4;
-                    const delay = Math.random() * 2;
+                        // Start fade-in
+                        particleContainer.classList.add('particles-visible');
+                    }, 500); // Wait 500ms for fade-out CSS transition to complete
+                };
 
-                    particle.style.width = `${size}px`;
-                    particle.style.height = `${size}px`;
-                    particle.style.opacity = `0.7`;
-                    particle.style.top = `${Math.random() * 100}%`;
-                    particle.style.animationDuration = `${duration}s`;
-                    particle.style.animationDelay = `${delay}s`;
-
-                    if (Math.random() > 0.5) {
-                        particle.style.left = `${Math.random() * leftBoundary}px`;
-                    } else {
-                        particle.style.left = `${rightBoundary + (Math.random() * (containerWidth - rightBoundary))}px`;
-                    }
-
-                    fragment.appendChild(particle);
-                }
-
-                // Create subtle particles for the background
-                for(let i = 0; i < 15; i++) {
-                    const particleWrapper = document.createElement('div');
-                    particleWrapper.innerHTML = starburstSVG;
-                    const particle = particleWrapper.firstChild;
-                    particle.classList.add('particle-subtle');
-
-                    const size = Math.random() * 12 + 4; // smaller
-                    const duration = Math.random() * 10 + 8; // slower
-                    const delay = Math.random() * 3;
-
-                    particle.style.width = `${size}px`;
-                    particle.style.height = `${size}px`;
-                    particle.style.opacity = `0.3`;
-                    particle.style.top = `${Math.random() * 100}%`;
-                    particle.style.left = `${Math.random() * 100}%`; // anywhere
-                    particle.style.animationDuration = `${duration}s`;
-                    particle.style.animationDelay = `${delay}s`;
-
-                    if (Math.random() < colorChance) {
-                        particle.style.color = accentColors[Math.floor(Math.random() * accentColors.length)];
-                    } else {
-                        particle.style.color = defaultColor;
-                    }
-
-                    fragment.appendChild(particle);
-                }
-                particleContainer.appendChild(fragment);
-
-                // Fade in the container now that all particles are loaded
-                setTimeout(() => {
-                    particleContainer.classList.add('particles-visible');
-                }, 200);
+                // Initial generation and setup resize listener
+                generateParticles();
+                window.addEventListener('resize', debounce(generateParticles, 250));
             }
         });
     </script>
