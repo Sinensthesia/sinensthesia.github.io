@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (washiRows.length > 0) {
             window.addEventListener('scroll', () => {
                 const scrollPosition = window.scrollY;
-                const staggerAmount = 30;
+                const staggerAmount = 25;
                 const fadeDuration = 250;
 
                 washiRows.forEach((row, index) => {
@@ -87,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         entry.target.classList.remove('is-visible');
                     }
                 });
-            }, { threshold: 0.90 });
+            }, { threshold: 0.05 });
             aboutObserver.observe(aboutSectionContent);
         } else {
             // On desktop, the "Menu" section triggers the "About" section's animation
