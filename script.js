@@ -79,7 +79,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Run the setup once on load, and then on every debounced resize
         setupWashiRows();
-        window.addEventListener('resize', debounce(setupWashiRows, 250));
+        if(!isMobile){
+            window.addEventListener('resize', debounce(setupWashiRows, 250));
+        }
     }
 
     // --- Intersection Observer Logic ---
