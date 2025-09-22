@@ -87,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         entry.target.classList.remove('is-visible');
                     }
                 });
-            }, { threshold: 0.05 });
+            }, { threshold: 0.90 });
             aboutObserver.observe(aboutSectionContent);
         } else {
             // On desktop, the "Menu" section triggers the "About" section's animation

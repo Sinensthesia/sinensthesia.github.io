@@ -34,7 +34,7 @@ mask-image: linear-gradient(to bottom, black 90%, transparent 120%);
     .washi-row {
         /* Set a larger, fixed width for the pattern on small screens */
         background-size: 400px auto;
-        height: 15vw;
+        height: 18vw;
     }
 }
 
