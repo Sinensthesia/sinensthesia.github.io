@@ -13,99 +13,116 @@ for (let i = 0; i < mobileMenuLinks.length; i++) {
     });
 }
 
+// A reusable debounce utility
+const debounce = (func, wait) => {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+};
+
 // Handle all scroll-based animations
 document.addEventListener('DOMContentLoaded', () => {
-    // Generate and animate washi pattern rows
+    // --- Washi Pattern Logic ---
     const washiContainer = document.getElementById('washi-container');
     if (washiContainer) {
-        // This logic could also be refactored to be responsive, but is okay for now.
-        const rowHeightVw = 6;
-        const rowHeightPx = (window.innerWidth * rowHeightVw) / 100;
-        const heroHeight = window.innerHeight * 0.9;
-        const numRows = Math.ceil(heroHeight / rowHeightPx) + 2;
+        const ROW_HEIGHT_VW = 5.8;
 
-        for (let i = 0; i < numRows; i++) {
-            const row = document.createElement('div');
-            row.classList.add('washi-row');
-            washiContainer.appendChild(row);
-        }
+        const setupWashiRows = () => {
+            washiContainer.innerHTML = '';
+            const rowHeightPx = (window.innerWidth * ROW_HEIGHT_VW) / 100;
+            const heroHeight = window.innerHeight * 0.9;
+            const numRows = Math.ceil(heroHeight / rowHeightPx) + 2;
+            for (let i = 0; i < numRows; i++) {
+                const row = document.createElement('div');
+                row.classList.add('washi-row');
+                washiContainer.appendChild(row);
+            }
+        };
 
-        const washiRows = document.querySelectorAll('.washi-row');
-        if (washiRows.length > 0) {
-            window.addEventListener('scroll', () => {
-                const scrollPosition = window.scrollY;
-                const staggerAmount = 25;
-                const fadeDuration = 250;
+        window.addEventListener('scroll', () => {
+            const washiRows = document.querySelectorAll('.washi-row');
+            if (washiRows.length === 0) return;
+            const scrollPosition = window.scrollY;
+            const staggerAmount = 25;
+            const fadeDuration = 250;
+            washiRows.forEach((row, index) => {
+                const rowTriggerScroll = index * staggerAmount;
+                const scrollPastTrigger = scrollPosition - rowTriggerScroll;
+                if (scrollPastTrigger > 0) {
+                    let newOpacity = 1 - (scrollPastTrigger / fadeDuration);
+                    row.style.opacity = Math.max(0, newOpacity).toFixed(2);
+                } else {
+                    row.style.opacity = 1;
+                }
+            });
+        }, { passive: true });
 
-                washiRows.forEach((row, index) => {
-                    const rowTriggerScroll = index * staggerAmount;
-                    const scrollPastTrigger = scrollPosition - rowTriggerScroll;
-
-                    if (scrollPastTrigger > 0) {
-                        let newOpacity = 1 - (scrollPastTrigger / fadeDuration);
-                        row.style.opacity = Math.max(0, newOpacity).toFixed(2);
-                    } else {
-                        row.style.opacity = 1;
-                    }
-                });
-            }, { passive: true });
-        }
+        setupWashiRows();
     }
 
     // --- Intersection Observer Logic ---
-    const isMobile = window.innerWidth < 768;
+    let menuObserver = null;
+    let aboutObserver = null;
 
-    // Observer for menu items (always reversible)
-    const menuItems = document.querySelectorAll('.menu-card, .toppings-card');
-    if (menuItems.length > 0) {
-        const menuObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('is-visible');
-                } else {
-                    entry.target.classList.remove('is-visible');
-                }
-            });
-        }, { threshold: 0.1 });
-
-        menuItems.forEach((item, index) => {
-            item.style.transitionDelay = `${index * 150}ms`;
-            menuObserver.observe(item);
+    const reversibleAnimationCallback = (entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('is-visible');
+            } else {
+                entry.target.classList.remove('is-visible');
+            }
         });
-    }
+    };
 
-    // Conditional, Reversible Observer for "About" Section
-    const aboutSectionContent = document.querySelector('.fade-in-section');
-    if (aboutSectionContent) {
-        if (isMobile) {
-            // On mobile, the "About" section triggers its own animation
-            const aboutObserver = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('is-visible');
-                    } else {
-                        entry.target.classList.remove('is-visible');
-                    }
-                });
-            }, { threshold: 0.90 });
-            aboutObserver.observe(aboutSectionContent);
-        } else {
-            // On desktop, the "Menu" section triggers the "About" section's animation
-            const menuSection = document.getElementById('menu');
-            if (menuSection) {
-                const menuTriggerObserver = new IntersectionObserver((entries) => {
-                    entries.forEach(entry => {
-                        if (entry.isIntersecting) {
-                            aboutSectionContent.classList.add('is-visible');
-                        } else {
-                            aboutSectionContent.classList.remove('is-visible');
-                        }
-                    });
-                }, { threshold: 0.1 }); // Trigger when menu appears
-                menuTriggerObserver.observe(menuSection);
+    const setupIntersectionObservers = () => {
+        if (menuObserver) menuObserver.disconnect();
+        if (aboutObserver) aboutObserver.disconnect();
+
+        const isMobile = window.innerWidth < 768;
+
+        // Observer for menu items
+        const menuItems = document.querySelectorAll('.menu-card, .toppings-card');
+        if (menuItems.length > 0) {
+            menuObserver = new IntersectionObserver(reversibleAnimationCallback, { threshold: 0.1 });
+            menuItems.forEach((item, index) => {
+                item.style.transitionDelay = `${index * 150}ms`;
+                menuObserver.observe(item);
+            });
+        }
+
+        // Conditional Observer for "About" Section
+        const aboutSectionContent = document.querySelector('.fade-in-section');
+        if (aboutSectionContent) {
+            if (isMobile) {
+                aboutObserver = new IntersectionObserver(reversibleAnimationCallback, { threshold: 0.3 });
+                aboutObserver.observe(aboutSectionContent);
+            } else {
+                const menuSection = document.getElementById('menu');
+                if (menuSection) {
+                    const desktopAboutCallback = (entries) => {
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting) {
+                                aboutSectionContent.classList.add('is-visible');
+                            } else {
+                                aboutSectionContent.classList.remove('is-visible');
+                            }
+                        });
+                    };
+                    aboutObserver = new IntersectionObserver(desktopAboutCallback, { threshold: 0.1 });
+                    aboutObserver.observe(menuSection);
+                }
             }
         }
-    }
+    };
+
+    setupIntersectionObservers();
+    window.addEventListener('resize', debounce(setupIntersectionObservers, 250));
 
 
     // --- Responsive Particle Effect Logic ---
@@ -113,37 +130,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const textContent = document.querySelector('#about .container');
 
     if(particleContainer && textContent) {
-
-        function debounce(func, wait) {
-            let timeout;
-            return function executedFunction(...args) {
-                const later = () => {
-                    clearTimeout(timeout);
-                    func(...args);
-                };
-                clearTimeout(timeout);
-                timeout = setTimeout(later, wait);
-            };
-        }
-
         const generateParticles = () => {
-            // Start fade-out
             particleContainer.classList.remove('particles-visible');
-
-            // Wait for fade-out to finish, then regenerate
             setTimeout(() => {
-                particleContainer.innerHTML = ''; // Clear existing particles
+                particleContainer.innerHTML = '';
                 const fragment = document.createDocumentFragment();
 
-                // --- Particle Count Scaling Logic ---
                 const minWidth = 320;
                 const maxWidth = 1280;
                 const currentWidth = Math.max(minWidth, Math.min(window.innerWidth, maxWidth));
-                const scaleFactor = (currentWidth - minWidth) / (maxWidth - minWidth); // 0.0 to 1.0
+                const scaleFactor = (currentWidth - minWidth) / (maxWidth - minWidth);
 
-                const brightCount = Math.round(1 + 19 * scaleFactor); // Scales from 1 to 20
-                const subtleCount = Math.round(15 + 15 * scaleFactor); // Scales from 15 to 30
-                // ---
+                const brightCount = Math.round(1 + 19 * scaleFactor);
+                const subtleCount = Math.round(15 + 15 * scaleFactor);
 
                 const textRect = textContent.getBoundingClientRect();
                 const containerRect = particleContainer.getBoundingClientRect();
@@ -204,12 +203,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 particleContainer.appendChild(fragment);
 
-                // Start fade-in
                 particleContainer.classList.add('particles-visible');
-            }, 500); // Wait 500ms for fade-out CSS transition to complete
+            }, 500);
         };
 
-        // Initial generation and setup resize listener
         generateParticles();
         window.addEventListener('resize', debounce(generateParticles, 250));
     }
