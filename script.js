@@ -45,12 +45,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const heroHeight = window.innerHeight * 0.9;
             const numRows = Math.floor(heroHeight / rowHeightPx);
 
-            // Calculate the actual height of the generated pattern
-            const patternHeight = numRows * rowHeightPx;
-
-            // Set the parent hero section's height to match the pattern
-            heroSection.style.minHeight = `${patternHeight}px`;
-
             for (let i = 0; i < numRows; i++) {
                 const row = document.createElement('div');
                 row.classList.add('washi-row');
