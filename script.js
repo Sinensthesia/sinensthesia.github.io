@@ -30,14 +30,25 @@ const debounce = (func, wait) => {
 document.addEventListener('DOMContentLoaded', () => {
     // --- Washi Pattern Logic ---
     const washiContainer = document.getElementById('washi-container');
-    if (washiContainer) {
-        const ROW_HEIGHT_VW = 5.8;
+    const heroSection = document.querySelector('main > section:first-of-type');
 
+    if (washiContainer && heroSection) {
+        const ROW_HEIGHT_VW = 5.8; // Should match the 'height' value in the .washi-row CSS
+
+        // This function creates (or re-creates) the washi rows based on screen size
         const setupWashiRows = () => {
-            washiContainer.innerHTML = '';
+            washiContainer.innerHTML = ''; // Clear any old rows first
+
             const rowHeightPx = (window.innerWidth * ROW_HEIGHT_VW) / 100;
             const heroHeight = window.innerHeight * 0.9;
-            const numRows = Math.ceil(heroHeight / rowHeightPx) + 2;
+            const numRows = Math.floor(heroHeight / rowHeightPx)+1;
+
+            // Calculate the actual height of the generated pattern
+            const patternHeight = numRows * rowHeightPx;
+
+            // Set the parent hero section's height to match the pattern
+            heroSection.style.minHeight = `${patternHeight}px`;
+
             for (let i = 0; i < numRows; i++) {
                 const row = document.createElement('div');
                 row.classList.add('washi-row');
@@ -45,12 +56,15 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
 
+        // This single listener handles the scroll animation
         window.addEventListener('scroll', () => {
             const washiRows = document.querySelectorAll('.washi-row');
             if (washiRows.length === 0) return;
+
             const scrollPosition = window.scrollY;
             const staggerAmount = 25;
             const fadeDuration = 250;
+
             washiRows.forEach((row, index) => {
                 const rowTriggerScroll = index * staggerAmount;
                 const scrollPastTrigger = scrollPosition - rowTriggerScroll;
@@ -63,7 +77,9 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }, { passive: true });
 
+        // Run the setup once on load, and then on every debounced resize
         setupWashiRows();
+        window.addEventListener('resize', debounce(setupWashiRows, 250));
     }
 
     // --- Intersection Observer Logic ---
