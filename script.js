@@ -1,3 +1,5 @@
+const isMobile = window.innerWidth < 768;
+
 // Mobile menu toggle
 const mobileMenuButton = document.getElementById('mobile-menu-button');
 const mobileMenu = document.getElementById('mobile-menu');
@@ -33,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const heroSection = document.querySelector('main > section:first-of-type');
 
     if (washiContainer && heroSection) {
-        const ROW_HEIGHT_VW = 5.8; // Should match the 'height' value in the .washi-row CSS
+        const ROW_HEIGHT_VW = isMobile ? 20 : 5.8;
 
         // This function creates (or re-creates) the washi rows based on screen size
         const setupWashiRows = () => {
@@ -41,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const rowHeightPx = (window.innerWidth * ROW_HEIGHT_VW) / 100;
             const heroHeight = window.innerHeight * 0.9;
-            const numRows = Math.floor(heroHeight / rowHeightPx)+1;
+            const numRows = Math.floor(heroHeight / rowHeightPx);
 
             // Calculate the actual height of the generated pattern
             const patternHeight = numRows * rowHeightPx;
@@ -62,12 +64,16 @@ document.addEventListener('DOMContentLoaded', () => {
             if (washiRows.length === 0) return;
 
             const scrollPosition = window.scrollY;
-            const staggerAmount = 25;
+            const staggerAmount = isMobile ? 15: 25;
             const fadeDuration = 250;
 
             washiRows.forEach((row, index) => {
-                const rowTriggerScroll = index * staggerAmount;
+                const totalRows = washiRows.length;
+                const reversedIndex = (totalRows - 1) - index; // Reverse the index
+
+                const rowTriggerScroll = reversedIndex * staggerAmount; // Use reversed index
                 const scrollPastTrigger = scrollPosition - rowTriggerScroll;
+
                 if (scrollPastTrigger > 0) {
                     let newOpacity = 1 - (scrollPastTrigger / fadeDuration);
                     row.style.opacity = Math.max(0, newOpacity).toFixed(2);
@@ -100,8 +106,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (menuObserver) menuObserver.disconnect();
         if (aboutObserver) aboutObserver.disconnect();
 
-        const isMobile = window.innerWidth < 768;
-
         // Observer for menu items
         const menuItems = document.querySelectorAll('.menu-card, .toppings-card');
         if (menuItems.length > 0) {
@@ -112,28 +116,26 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // Conditional Observer for "About" Section
+        // Unified Observer for "About" Section, triggered by its particle container
         const aboutSectionContent = document.querySelector('.fade-in-section');
-        if (aboutSectionContent) {
-            if (isMobile) {
-                aboutObserver = new IntersectionObserver(reversibleAnimationCallback, { threshold: 0.3 });
-                aboutObserver.observe(aboutSectionContent);
-            } else {
-                const menuSection = document.getElementById('menu');
-                if (menuSection) {
-                    const desktopAboutCallback = (entries) => {
-                        entries.forEach(entry => {
-                            if (entry.isIntersecting) {
-                                aboutSectionContent.classList.add('is-visible');
-                            } else {
-                                aboutSectionContent.classList.remove('is-visible');
-                            }
-                        });
-                    };
-                    aboutObserver = new IntersectionObserver(desktopAboutCallback, { threshold: 0.1 });
-                    aboutObserver.observe(menuSection);
-                }
-            }
+        const particleContainer = document.getElementById('particle-container'); // The new trigger
+
+        if (aboutSectionContent && particleContainer) {
+            const aboutCallback = (entries) => {
+                entries.forEach(entry => {
+                    // Check if the trigger (the particle container) is on screen
+                    if (entry.isIntersecting) {
+                        // Animate the text container
+                        aboutSectionContent.classList.add('is-visible');
+                    } else {
+                        aboutSectionContent.classList.remove('is-visible');
+                    }
+                });
+            };
+
+            const aboutThreshold = isMobile ? 0.3 : 0.85; // Set threshold based on viewport
+            aboutObserver = new IntersectionObserver(aboutCallback, { threshold: aboutThreshold });
+            aboutObserver.observe(particleContainer);
         }
     };
 

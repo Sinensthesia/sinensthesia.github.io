@@ -19,8 +19,8 @@ h1, h2, h3, h4, h5, h6 {
     background-repeat: repeat-x;
     background-size: auto 100%;
     background-position: center;
-    -webkit-mask-image: linear-gradient(to right, transparent -20%, rgba(0,0,0,0.3) 25%, rgba(0,0,0,0.3) 75%, transparent 120%);
-    mask-image: linear-gradient(to right, transparent -20%, rgba(0,0,0,0.3) 25%, rgba(0,0,0,0.3) 75%, transparent 120%);
+    -webkit-mask-image: linear-gradient(to right, transparent -20%, rgba(0,0,0,0.3) 25%, rgba(0,0,0,0.3) 75%, transparent 110%);
+    mask-image: linear-gradient(to right, transparent -20%, rgba(0,0,0,0.3) 25%, rgba(0,0,0,0.3) 75%, transparent 110%);
     transition: opacity 0.2s linear;
 }
 
