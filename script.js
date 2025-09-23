@@ -150,9 +150,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Run once on load
     adjustAboutSectionMargin();
-    // And re-run on debounced resize
-    window.addEventListener('resize', debounce(adjustAboutSectionMargin, 250));
-
 
     // --- Responsive Particle Effect Logic ---
     const particleContainer = document.getElementById('particle-container');
