@@ -65,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const totalRows = washiRows.length;
                 const reversedIndex = (totalRows - 1) - index; // Reverse the index
 
-                const rowTriggerScroll = reversedIndex * staggerAmount; // Use reversed index
+                const rowTriggerScroll = (reversedIndex - 4) * staggerAmount; // Use reversed index
                 const scrollPastTrigger = scrollPosition - rowTriggerScroll;
 
                 if (scrollPastTrigger > 0) {
@@ -137,6 +137,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     setupIntersectionObservers();
     window.addEventListener('resize', debounce(setupIntersectionObservers, 250));
+
+    // --- Dynamic Top Margin for About Section ---
+    const aboutSection = document.getElementById('about');
+    const adjustAboutSectionMargin = () => {
+        if (aboutSection) {
+            const marginPercentage = -0.25;
+            const negativeMargin = window.innerHeight * marginPercentage;
+            aboutSection.style.marginTop = `${negativeMargin}px`;
+        }
+    };
+
+    // Run once on load
+    adjustAboutSectionMargin();
+    // And re-run on debounced resize
+    window.addEventListener('resize', debounce(adjustAboutSectionMargin, 250));
 
 
     // --- Responsive Particle Effect Logic ---
