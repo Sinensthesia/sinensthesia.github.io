@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (washiRows.length === 0) return;
 
             const scrollPosition = window.scrollY;
-            const staggerAmount = isMobile ? 15: 25;
+            const staggerAmount = isMobile ? 15: 30;
             const fadeDuration = 250;
 
             washiRows.forEach((row, index) => {
@@ -142,7 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             };
 
-            const aboutThreshold = isMobile ? 0.3 : 0.85; // Set threshold based on viewport
+            const aboutThreshold = isMobile ? 0.25 : 0.40; // Set threshold based on viewport
             aboutObserver = new IntersectionObserver(aboutCallback, { threshold: aboutThreshold });
             aboutObserver.observe(particleContainer);
         }
