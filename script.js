@@ -30,6 +30,19 @@ const debounce = (func, wait) => {
 
 // Handle all scroll-based animations
 document.addEventListener('DOMContentLoaded', () => {
+    // --- Dynamic Top Margin for About Section ---
+    const aboutSection = document.getElementById('about');
+    const adjustAboutSectionMargin = () => {
+        if (aboutSection) {
+            const marginPercentage = -0.25;
+            const negativeMargin = window.innerHeight * marginPercentage;
+            aboutSection.style.marginTop = `${negativeMargin}px`;
+        }
+    };
+
+    // Run once on load
+    adjustAboutSectionMargin();
+
     // --- Washi Pattern Logic ---
     const washiContainer = document.getElementById('washi-container');
     const heroSection = document.querySelector('main > section:first-of-type');
@@ -137,19 +150,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     setupIntersectionObservers();
     window.addEventListener('resize', debounce(setupIntersectionObservers, 250));
-
-    // --- Dynamic Top Margin for About Section ---
-    const aboutSection = document.getElementById('about');
-    const adjustAboutSectionMargin = () => {
-        if (aboutSection) {
-            const marginPercentage = -0.25;
-            const negativeMargin = window.innerHeight * marginPercentage;
-            aboutSection.style.marginTop = `${negativeMargin}px`;
-        }
-    };
-
-    // Run once on load
-    adjustAboutSectionMargin();
 
     // --- Responsive Particle Effect Logic ---
     const particleContainer = document.getElementById('particle-container');
