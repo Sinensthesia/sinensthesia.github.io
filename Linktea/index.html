@@ -34,15 +34,15 @@
             bottom: 0;
             z-index: 0;
             opacity: 0;
-            transition: opacity 1.5s ease-in-out;
+            transition: opacity 3s ease-in-out;
         }
         #particle-container.particles-visible {
             opacity: 1;
         }
         @keyframes float-subtle {
-            0% { transform: translateY(0px) rotate(0deg); opacity: 0.3; }
-            50% { transform: translateY(-20px) rotate(180deg); opacity: 0.1; }
-            100% { transform: translateY(0px) rotate(360deg); opacity: 0.3; }
+            0% { transform: translateY(0px) rotate(0deg); opacity: 0.7; }
+            50% { transform: translateY(-20px) rotate(180deg); opacity: 0.3; }
+            100% { transform: translateY(0px) rotate(360deg); opacity: 0.7; }
         }
         .particle {
             position: absolute;
@@ -113,22 +113,22 @@
                         const currentWidth = Math.max(minWidth, Math.min(window.innerWidth, maxWidth));
                         const scaleFactor = (currentWidth - minWidth) / (maxWidth - minWidth);
 
-                        const particleCount = Math.round(15 + 20 * scaleFactor); // Scale from 15 to 35 particles
+                        const particleCount = Math.round(30 + 20 * scaleFactor); // Scale from 30 to 50 particles
 
                         const accentColors = ['#34D399', '#FB7185', '#f9c74f'];
                         const colorChance = 0.1;
                         const defaultColor = '#002366';
 
                         const starburstSVG = `<svg class="particle" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L9.5 9.5 2 12l7.5 2.5L12 22l2.5-7.5L22 12l-7.5-2.5z"/></svg>`;
-                        const specialImagePath = 'Resources/KrikosInner.png';
+                        const specialImagePaths = ['Resources/KrikosInner.png', 'Resources/StellaInner.png'];
 
                         for (let i = 0; i < particleCount; i++) {
                             let particle;
                             if (i === 0) {
+                                const chosenImage = specialImagePaths[Math.floor(Math.random() * specialImagePaths.length)];
                                 particle = document.createElement('img');
-                                particle.src = specialImagePath;
+                                particle.src = chosenImage;
                                 particle.alt = 'Floating decorative element';
-                                particle.classList.add('particle');
                             } else {
                                 const particleWrapper = document.createElement('div');
                                 particleWrapper.innerHTML = starburstSVG;
@@ -143,6 +143,7 @@
                             const size = Math.random() * 15 + 5;
                             particle.style.width = `${size}px`;
                             particle.style.height = `${size}px`;
+                            particle.style.opacity = `0.7`;
                             particle.style.top = `${Math.random() * 100}%`;
                             particle.style.left = `${Math.random() * 100}%`;
                             particle.style.animationDuration = `${Math.random() * 10 + 8}s`;
