@@ -8,9 +8,11 @@ h1, h2, h3, h4, h5, h6 {
     font-family: 'Cormorant Garamond', serif;
     font-weight: 700;
 }
-.text-brand-blue { color: #002366; }
+.text-brand-blue { color: #0505af; }
+.text-contrast-blue { color: #1E2A4A; }
 .bg-brand-blue { background-color: #002366; }
-.border-brand-blue { border-color: #002366; }
+.bg-secondary-blue { background-color: #002366; }
+.border-brand-blue { border-color: #0505af; }
 .bg-brand-cream { background-color: #eae4da; }
 
 .washi-row {
