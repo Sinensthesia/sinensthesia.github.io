@@ -1,4 +1,5 @@
-const isMobile = window.innerWidth < 768;
+//includes iPad Mini
+const isMobile = window.innerWidth < 769;
 
 // Mobile menu toggle
 const mobileMenuButton = document.getElementById('mobile-menu-button');
@@ -71,8 +72,18 @@ document.addEventListener('DOMContentLoaded', () => {
             if (washiRows.length === 0) return;
 
             const scrollPosition = window.scrollY;
-            const staggerAmount = isMobile ? 15: 30;
-            const fadeDuration = 250;
+            const staggerAmount = isMobile ? 12: 30;
+
+            // Dynamically calculate fade duration based on scroll position
+            const minFade = 150; // Quickest duration in ms
+            const maxFade = 500; // Longest duration in ms
+            const scrollRange = 500; // The scroll distance over which the fade duration changes
+
+            // Calculate how far we are into the scroll range (from 0.0 to 1.0)
+            const scrollFactor = Math.min(1, scrollPosition / scrollRange);
+
+            // Linearly interpolate the fade duration
+            const fadeDuration = minFade + (maxFade - minFade) * scrollFactor;
 
             washiRows.forEach((row, index) => {
                 const totalRows = washiRows.length;
@@ -142,7 +153,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             };
 
-            const aboutThreshold = isMobile ? 0.25 : 0.40; // Set threshold based on viewport
+            // Set the trigger threshold based on viewport size
+            let aboutThreshold;
+            const screenWidth = window.innerWidth;
+
+            if (screenWidth < 768) { // Mobile
+                aboutThreshold = 0.25;
+            } else if (screenWidth >= 768 && screenWidth < 1024) { // Tablet
+                aboutThreshold = 0.60;
+            } else { // Desktop
+                aboutThreshold = 0.40;
+            }
+
             aboutObserver = new IntersectionObserver(aboutCallback, { threshold: aboutThreshold });
             aboutObserver.observe(particleContainer);
         }
