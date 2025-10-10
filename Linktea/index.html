@@ -119,20 +119,24 @@
                 <span>Official Website</span>
             </a>
 
-            <a href="https://docs.google.com/forms/d/e/1FAIpQLSfg6FVAnjFM0eN6vXSr8yBcyHAhPHeQO0-GNYm3G5wYr3z49Q/viewform?usp=dialog" target="_blank" class="link-button image-overlay-button bg-[#eae4da]/60 border-2 border-[#002366]/30 text-[#002366] w-full flex items-center justify-center p-4 rounded-lg font-semibold text-lg">
-                <span>Soft Opening Survey</span>
+            <a href=../#menu" target="_blank" class="link-button image-overlay-button bg-[#eae4da]/60 border-2 border-[#002366]/30 text-[#002366] w-full flex items-center justify-center p-4 rounded-lg font-semibold text-lg">
+                <span>View Menu</span>
             </a>
 
-            <button id="open-zelle-popup" class="link-button image-overlay-button bg-[#eae4da]/60 border-2 border-[#002366]/30 text-[#002366] w-full flex items-center justify-center p-4 rounded-lg font-semibold text-lg">
+            <button id="open-payment-popup" class="link-button image-overlay-button bg-[#eae4da]/60 border-2 border-[#002366]/30 text-[#002366] w-full flex items-center justify-center p-4 rounded-lg font-semibold text-lg">
                 <span>Gratuity Policy</span>
             </button>
         </div>
     </div>
 
-    <div id="zelle-popup" class="modal fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
+    <div id="payment-qr-popup" class="modal fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
         <div class="bg-white p-4 sm:p-6 rounded-lg shadow-xl relative max-w-sm w-full text-center overflow-y-auto max-h-[90vh]">
-            <img src="../Resources/Zelle.png" alt="Zelle QR Code" class="rounded-md w-full max-w-[200px] mx-auto mb-4">
-
+            <a href="https://enroll.zellepay.com/qr-codes?data=eyJ0b2tlbiI6IjkwODYyNzI3NDMiLCJuYW1lIjoiU0hBV04gV1UiLCJhY3Rpb24iOiJQYXltZW50In0=" target="_blank" rel="noopener noreferrer">
+                <img src="../Resources/Zelle.png" alt="Zelle QR Code" class="rounded-md w-full max-w-[200px] mx-auto mb-4">
+            </a>
+            <a href="https://www.paypal.com/qrcodes/venmocs/52d10cc7-1744-4347-a3fd-59f9d9ea076b?created=1760086004" target="_blank" rel="noopener noreferrer">
+                <img src="../Resources/Venmo.jpg" alt="Venmo QR Code" class="rounded-md w-full max-w-[200px] mx-auto mb-4">
+            </a>
             <div id="gratuity-overlay" class="absolute inset-0 bg-black/85 p-4 sm:p-6 flex flex-col items-center justify-center text-center rounded-lg">
                 <h1 class="text-5xl font-semibold text-white mb-3 brand-font">Gratuity Policy</h1>
                 <div class="text-sm text-white/90 space-y-3 text-center leading-relaxed">
@@ -149,26 +153,26 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const particleContainer = document.getElementById('particle-container');
-            const openZelleButton = document.getElementById('open-zelle-popup');
-            const zellePopup = document.getElementById('zelle-popup');
+            const openPaymentButton = document.getElementById('open-payment-popup');
+            const paymentPopup = document.getElementById('payment-qr-popup');
             const gratuityOverlay = document.getElementById('gratuity-overlay');
 
             // --- Pop-up Modal Logic ---
-            openZelleButton.addEventListener('click', () => {
-                zellePopup.classList.remove('hidden');
+            openPaymentButton.addEventListener('click', () => {
+                paymentPopup.classList.remove('hidden');
                 // Always make sure the gratuity overlay is visible when the popup opens
                 gratuityOverlay.classList.remove('hidden');
             });
 
             // A single listener on the main popup to handle all close logic
-            zellePopup.addEventListener('click', () => {
+            paymentPopup.addEventListener('click', () => {
                 // If the gratuity overlay is currently visible...
                 if (!gratuityOverlay.classList.contains('hidden')) {
                     // ...then the first click should only hide the overlay.
                     gratuityOverlay.classList.add('hidden');
                 } else {
                     // Otherwise (if the overlay is already hidden), the second click closes the main popup.
-                    zellePopup.classList.add('hidden');
+                    paymentPopup.classList.add('hidden');
                 }
             });
 
