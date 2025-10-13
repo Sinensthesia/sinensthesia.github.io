@@ -127,7 +127,7 @@
             <div class="space-y-4pb-4">
                 <div class="flex justify-center space-x-6 tip-jar-icons">
                     <button id="open-zelle-popup" class="link-button text-[#0505af]"><svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8"><path d="M13.559 24h-2.841a0.483 0.483 0 0 1 -0.483 -0.483v-2.765H5.638a0.667 0.667 0 0 1 -0.666 -0.666v-2.234a0.67 0.67 0 0 1 0.142 -0.412l8.139 -10.382h-7.25a0.667 0.667 0 0 1 -0.667 -0.667V3.914c0 -0.367 0.299 -0.666 0.666 -0.666h4.23V0.483c0 -0.266 0.217 -0.483 0.483 -0.483h2.841c0.266 0 0.483 0.217 0.483 0.483v2.765h4.323c0.367 0 0.666 0.299 0.666 0.666v2.137a0.67 0.67 0 0 1 -0.141 0.41l-8.19 10.481h7.665c0.367 0 0.666 0.299 0.666 0.666v2.477a0.667 0.667 0 0 1 -0.666 0.667h-4.32v2.765a0.483 0.483 0 0 1 -0.483 0.483Z" fill="currentColor"></path></svg></button>
-                    <a href="https://account.venmo.com/u/Sinensthesia" target="_blank" class="link-button text-[#0505af]" rel="noopener noreferrer"><svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8"><defs><style>.cls-1{fill:currentColor;}</style></defs><path class="cls-1" d="M40.25,4.45a14.26,14.26,0,0,1,2.06,7.8c0,9.72-8.3,22.34-15,31.2H11.91L5.74,6.58,19.21,5.3l3.27,26.24c3.05-5,6.81-12.76,6.81-18.08A14.51,14.51,0,0,0,28,6.94Z"></path></svg></a>
+                    <button id="open-venmo-popup" class="link-button text-[#0505af]"><svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8"><defs><style>.cls-1{fill:currentColor;}</style></defs><path class="cls-1" d="M40.25,4.45a14.26,14.26,0,0,1,2.06,7.8c0,9.72-8.3,22.34-15,31.2H11.91L5.74,6.58,19.21,5.3l3.27,26.24c3.05-5,6.81-12.76,6.81-18.08A14.51,14.51,0,0,0,28,6.94Z"></path></svg></button>
                 </div>
             </div>
 
@@ -146,11 +146,10 @@
     </div>
 
     <div id="zelle-popup" class="modal fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
-        <div class="bg-white p-4 sm:p-6 rounded-lg shadow-xl relative max-w-sm w-full text-center">
-            <a href="https://enroll.zellepay.com/qr-codes?data=eyJ0b2tlbiI6IjkwODYyNzI3NDMiLCJuYW1lIjoiU0hBV04gV1UiLCJhY3Rpb24iOiJQYXltZW50In0=" target="_blank" rel="noopener noreferrer">
-                <img src="../Resources/Zelle.png" alt="Zelle QR Code" class="rounded-md w-full max-w-[250px] mx-auto">
-            </a>
-        </div>
+            <img src="../Resources/Zelle.png" alt="Zelle QR Code" class="rounded-md w-full max-w-[250px] mx-auto">
+    </div>
+    <div id="venmo-popup" class="modal fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
+            <img src="../Resources/Venmo.png" alt="Venmo QR Code" class="rounded-md w-full max-w-[250px] mx-auto">
     </div>
     <div id="menu-popup" class="modal fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
         <div id="menu-content-container" class="menu-popup-body bg-[#FDFBF5] text-[#1E2A4A] p-6 sm:p-8 rounded-lg shadow-xl relative max-w-4xl w-full text-left overflow-y-auto max-h-[90vh]"></div>
@@ -172,6 +171,8 @@
             const particleContainer = document.getElementById('particle-container');
             const openZelleButton = document.getElementById('open-zelle-popup');
             const zellePopup = document.getElementById('zelle-popup');
+            const openVenmoButton = document.getElementById('open-venmo-popup');
+            const venmoPopup = document.getElementById('venmo-popup');
             const openMenuButton = document.getElementById('open-menu-popup');
             const menuPopup = document.getElementById('menu-popup');
             const menuContentContainer = document.getElementById('menu-content-container');
@@ -183,6 +184,12 @@
 
             openZelleButton.addEventListener('click', () => openModal(zellePopup));
             zellePopup.addEventListener('click', () => closeModal(zellePopup));
+
+            openVenmoButton.addEventListener('click', () => {
+                window.open('https://account.venmo.com/u/Sinensthesia', '_blank', 'noopener,noreferrer');
+                openModal(venmoPopup);
+            });
+            venmoPopup.addEventListener('click', () => closeModal(venmoPopup));
 
             openGratuityButton.addEventListener('click', () => openModal(gratuityPopup));
             gratuityPopup.addEventListener('click', () => closeModal(gratuityPopup));
