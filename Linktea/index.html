@@ -100,6 +100,43 @@
             color: #1E2A4A;
             background-color: #FDFBF5;
         }
+
+        /* --- Added definitions for custom sizes --- */
+        .h-84 { height: 21rem; } /* 336px */
+        .w-84 { width: 21rem; }  /* 336px */
+        .h-48 { height: 12rem; } /* 192px */
+        .w-48 { width: 12rem; } /* 192px */
+        .h-24 { height: 6rem; }  /* 96px */
+        .h-44 { height: 11rem; } /* 176px */
+        /* --- End custom sizes --- */
+
+        /* --- Added Flip Card Animation --- */
+        .flip-container {
+            perspective: 1000px;
+        }
+        .flipper {
+            position: relative;
+            /* Added a bouncier easing function for the flip */
+            transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            transform-style: preserve-3d;
+        }
+        .flip-front, .flip-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            /* Added for smoother look */
+            overflow: hidden;
+            border-radius: 0.5rem;
+        }
+        .flip-back {
+            transform: rotateY(180deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            /* REMOVED background-color */
+        }
+        /* --- End Flip Card Animation --- */
     </style>
 </head>
 <body class="antialiased flex items-center justify-center min-h-screen p-4">
@@ -107,9 +144,25 @@
     <div id="particle-container"></div>
 
     <div class="w-full max-w-md mx-auto text-center relative z-10">
-        <img src="../Resources/Web/Primary Logo/Blue/Sinensthesia-Logo-Teacup-RGB.png" alt="Sinensthesia Icon" class="h-84 w-84 object-contain mx-auto">
 
-        <div class="space-y-6">
+        <!-- The container div just sets perspective and centers -->
+        <div id="logo-flipper" class="flip-container mx-auto w-84">
+            <!-- The flipper div gets the size -->
+            <div class="flipper h-84 w-84">
+                <div class="flip-front">
+                    <!-- Original Logo -->
+                    <img src="../Resources/Web/Icon/Sinensthesia-Logo-Teacup-Icon-RGB.png" alt="Sinensthesia Icon" class="object-contain h-full w-full">
+                </div>
+                <div class="flip-back">
+                    <!-- QR Code -->
+                    <img src="../Resources/qr-code.png" alt="QR Code" class="object-contain h-full w-full p-10"> <!-- Changed p-6 to p-10 -->
+                </div>
+            </div>
+        </div>
+
+        <img src="../Resources/Web/Wordmark/Sinensthesia-Logo-Teacup-Wordmark-RGB.png" alt="Sinensthesia Wordmark" class="mx-auto mb-10 -mt-12 h-44 object-contain">
+
+        <div class="mt-6 space-y-4">
             <div id="social-icons-container" class="flex justify-center space-x-6">
                 <a href="https://youtube.com/@Sinensthesia" target="_blank" class="link-button text-[#0505af]" rel="noopener noreferrer">
                     <svg viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8"><g clip-path="url(#clip0_youtube)"><path fill-rule="evenodd" clip-rule="evenodd" d="M25.7437 5.59677C26.9266 5.92581 27.8594 6.89355 28.175 8.12258C28.75 10.3516 28.75 15 28.75 15C28.75 15 28.75 19.65 28.175 21.8774C27.8594 23.1065 26.9266 24.0742 25.7437 24.4032C23.6 25 15 25 15 25C15 25 6.40156 25 4.25625 24.4032C3.07344 24.0742 2.14062 23.1065 1.825 21.8774C1.25 19.6484 1.25 15 1.25 15C1.25 15 1.25 10.3516 1.825 8.12258C2.14062 6.89355 3.07344 5.92581 4.25625 5.59677C6.4 5 15 5 15 5C15 5 23.6 5 25.7437 5.59677ZM19.375 15L12.1875 19.221V10.779L19.375 15Z" fill="currentColor"></path></g><defs><clipPath id="clip0_youtube"><rect width="27.5" height="20" fill="white" transform="translate(1.25 5)"></rect></clipPath></defs></svg>
@@ -179,6 +232,28 @@
             const openGratuityButton = document.getElementById('open-gratuity-popup');
             const gratuityPopup = document.getElementById('gratuity-popup');
 
+            // --- Logo Flip Logic ---
+            const flipper = document.getElementById('logo-flipper');
+            let isFlipped = false;
+            let rotation = 0;
+            let isAnimating = false; // ADDED: Animation lock
+            if (flipper) {
+                flipper.addEventListener('click', () => {
+                    if (isAnimating) return; // ADDED: Check if locked
+                    isAnimating = true; // ADDED: Lock animation
+
+                    rotation += 180;
+                    flipper.querySelector('.flipper').style.transform = `rotateY(${rotation}deg)`;
+                    isFlipped = !isFlipped;
+
+                    // ADDED: Unlock after animation finishes (800ms matches CSS)
+                    setTimeout(() => {
+                        isAnimating = false;
+                    }, 800);
+                });
+            }
+            // --- End Logo Flip Logic ---
+
             const openModal = (modal) => modal.classList.remove('hidden');
             const closeModal = (modal) => modal.classList.add('hidden');
 
@@ -223,7 +298,6 @@
                 }
             });
             menuPopup.addEventListener('click', (event) => closeModal(menuPopup));
-
 
             const adjustSocialIconsMargin = () => {
                 const socialIcons = document.getElementById('social-icons-container');
@@ -281,3 +355,4 @@
 
 </body>
 </html>
+
