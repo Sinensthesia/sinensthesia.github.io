@@ -154,8 +154,11 @@
                     <img src="../Resources/Web/Icon/Sinensthesia-Logo-Teacup-Icon-RGB.png" alt="Sinensthesia Icon" class="object-contain h-full w-full">
                 </div>
                 <div class="flip-back">
-                    <!-- QR Code -->
-                    <img src="../Resources/qr-code.png" alt="QR Code" class="object-contain h-full w-full p-10"> <!-- Changed p-6 to p-10 -->
+                    <!-- New structured content -->
+                    <div class="flex flex-col items-center justify-center h-full w-full p-6 text-center">
+                        <div id="qr-text" class="font-semibold text-2xl mb-2 text-[#002366]"></div>
+                        <img id="qr-image" src="../Resources/qr-code.png" alt="QR Code" class="object-contain h-full w-full flex-1 min-h-0">
+                    </div>
                 </div>
             </div>
         </div>
@@ -198,12 +201,6 @@
         </div>
     </div>
 
-    <div id="zelle-popup" class="modal fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
-            <img src="../Resources/Zelle.png" alt="Zelle QR Code" class="rounded-md w-full max-w-[250px] mx-auto">
-    </div>
-    <div id="venmo-popup" class="modal fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
-            <img src="../Resources/Venmo.png" alt="Venmo QR Code" class="rounded-md w-full max-w-[250px] mx-auto">
-    </div>
     <div id="menu-popup" class="modal fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
         <div id="menu-content-container" class="menu-popup-body bg-[#FDFBF5] text-[#1E2A4A] p-6 sm:p-8 rounded-lg shadow-xl relative max-w-4xl w-full text-left overflow-y-auto max-h-[90vh]"></div>
     </div>
@@ -214,7 +211,7 @@
                 <p>Tipping is entirely optional.</p>
                 <p>Instead, please show your continued support for Sinensthesia.</p>
             </div>
-            <span class="block text-xs text-white/70 mt-8">But hey, if you insist, I won't say no.</span>
+            <span class="block text-xs text-white/70 mt-8">But hey, if you insist, I'll say no.</span>
             <span class="block text-xs text-white/70 mt-8">Thank you.<br>(Click to dismiss)</span>
         </div>
     </div>
@@ -223,9 +220,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             const particleContainer = document.getElementById('particle-container');
             const openZelleButton = document.getElementById('open-zelle-popup');
-            const zellePopup = document.getElementById('zelle-popup');
             const openVenmoButton = document.getElementById('open-venmo-popup');
-            const venmoPopup = document.getElementById('venmo-popup');
             const openMenuButton = document.getElementById('open-menu-popup');
             const menuPopup = document.getElementById('menu-popup');
             const menuContentContainer = document.getElementById('menu-content-container');
@@ -234,22 +229,70 @@
 
             // --- Logo Flip Logic ---
             const flipper = document.getElementById('logo-flipper');
+            const qrText = document.getElementById('qr-text');
+            const qrImage = document.getElementById('qr-image');
             let isFlipped = false;
             let rotation = 0;
-            let isAnimating = false; // ADDED: Animation lock
+            let isAnimating = false; // Animation lock
+            let currentQR = 'none'; // 'none', 'default', 'zelle', 'venmo'
+
+            // Reusable function to update QR content
+            function updateQRContent(qrType) {
+                currentQR = qrType;
+                switch (qrType) {
+                    case 'default':
+                        qrText.innerHTML = '';
+                        qrImage.src = '../Resources/qr-code.png';
+                        qrImage.classList.add('p-10'); // Add padding to shrink default QR
+                        break;
+                    case 'zelle':
+                        qrText.innerHTML = 'Zelle<br> 908-627-2743';
+                        qrImage.src = '../Resources/Zelle.png';
+                        qrImage.classList.remove('p-10');
+                        break;
+                    case 'venmo':
+                        qrText.innerHTML = 'Venmo<br>@sinensthesia';
+                        qrImage.src = '../Resources/Venmo.png';
+                        qrImage.classList.add('p-2'); //
+                        break;
+                    case 'none':
+                        // When flipping back to front, no content update needed
+                        // but we reset the state.
+                        break;
+                }
+            }
+
+            // Reusable function to flip the card
+            function flipCard(targetRotation, onComplete) {
+                if (isAnimating) return;
+                isAnimating = true;
+                rotation = targetRotation;
+                flipper.querySelector('.flipper').style.transform = `rotateY(${rotation}deg)`;
+                isFlipped = (rotation % 360) !== 0;
+
+                setTimeout(() => {
+                    isAnimating = false;
+                    if (onComplete) {
+                        onComplete();
+                    }
+                }, 800); // 800ms matches CSS transition
+            }
+
+
             if (flipper) {
                 flipper.addEventListener('click', () => {
-                    if (isAnimating) return; // ADDED: Check if locked
-                    isAnimating = true; // ADDED: Lock animation
+                    if (isAnimating) return;
 
-                    rotation += 180;
-                    flipper.querySelector('.flipper').style.transform = `rotateY(${rotation}deg)`;
-                    isFlipped = !isFlipped;
-
-                    // ADDED: Unlock after animation finishes (800ms matches CSS)
-                    setTimeout(() => {
-                        isAnimating = false;
-                    }, 800);
+                    if (isFlipped) {
+                        // Card is on the back, flip to front
+                        flipCard(rotation + 180, () => {
+                            currentQR = 'none';
+                        });
+                    } else {
+                        // Card is on the front, flip to default QR
+                        updateQRContent('default');
+                        flipCard(rotation + 180);
+                    }
                 });
             }
             // --- End Logo Flip Logic ---
@@ -257,14 +300,45 @@
             const openModal = (modal) => modal.classList.remove('hidden');
             const closeModal = (modal) => modal.classList.add('hidden');
 
-            openZelleButton.addEventListener('click', () => openModal(zellePopup));
-            zellePopup.addEventListener('click', () => closeModal(zellePopup));
+            openZelleButton.addEventListener('click', () => {
+                if (isAnimating || currentQR === 'zelle') return; // Do nothing if busy or already on zelle
+
+                const showZelle = () => {
+                    updateQRContent('zelle');
+                    flipCard(rotation + 180);
+                };
+
+                if (isFlipped) {
+                    // It's on the back. Flip to front first.
+                    flipCard(rotation + 180, () => {
+                        currentQR = 'none';
+                        setTimeout(showZelle, 50); // Flip to Zelle after a short delay
+                    });
+                } else {
+                    // It's on the front. Just show Zelle.
+                    showZelle();
+                }
+            });
 
             openVenmoButton.addEventListener('click', () => {
-                window.open('https://account.venmo.com/u/Sinensthesia', '_blank', 'noopener,noreferrer');
-                openModal(venmoPopup);
+                if (isAnimating || currentQR === 'venmo') return; // Do nothing if busy or already on venmo
+
+                const showVenmo = () => {
+                    updateQRContent('venmo');
+                    flipCard(rotation + 180);
+                };
+
+                if (isFlipped) {
+                    // It's on the back. Flip to front first.
+                    flipCard(rotation + 180, () => {
+                        currentQR = 'none';
+                        setTimeout(showVenmo, 50); // Flip to Venmo after a short delay
+                    });
+                } else {
+                    // It's on the front. Just show Venmo.
+                    showVenmo();
+                }
             });
-            venmoPopup.addEventListener('click', () => closeModal(venmoPopup));
 
             openGratuityButton.addEventListener('click', () => openModal(gratuityPopup));
             gratuityPopup.addEventListener('click', () => closeModal(gratuityPopup));
@@ -299,6 +373,7 @@
             });
             menuPopup.addEventListener('click', (event) => closeModal(menuPopup));
 
+            // --- Re-added adjustSocialIconsMargin function ---
             const adjustSocialIconsMargin = () => {
                 const socialIcons = document.getElementById('social-icons-container');
                 if (socialIcons) {
@@ -348,11 +423,10 @@
                 };
 
                 generateParticles();
-                adjustSocialIconsMargin();
+                adjustSocialIconsMargin(); // --- Re-added function call ---
             }
         });
     </script>
 
 </body>
 </html>
-
