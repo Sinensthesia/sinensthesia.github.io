@@ -65,6 +65,13 @@ mask-image: linear-gradient(to bottom, black 90%, transparent 120%);
     transform: translateY(0);
 }
 
+.link-button {
+    transition: opacity 0.3s ease;
+}
+.link-button:hover {
+    opacity: 0.75;
+}
+
 /* SVG Particle Animation */
 #particle-container {
 opacity: 0;
