@@ -192,8 +192,16 @@
                 <span>Official Website</span>
             </a>
 
+            <button id="open-calendar-popup" class="link-button image-overlay-button bg-[#eae4da]/60 border-2 border-[#002366]/30 text-[#002366] w-full flex items-center justify-center p-4 rounded-lg font-semibold text-lg">
+                <span>Calendar</span>
+            </button>
+
             <button id="open-menu-popup" class="link-button image-overlay-button bg-[#eae4da]/60 border-2 border-[#002366]/30 text-[#002366] w-full flex items-center justify-center p-4 rounded-lg font-semibold text-lg">
                 <span>View Menu</span>
+            </button>
+
+            <button id="open-catering-popup" class="link-button image-overlay-button bg-[#eae4da]/60 border-2 border-[#002366]/30 text-[#002366] w-full flex items-center justify-center p-4 rounded-lg font-semibold text-lg">
+                <span>Catering</span>
             </button>
 
             <button id="open-gratuity-popup" class="link-button image-overlay-button bg-[#eae4da]/60 border-2 border-[#002366]/30 text-[#002366] w-full flex items-center justify-center p-4 rounded-lg font-semibold text-lg">
@@ -202,9 +210,53 @@
         </div>
     </div>
 
+    <div id="calendar-popup" class="modal fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
+        <div class="menu-popup-body bg-[#FDFBF5] text-[#1E2A4A] p-2 rounded-lg shadow-xl relative w-full max-w-[400px] overflow-y-auto max-h-[80vh] flex flex-col items-center">
+            <blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="https://www.instagram.com/p/DRzgIRogKvS/?utm_source=ig_embed&amp;utm_campaign=loading" data-instgrm-version="14" style=" background:#FFF; border:0; border-radius:3px; box-shadow:0 0 1px 0 rgba(0,0,0,0.5),0 1px 10px 0 rgba(0,0,0,0.15); margin: 1px; max-width:540px; min-width:326px; padding:0; width:99.375%; width:-webkit-calc(100% - 2px); width:calc(100% - 2px);">
+            </blockquote>
+            </div>
+    </div>
+
     <div id="menu-popup" class="modal fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
         <div id="menu-content-container" class="menu-popup-body bg-[#FDFBF5] text-[#1E2A4A] p-6 sm:p-8 rounded-lg shadow-xl relative max-w-4xl w-full text-left overflow-y-auto max-h-[90vh]"></div>
     </div>
+
+    <div id="catering-popup" class="modal fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
+        <div class="menu-popup-body bg-[#FDFBF5] text-[#1E2A4A] p-8 rounded-lg shadow-xl relative max-w-md w-full text-center overflow-y-auto max-h-[90vh]">
+
+            <h2 class="text-3xl font-bold mb-4 brand-font text-[#002366]">Catering & Events</h2>
+            <p class="mb-6 text-sm leading-relaxed">
+                Bring the Sinensthesia experience to your next event. We specialize in crafting high-quality, tea-forward beverages for any occasion.
+            </p>
+
+            <div class="w-16 h-px bg-[#002366]/20 mx-auto mb-6"></div>
+
+            <div class="space-y-4 mb-8 text-left px-4">
+                <div>
+                    <h3 class="font-bold text-lg text-[#002366]">Full Service Bar</h3>
+                    <p class="text-sm opacity-80">Live boba tea preparation for weddings, corporate events, and parties.</p>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg text-[#002366]">Premade</h3>
+                    <p class="text-sm opacity-80">Premade specialty drinks delivered to you.</p>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg text-[#002366]">DIY Kits</h3>
+                    <p class="text-sm opacity-80">Includes tea, toppings, and drinkware for you to host your own boba session!</p>
+                </div>
+            </div>
+
+            <div class="w-16 h-px bg-[#002366]/20 mx-auto mb-6"></div>
+
+            <div class="mb-6">
+                <p class="font-semibold mb-2">Get in touch:</p>
+                <p class="font-semibold mb-2">908-627-2743</p>
+                <a href="mailto:hello@sinensthesia.com" class="block text-[#0505af] underline hover:opacity-80 mb-1">hello@sinensthesia.com</a>
+                <a href="https://www.instagram.com/sinensthesia/" target="_blank" class="block text-[#0505af] underline hover:opacity-80">DM on Instagram</a>
+            </div>
+    </div>
+</div>
+
     <div id="gratuity-popup" class="modal fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 hidden z-50">
         <div class="max-w-sm w-full text-center">
             <h1 class="text-6xl font-semibold text-white mb-3 brand-font py-6 mt-6">Gratuity Policy</h1>
@@ -217,6 +269,8 @@
         </div>
     </div>
 
+    <script async src="//www.instagram.com/embed.js"></script>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const particleContainer = document.getElementById('particle-container');
@@ -227,6 +281,10 @@
             const menuContentContainer = document.getElementById('menu-content-container');
             const openGratuityButton = document.getElementById('open-gratuity-popup');
             const gratuityPopup = document.getElementById('gratuity-popup');
+            const openCalendarButton = document.getElementById('open-calendar-popup');
+            const calendarPopup = document.getElementById('calendar-popup');
+            const openCateringButton = document.getElementById('open-catering-popup');
+            const cateringPopup = document.getElementById('catering-popup');
 
             // --- Logo Flip Logic ---
             const flipper = document.getElementById('logo-flipper');
@@ -297,9 +355,40 @@
                 });
             }
             // --- End Logo Flip Logic ---
-
             const openModal = (modal) => modal.classList.remove('hidden');
             const closeModal = (modal) => modal.classList.add('hidden');
+
+
+            // CALENDAR LOGIC
+            openCalendarButton.addEventListener('click', () => {
+                openModal(calendarPopup);
+
+                // Force Instagram to process the embed now that the modal is visible
+                if (window.instgrm && window.instgrm.Embeds) {
+                    window.instgrm.Embeds.process();
+                }
+            });
+
+            // Close when clicking the background
+            calendarPopup.addEventListener('click', (e) => {
+                // Only close if clicking the backdrop, not the embed itself
+                if (e.target === calendarPopup) {
+                    closeModal(calendarPopup);
+                }
+            });
+
+            if (openCateringButton) {
+                openCateringButton.addEventListener('click', () => {
+                    openModal(cateringPopup);
+                });
+            }
+            if (cateringPopup) {
+                cateringPopup.addEventListener('click', (e) => {
+                    if (e.target === cateringPopup) {
+                        closeModal(cateringPopup);
+                    }
+                });
+            }
 
             openZelleButton.addEventListener('click', () => {
                 if (isAnimating || currentQR === 'zelle') return; // Do nothing if busy or already on zelle
