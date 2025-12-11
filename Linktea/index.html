@@ -354,41 +354,6 @@
                     }
                 });
             }
-            // --- End Logo Flip Logic ---
-            const openModal = (modal) => modal.classList.remove('hidden');
-            const closeModal = (modal) => modal.classList.add('hidden');
-
-
-            // CALENDAR LOGIC
-            openCalendarButton.addEventListener('click', () => {
-                openModal(calendarPopup);
-
-                // Force Instagram to process the embed now that the modal is visible
-                if (window.instgrm && window.instgrm.Embeds) {
-                    window.instgrm.Embeds.process();
-                }
-            });
-
-            // Close when clicking the background
-            calendarPopup.addEventListener('click', (e) => {
-                // Only close if clicking the backdrop, not the embed itself
-                if (e.target === calendarPopup) {
-                    closeModal(calendarPopup);
-                }
-            });
-
-            if (openCateringButton) {
-                openCateringButton.addEventListener('click', () => {
-                    openModal(cateringPopup);
-                });
-            }
-            if (cateringPopup) {
-                cateringPopup.addEventListener('click', (e) => {
-                    if (e.target === cateringPopup) {
-                        closeModal(cateringPopup);
-                    }
-                });
-            }
 
             openZelleButton.addEventListener('click', () => {
                 if (isAnimating || currentQR === 'zelle') return; // Do nothing if busy or already on zelle
@@ -429,6 +394,28 @@
                     showVenmo();
                 }
             });
+            // --- End Logo Flip Logic ---
+            const openModal = (modal) => modal.classList.remove('hidden');
+            const closeModal = (modal) => modal.classList.add('hidden');
+
+            openCalendarButton.addEventListener('click', () => {
+                openModal(calendarPopup);
+                // Force Instagram to process the embed now that the modal is visible
+                if (window.instgrm && window.instgrm.Embeds) {
+                    window.instgrm.Embeds.process();
+                }
+            });
+
+            // Close when clicking the background
+            calendarPopup.addEventListener('click', (e) => {
+                // Only close if clicking the backdrop, not the embed itself
+                if (e.target === calendarPopup) {
+                    closeModal(calendarPopup);
+                }
+            });
+
+            openCateringButton.addEventListener('click', () => openModal(cateringPopup));
+            cateringPopup.addEventListener('click', () => closeModal(cateringPopup));
 
             openGratuityButton.addEventListener('click', () => openModal(gratuityPopup));
             gratuityPopup.addEventListener('click', () => closeModal(gratuityPopup));
