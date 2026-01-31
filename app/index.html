@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Sales Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'brand-blue': '#1e3a8a',
+                        'contrast-blue': '#172554',
+                        'cream': '#FDFBF5',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Base Pill Styles */
+        .pill-btn { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); white-space: nowrap; border: 1px solid transparent; font-weight: 600; }
+        .pill-btn.active { transform: translateY(-1px); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); border: 1px solid rgba(255,255,255,0.2); font-weight: 700; }
+        .multi-pill-btn.active { background-color: #dbeafe; color: #1e3a8a; border-color: #1e3a8a; font-weight: bold; box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05); }
+
+        /* Utilities */
+        .scroller::-webkit-scrollbar { height: 4px; width: 4px; }
+        .scroller::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+
+        /* Tooltips - Fixed Z-Index & Interaction */
+        .tooltip-container { position: relative; cursor: help; z-index: 50; }
+        .tooltip-container:hover .tooltip-box { display: block; }
+        .tooltip-box {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            margin-top: 8px;
+            background-color: #1e293b;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            white-space: nowrap;
+            z-index: 100;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            text-align: left;
+            font-weight: normal;
+            pointer-events: none;
+        }
+        .tooltip-box::before { content: ""; position: absolute; bottom: 100%; left: 50%; margin-left: -5px; border-width: 5px; border-style: solid; border-color: transparent transparent #1e293b transparent; }
+
+        @keyframes popRight { 0% { opacity: 0; transform: translate(-10px, -50%) scale(0.9); } 100% { opacity: 1; transform: translate(0, -50%) scale(1); } }
+        .animate-pop-right { animation: popRight 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen p-4 md:p-8 font-sans text-gray-800">
+
+    <div class="max-w-[1400px] mx-auto">
+        <div class="flex flex-col xl:flex-row justify-between items-start xl:items-end mb-6 gap-6 relative z-40">
+            <div>
+                <input type="text" id="reportTitle" class="text-3xl md:text-4xl font-bold text-contrast-blue bg-transparent border-b-2 border-transparent hover:border-gray-300 focus:border-brand-blue focus:outline-none transition w-full md:w-96 cursor-text" placeholder="Enter Report Name">
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 w-full xl:w-auto overflow-visible">
+                <table class="w-full text-center text-sm">
+                    <thead class="bg-gray-50 text-gray-500 uppercase text-[10px] font-bold tracking-wider">
+                        <tr>
+                            <th class="px-4 py-2 border-r border-gray-100 text-green-600">Cash Group</th>
+                            <th class="px-4 py-2 border-r border-gray-100 text-blue-600">Venmo Group</th>
+                            <th class="px-4 py-2 border-r border-gray-100 text-purple-600">Zelle</th>
+                            <th class="px-4 py-2 border-r border-gray-100 text-gray-600">Gross</th>
+                            <th class="px-4 py-2 text-gray-800">Net Income</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-lg font-bold">
+                        <tr>
+                            <td class="px-4 py-3 border-r border-gray-100 tooltip-container hover:bg-green-50 transition relative">
+                                <span id="cashTotalDisplay" class="text-green-600">$0.00</span>
+                                <div class="tooltip-box"><div id="cashBreakdown">Cash: $0.00</div><div id="mbBreakdown">MarketBucks: $0.00</div></div>
+                            </td>
+                            <td class="px-4 py-3 border-r border-gray-100 tooltip-container hover:bg-blue-50 transition relative">
+                                <span id="digitalTotalDisplay" class="text-blue-600">$0.00</span>
+                                <div class="tooltip-box"><div id="venmoBreakdown">Venmo: $0.00</div><div id="ccBreakdown">Credit Card: $0.00</div></div>
+                            </td>
+                            <td class="px-4 py-3 border-r border-gray-100 hover:bg-purple-50 transition"><span id="zelleTotalDisplay" class="text-purple-600">$0.00</span></td>
+                            <td class="px-4 py-3 border-r border-gray-100 text-gray-500 tooltip-container hover:bg-gray-50 transition relative">
+                                <span id="grandTotalDisplay">$0.00</span>
+                                <div class="tooltip-box"><div class="text-gray-300 text-xs mb-1">Total Revenue</div><div id="netRevenueBreakdown">Net Rev: $0.00</div><div id="taxBreakdown" class="text-yellow-400">Est. Tax: $0.00</div></div>
+                            </td>
+                            <td class="px-4 py-3 tooltip-container hover:bg-gray-50 transition relative">
+                                <span id="netTotalDisplay" class="text-gray-800">$0.00</span>
+                                <div class="tooltip-box"><div id="taxBreakdown2" class="text-yellow-400">Tax: $0.00</div><div id="feeBreakdown" class="text-red-400">Fees: $0.00</div></div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="grid lg:grid-cols-12 gap-6 items-start">
+            <div class="lg:col-span-5 xl:col-span-4 sticky top-6 z-10">
+                <div class="bg-cream rounded-xl shadow-lg border border-gray-200 flex flex-col h-full max-h-[85vh]">
+                    <div class="flex justify-between items-center p-4 border-b border-gray-200 bg-white/50 rounded-t-xl">
+                        <h2 class="text-lg font-semibold text-brand-blue">New Sale</h2>
+                        <div class="relative">
+                            <input type="date" id="dateInput" class="pl-8 pr-2 py-1 bg-white border border-gray-300 rounded-md text-sm text-gray-600 focus:ring-1 focus:ring-brand-blue cursor-pointer">
+                            <svg class="w-4 h-4 text-gray-500 absolute left-2 top-1.5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                        </div>
+                    </div>
+
+                    <div class="p-4 overflow-y-auto scroller flex-grow space-y-4">
+                        <div>
+                            <span class="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Category</span>
+                            <div id="categoryContainer" class="flex flex-wrap gap-2"></div>
+                        </div>
+                        <div id="subCatWrapper" class="hidden">
+                            <span class="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Item Type</span>
+                            <div id="subCategoryContainer" class="flex flex-wrap gap-2"></div>
+                        </div>
+                        <div id="beverageModifiersWrapper" class="hidden bg-white border border-gray-200 rounded-lg p-3 space-y-3 shadow-sm">
+                            <div id="teaTypeWrapper" class="hidden">
+                                <span class="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Tea Base</span>
+                                <div id="teaTypeContainer" class="flex flex-wrap gap-1.5"></div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <span class="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Additions (+$1)</span>
+                                    <div id="additionsContainer" class="flex flex-col gap-1.5"></div>
+                                </div>
+                                <div>
+                                    <span class="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Toppings (+$1)</span>
+                                    <div id="toppingsContainer" class="flex flex-col gap-1.5"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <div>
+                                <span class="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Item Name</span>
+                                <input type="text" id="itemInput" placeholder="Auto-generated name..." class="w-full px-3 py-2 bg-white border border-gray-300 rounded text-sm focus:outline-none focus:border-brand-blue transition">
+                            </div>
+                            <div>
+                                <span class="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Note <span class="text-gray-300 font-normal">(Optional)</span></span>
+                                <input type="text" id="noteInput" placeholder="e.g. Extra hot, no ice..." class="w-full px-3 py-2 bg-white border border-gray-300 rounded text-sm focus:outline-none focus:border-brand-blue transition">
+                            </div>
+                        </div>
+                        <div>
+                            <span class="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Payment Type</span>
+                            <div id="paymentTypeContainer" class="flex flex-wrap gap-2"></div>
+                        </div>
+                    </div>
+
+                    <div class="p-4 bg-gray-50 border-t border-gray-200 rounded-b-xl">
+                        <div class="grid grid-cols-12 gap-4 items-end">
+                            <div class="col-span-5 space-y-2">
+                                <div class="flex justify-between items-center text-xs border-b border-gray-200 pb-1 h-6">
+                                    <span class="font-bold uppercase tracking-wider text-[10px] text-gray-400">List</span>
+                                    <input type="text" id="priceInput" readonly class="bg-transparent font-medium text-right focus:outline-none w-20 text-gray-500" value="$0.00">
+                                </div>
+                                <div>
+                                    <div class="flex justify-between items-center mb-1"><span class="text-[10px] font-bold uppercase text-brand-blue tracking-wider">Pay</span></div>
+                                    <div class="flex items-center bg-white border border-gray-300 rounded-lg overflow-hidden h-9 shadow-sm">
+                                        <button onclick="App.adjustPay(-1)" class="w-8 h-full bg-gray-50 hover:bg-gray-100 text-gray-500 hover:text-red-500 font-bold border-r border-gray-200 transition">-</button>
+                                        <input type="number" id="paymentInput" step="0.01" class="w-full h-full text-center font-bold text-gray-800 focus:outline-none text-sm" placeholder="0.00">
+                                        <button onclick="App.adjustPay(1)" class="w-8 h-full bg-gray-50 hover:bg-gray-100 text-gray-500 hover:text-green-600 font-bold border-l border-gray-200 transition">+</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-span-7 flex gap-2">
+                                <div class="flex flex-col w-1/3">
+                                    <span class="text-[10px] font-bold text-gray-400 uppercase mb-1">QTY</span>
+                                    <div class="flex items-center bg-white border border-gray-300 rounded-lg overflow-hidden h-10 shadow-sm">
+                                        <button onclick="App.adjustQty(-1)" class="w-8 h-full bg-gray-50 hover:bg-gray-100 text-gray-500 font-bold border-r border-gray-200">-</button>
+                                        <input type="number" id="qtyInput" value="1" min="1" class="w-full h-full text-center font-bold text-gray-800 focus:outline-none text-sm">
+                                        <button onclick="App.adjustQty(1)" class="w-8 h-full bg-gray-50 hover:bg-gray-100 text-gray-500 font-bold border-l border-gray-200">+</button>
+                                    </div>
+                                </div>
+                                <div class="w-2/3 flex flex-col justify-end relative">
+                                    <div id="errorPopup" class="hidden absolute left-full top-9 transform -translate-y-1/2 ml-3 bg-red-600 text-white text-xs font-bold py-2 px-4 rounded-lg shadow-xl z-50 whitespace-nowrap">
+                                        <span id="errorMsg">Error Message</span>
+                                        <div class="absolute right-full top-1/2 transform -translate-y-1/2 border-y-8 border-y-transparent border-r-8 border-r-red-600"></div>
+                                    </div>
+                                    <button id="submitBtn" onclick="App.submitForm()" class="w-full h-10 bg-brand-blue hover:bg-blue-900 text-white font-bold text-sm rounded-lg shadow-md hover:shadow-lg transition flex items-center justify-center gap-2">
+                                        <span>Add Item</span>
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-7 xl:col-span-8 flex flex-col h-full max-h-[85vh]">
+                <div class="bg-white rounded-xl shadow-md border border-gray-200 flex-grow overflow-hidden flex flex-col h-[500px]">
+                    <div class="overflow-auto scroller flex-grow">
+                        <table class="w-full text-left border-collapse">
+                            <thead class="bg-gray-50 text-gray-500 uppercase text-[10px] font-bold tracking-wider sticky top-0 z-10">
+                                <tr>
+                                    <th class="p-3 border-b shadow-sm">Time</th>
+                                    <th class="p-3 border-b shadow-sm">Item Details</th>
+                                    <th class="p-3 border-b shadow-sm text-center">Payment</th>
+                                    <th class="p-3 border-b shadow-sm text-center">Qty</th>
+                                    <th class="p-3 border-b shadow-sm text-right text-gray-400">List Total</th>
+                                    <th class="p-3 border-b shadow-sm text-right text-gray-400">Tax</th>
+                                    <th class="p-3 border-b shadow-sm text-right text-red-500">Fees</th>
+                                    <th class="p-3 border-b shadow-sm text-right font-bold text-gray-800">Total Paid</th>
+                                    <th class="p-3 border-b shadow-sm text-center"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="salesTableBody" class="text-sm divide-y divide-gray-100"></tbody>
+                        </table>
+                    </div>
+                    <div id="emptyState" class="hidden p-12 text-center text-gray-400"><p>No sales today.</p></div>
+                </div>
+                <div class="flex justify-end gap-3 mt-4">
+                    <button onclick="App.clearAllData()" class="text-red-500 hover:text-red-700 text-xs font-bold uppercase tracking-wide px-3 py-1">Reset Data</button>
+                    <button onclick="App.exportToCSV()" class="bg-green-600 hover:bg-green-700 text-white text-xs font-bold uppercase tracking-wide px-4 py-2 rounded-full shadow flex items-center gap-2">Export CSV</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /** CONFIGURATION & CONSTANTS **/
+        const CONFIG = {
+            categories: { "Beverage": ["Tea", "Soda", "Milk", "Hot Chocolate", "Other"], "Snack": ["Rice Crispy", "Other"], "Merchandise": ["Packaged Tea"] },
+            modifiers: {
+                teaTypes: ["Black", "Green", "Oolong", "Herbal", "White", "Matcha"],
+                additions: ["Oat Milk", "Almond Milk", "Whole Milk", "Espresso Shot", "Syrup"],
+                toppings: ["Boba", "Lychee Jelly", "Aloe", "Red Bean", "Cheese Foam", "Pudding"]
+            },
+            payments: ["Cash", "Venmo", "Zelle", "Credit Card", "MarketBucks"],
+            taxDivisor: 1.06625,
+            themes: {
+                Beverage: { main: 'blue-600', bg: 'blue-50', text: 'blue-700', ring: 'blue-300', shades: ['bg-blue-950', 'bg-blue-800', 'bg-blue-600', 'bg-blue-500', 'bg-blue-400'] },
+                Snack: { main: 'orange-500', bg: 'orange-50', text: 'orange-700', ring: 'orange-300', shades: ['bg-orange-900', 'bg-orange-600', 'bg-orange-400'] },
+                Merchandise: { main: 'purple-600', bg: 'purple-50', text: 'purple-700', ring: 'purple-300', shades: ['bg-purple-900', 'bg-purple-600', 'bg-purple-400'] },
+                Tea: { Black: 'red', Green: 'green', Oolong: 'amber', Herbal: 'teal', White: 'slate', Matcha: 'lime' }
+            }
+        };
+
+        const Utils = {
+            formatCurrency: (n) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(n),
+            getTeaClasses: (type, active) => {
+                const color = CONFIG.themes.Tea[type] || 'gray';
+                if (!active) return `bg-${color}-50 text-${color}-700 border-${color}-200 hover:bg-${color}-100`;
+                return `bg-${color}-${color === 'slate' ? '300' : '600'} text-${color === 'slate' ? 'slate-800' : 'white'} ring-2 ring-${color}-300`;
+            },
+            getPayClasses: (opt, active) => {
+                const map = { Cash: 'green', Venmo: 'blue', Zelle: 'purple', 'Credit Card': 'yellow', MarketBucks: 'gray' };
+                const color = map[opt] || 'gray';
+                if (!active) return `bg-${color}-50 text-${color}-700 border-${color}-200 hover:bg-${color}-100`;
+                return `bg-${color}-600 text-white border-${color}-700 ring-2 ring-${color}-300`;
+            }
+        };
+
+        const Calculator = {
+            getFee: (method, total) => {
+                if (method === 'Venmo') return (total * 0.019) + 0.10;
+                if (method === 'Credit Card') return (total * 0.0229) + 0.10;
+                return 0;
+            },
+            getUnitPrice: (cat, sub, adds, tops) => {
+                let price = 0;
+                if (cat === 'Beverage') {
+                    price = { Tea: 5, Soda: 4, Milk: 4, 'Hot Chocolate': 6 }[sub] || 0;
+                    if (adds.size > 0) price += 1;
+                    if (tops.size > 0) price += 1;
+                } else if (cat === 'Snack') price = 4;
+                else if (cat === 'Merchandise') price = 5;
+                return price;
+            }
+        };
+
+        const App = {
+            state: {
+                sales: JSON.parse(localStorage.getItem('salesData')) || [],
+                cat: null, sub: null, tea: null, adds: new Set(), tops: new Set(),
+                payType: "Cash", manualName: false, manualPay: false
+            },
+
+            init() {
+                this.cacheDOM();
+                this.bindEvents();
+                this.renderAll();
+            },
+
+            cacheDOM() {
+                this.els = {
+                    title: document.getElementById('reportTitle'), date: document.getElementById('dateInput'),
+                    item: document.getElementById('itemInput'), note: document.getElementById('noteInput'),
+                    price: document.getElementById('priceInput'), pay: document.getElementById('paymentInput'),
+                    qty: document.getElementById('qtyInput'), catBox: document.getElementById('categoryContainer'),
+                    subWrap: document.getElementById('subCatWrapper'), subBox: document.getElementById('subCategoryContainer'),
+                    bevWrap: document.getElementById('beverageModifiersWrapper'), teaWrap: document.getElementById('teaTypeWrapper'),
+                    teaBox: document.getElementById('teaTypeContainer'), addBox: document.getElementById('additionsContainer'),
+                    topBox: document.getElementById('toppingsContainer'), payBox: document.getElementById('paymentTypeContainer'),
+                    table: document.getElementById('salesTableBody'), empty: document.getElementById('emptyState'),
+                    errPop: document.getElementById('errorPopup'), errMsg: document.getElementById('errorMsg')
+                };
+                this.els.date.valueAsDate = new Date();
+            },
+
+            bindEvents() {
+                this.els.item.oninput = () => this.state.manualName = true;
+                this.els.pay.oninput = () => this.state.manualPay = true;
+                this.els.qty.oninput = () => this.updatePricing();
+            },
+
+            adjustPay(amt) {
+                let val = Math.max(0, (parseFloat(this.els.pay.value) || 0) + amt);
+                this.els.pay.value = val.toFixed(2);
+                this.state.manualPay = true;
+            },
+
+            adjustQty(amt) {
+                this.els.qty.value = Math.max(1, (parseInt(this.els.qty.value) || 1) + amt);
+                this.updatePricing();
+            },
+
+            handleCategory(cat) {
+                this.state.cat = cat;
+                this.state.sub = CONFIG.categories[cat][0] || null;
+                this.state.manualName = false;
+                this.state.manualPay = false;
+                this.resetModifiers();
+                this.renderAll();
+            },
+
+            resetModifiers() {
+                this.state.tea = null; this.state.adds.clear(); this.state.tops.clear();
+                this.els.item.value = ""; this.els.note.value = "";
+            },
+
+            updatePricing() {
+                const unit = Calculator.getUnitPrice(this.state.cat, this.state.sub, this.state.adds, this.state.tops);
+                const qty = parseInt(this.els.qty.value) || 1;
+                const total = unit * qty;
+                this.els.price.value = total > 0 ? `$${total.toFixed(2)}` : "$0.00";
+                if (!this.state.manualPay) this.els.pay.value = total > 0 ? total.toFixed(2) : "";
+
+                if (!this.state.manualName && this.state.cat) {
+                    let name = [];
+                    if (this.state.cat === 'Beverage') {
+                        if (this.state.adds.size > 0) name.push([...this.state.adds].join(', '));
+                        if (this.state.sub === 'Tea' && this.state.tea) name.push(this.state.tea);
+                    }
+                    if (this.state.sub) name.push(this.state.sub);
+                    this.els.item.value = name.join(' ');
+                }
+            },
+
+            submitForm() {
+                const { cat, sub, tea } = this.state;
+                if (!cat) return this.showError("Select a Category");
+                if (CONFIG.categories[cat].length > 0 && !sub) return this.showError("Select an Item Type");
+                if (cat === 'Beverage' && sub === 'Tea' && !tea) return this.showError("Select Tea Type");
+
+                const totalPay = parseFloat(this.els.pay.value) || 0;
+                const qty = parseInt(this.els.qty.value) || 1;
+                const listTotal = parseFloat(this.els.price.value.replace('$', '')) || 0;
+                const unitList = listTotal / qty;
+
+                this.state.sales.push({
+                    id: Date.now(), date: this.els.date.value,
+                    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                    category: cat, subCategory: sub || "-", teaType: tea,
+                    additions: [...this.state.adds], toppings: [...this.state.tops],
+                    item: this.els.item.value, note: this.els.note.value,
+                    paymentType: this.state.payType, listPrice: unitList,
+                    salesTax: unitList - (unitList / CONFIG.taxDivisor),
+                    actualPay: totalPay / qty, qty
+                });
+                this.save(); this.resetModifiers(); this.state.manualPay = false;
+                this.els.pay.value = ''; this.els.qty.value = '1'; this.renderAll();
+            },
+
+            renderAll() {
+                this.renderCats(); this.renderSubs(); this.renderTea();
+                this.renderMulti(CONFIG.modifiers.additions, this.els.addBox, this.state.adds);
+                this.renderMulti(CONFIG.modifiers.toppings, this.els.topBox, this.state.tops);
+                this.renderPayments(); this.renderTable(); this.updatePricing();
+            },
+
+            renderCats() {
+                this.els.catBox.innerHTML = '';
+                Object.keys(CONFIG.categories).forEach(cat => {
+                    const active = this.state.cat === cat;
+                    const theme = CONFIG.themes[cat];
+                    const btn = document.createElement('button');
+                    btn.className = `pill-btn px-3 py-1 text-xs rounded-full ${active ? `active bg-${theme.main} text-white ring-2 ring-${theme.ring}` : `bg-${theme.bg} text-${theme.text} hover:opacity-80`}`;
+                    btn.textContent = cat;
+                    btn.onclick = () => this.handleCategory(cat);
+                    this.els.catBox.appendChild(btn);
+                });
+            },
+
+            renderSubs() {
+                const subs = CONFIG.categories[this.state.cat] || [];
+                this.els.subWrap.classList.toggle('hidden', subs.length === 0);
+                this.els.subBox.innerHTML = '';
+                subs.forEach((s, i) => {
+                    const active = this.state.sub === s;
+                    const theme = CONFIG.themes[this.state.cat];
+                    const btn = document.createElement('button');
+                    btn.className = `pill-btn px-3 py-1 text-xs rounded-full ${active ? `active ${theme.shades[i % theme.shades.length]} text-white ring-2 ring-${theme.ring}` : `bg-${theme.bg} text-${theme.text} hover:opacity-80`}`;
+                    btn.textContent = s;
+                    btn.onclick = () => { this.state.sub = s; this.state.manualName = false; this.renderAll(); };
+                    this.els.subBox.appendChild(btn);
+                });
+                this.els.bevWrap.classList.toggle('hidden', this.state.cat !== 'Beverage');
+                this.els.teaWrap.classList.toggle('hidden', this.state.sub !== 'Tea');
+            },
+
+            renderTea() {
+                this.els.teaBox.innerHTML = '';
+                CONFIG.modifiers.teaTypes.forEach(t => {
+                    const btn = document.createElement('button');
+                    btn.className = `pill-btn px-2 py-1 text-[10px] rounded-full ${Utils.getTeaClasses(t, this.state.tea === t)}`;
+                    btn.textContent = t;
+                    btn.onclick = () => { this.state.tea = t; this.renderTea(); this.updatePricing(); };
+                    this.els.teaBox.appendChild(btn);
+                });
+            },
+
+            renderMulti(items, container, set) {
+                container.innerHTML = '';
+                items.forEach(item => {
+                    const btn = document.createElement('button');
+                    btn.className = `multi-pill-btn w-full text-left px-2 py-1 bg-gray-50 border border-gray-200 rounded text-[10px] font-medium text-gray-600 transition truncate ${set.has(item) ? 'active' : ''}`;
+                    btn.textContent = item;
+                    btn.onclick = () => { set.has(item) ? set.delete(item) : set.add(item); this.renderAll(); };
+                    container.appendChild(btn);
+                });
+            },
+
+            renderPayments() {
+                this.els.payBox.innerHTML = '';
+                CONFIG.payments.forEach(p => {
+                    const btn = document.createElement('button');
+                    btn.className = `pill-btn px-2 py-1 text-[10px] rounded-full ${Utils.getPayClasses(p, this.state.payType === p)}`;
+                    btn.textContent = p;
+                    btn.onclick = () => { this.state.payType = p; this.renderPayments(); };
+                    this.els.payBox.appendChild(btn);
+                });
+            },
+
+            renderTable() {
+                this.els.table.innerHTML = '';
+                let t = { gross: 0, tax: 0, fee: 0, cash: 0, mb: 0, venmo: 0, cc: 0, zelle: 0 };
+                this.els.empty.classList.toggle('hidden', this.state.sales.length > 0);
+                [...this.state.sales].sort((a,b) => b.id - a.id).forEach(s => {
+                    const total = s.actualPay * s.qty; const fee = Calculator.getFee(s.paymentType, total);
+                    t.gross += total; t.tax += s.salesTax * s.qty; t.fee += fee;
+                    if(s.paymentType === 'Cash') t.cash += total; else if(s.paymentType === 'MarketBucks') t.mb += total;
+                    else if(s.paymentType === 'Venmo') t.venmo += total; else if(s.paymentType === 'Credit Card') t.cc += total;
+                    else if(s.paymentType === 'Zelle') t.zelle += total;
+                    const tr = document.createElement('tr'); tr.className = "hover:bg-gray-50 border-b";
+                    tr.innerHTML = this.getRowHTML(s, total, fee); this.els.table.appendChild(tr);
+                });
+                this.updateGlobalStats(t);
+            },
+
+            getRowHTML(s, total, fee) {
+                const catTheme = CONFIG.themes[s.category] || { bg: 'gray-100', text: 'gray-800' };
+                const teaColor = s.teaType ? CONFIG.themes.Tea[s.teaType] : 'gray';
+                const listTotal = s.listPrice * s.qty;
+                return `
+                    <td class="p-3 text-xs text-gray-400 whitespace-nowrap">${s.date}<br>${s.time}</td>
+                    <td class="p-3"><div class="flex flex-col"><span class="font-bold text-contrast-blue text-sm">${s.item}</span>${s.note?`<span class="text-xs text-gray-500 italic">"${s.note}"</span>`:''}<div class="flex flex-wrap gap-1 mt-1 items-center"><span class="bg-${catTheme.bg} text-${catTheme.text} px-1.5 py-0.5 rounded text-[10px] font-bold uppercase">${s.category}</span>${s.subCategory!=='-'?`<span class="bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded text-[10px] uppercase">${s.subCategory}</span>`:''}${s.teaType?`<span class="border border-${teaColor}-200 bg-${teaColor}-100 text-${teaColor}-800 px-1.5 py-0.5 rounded text-[10px] font-bold uppercase ml-1">${s.teaType}</span>`:''}</div></div></td>
+                    <td class="p-3 text-center"><span class="px-2 py-1 rounded border text-[10px] font-semibold whitespace-nowrap ${Utils.getPayClasses(s.paymentType, false)}">${s.paymentType}</span></td>
+                    <td class="p-3 text-center text-gray-600">${s.qty}</td>
+                    <td class="p-3 text-right text-gray-400 text-xs">${Utils.formatCurrency(listTotal)}</td>
+                    <td class="p-3 text-right text-gray-400 text-xs italic">${Utils.formatCurrency(s.salesTax * s.qty)}</td>
+                    <td class="p-3 text-right text-red-400 text-xs">${fee > 0 ? `-${Utils.formatCurrency(fee)}` : '-'}</td>
+                    <td class="p-3 text-right font-bold ${total > listTotal ? 'text-green-600' : (total < listTotal ? 'text-red-500' : 'text-gray-800')}">${Utils.formatCurrency(total)}</td>
+                    <td class="p-3 text-center"><button onclick="App.deleteSale(${s.id})" class="text-gray-300 hover:text-red-500 transition px-2">&times;</button></td>`;
+            },
+
+            updateGlobalStats(t) {
+                document.getElementById('grandTotalDisplay').innerText = Utils.formatCurrency(t.gross);
+                document.getElementById('zelleTotalDisplay').innerText = Utils.formatCurrency(t.zelle);
+                document.getElementById('cashTotalDisplay').innerText = Utils.formatCurrency(t.cash + t.mb);
+                document.getElementById('digitalTotalDisplay').innerText = Utils.formatCurrency(t.venmo + t.cc);
+                document.getElementById('netTotalDisplay').innerText = Utils.formatCurrency(t.gross - t.tax - t.fee);
+                document.getElementById('cashBreakdown').innerText = `Cash: ${Utils.formatCurrency(t.cash)}`;
+                document.getElementById('mbBreakdown').innerText = `MarketBucks: ${Utils.formatCurrency(t.mb)}`;
+                document.getElementById('venmoBreakdown').innerText = `Venmo: ${Utils.formatCurrency(t.venmo)}`;
+                document.getElementById('ccBreakdown').innerText = `Credit Card: ${Utils.formatCurrency(t.cc)}`;
+                document.getElementById('taxBreakdown').innerText = `Tax: ${Utils.formatCurrency(t.tax)}`;
+                document.getElementById('taxBreakdown2').innerText = `Tax: ${Utils.formatCurrency(t.tax)}`;
+                document.getElementById('feeBreakdown').innerText = `Fees: ${Utils.formatCurrency(t.fee)}`;
+                document.getElementById('netRevenueBreakdown').innerText = `Net Rev: ${Utils.formatCurrency(t.gross - t.tax - t.fee)}`;
+            },
+
+            save() { localStorage.setItem('salesData', JSON.stringify(this.state.sales)); },
+            deleteSale(id) { this.state.sales = this.state.sales.filter(s => s.id !== id); this.save(); this.renderTable(); },
+            clearAllData() { if(confirm('Reset all data?')) { this.state.sales = []; this.save(); this.renderTable(); } },
+            showError(msg) {
+                this.els.errMsg.innerText = msg; this.els.errPop.classList.remove('hidden', 'animate-pop-right');
+                void this.els.errPop.offsetWidth; this.els.errPop.classList.add('animate-pop-right');
+                setTimeout(() => this.els.errPop.classList.add('hidden'), 3000);
+            },
+            exportToCSV() {
+                if (this.state.sales.length === 0) return this.showError("No data!");
+                const titleText = this.els.title.value.trim();
+                const sanitizedTitle = titleText.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+                const dateStr = new Date().toISOString().slice(0, 10);
+
+                const fileName = sanitizedTitle
+                ? `sales_report_${sanitizedTitle}_${dateStr}.csv`
+                : `sales_report_${dateStr}.csv`;
+
+                let csv = "Date,Time,Category,Sub-Category,Item,Payment,Total,Fees\n";
+                this.state.sales.forEach(s => {
+                    const total = s.actualPay * s.qty;
+                    csv += `${s.date},${s.time},${s.category},${s.subCategory},${s.item},${s.paymentType},${total.toFixed(2)},${Calculator.getFee(s.paymentType, total).toFixed(2)}\n`;
+                });
+                const link = document.createElement("a"); link.href = encodeURI("data:text/csv;charset=utf-8," + csv); link.download = fileName; link.click();
+                }
+            };
+
+        App.init();
+    </script>
+</body>
+</html>
