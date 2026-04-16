@@ -88,13 +88,13 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 w-full xl:w-auto overflow-visible">
             <div class="flex text-center w-full divide-x divide-gray-100">
                 <div class="p-1 sm:p-2 lg:px-5 lg:py-3 tooltip-container flex-1 min-w-0 hover:bg-green-50 transition relative rounded-l-xl">
-                    <span class="block text-[8px] sm:text-[9px] lg:text-[10px] font-bold text-green-600 uppercase truncate">Cash Group</span>
-                    <span id="cashTotalDisplay" class="block text-xs sm:text-sm lg:text-xl font-black text-green-600 truncate">$0.00</span>
+                    <span class="block text-[8px] sm:text-[9px] lg:text-[10px] font-bold text-green-600 uppercase truncate">Cash+</span>
+                    <span id="cashTotalDisplay" class="block text-xs sm:text-sm lg:text-xl font-black text-green-600">$0.00</span>
                     <div class="tooltip-box"><div id="cashBreakdown">Cash: $0.00</div><div id="mbBreakdown">MarketBucks: $0.00</div></div>
                 </div>
                 <div class="p-1 sm:p-2 lg:px-5 lg:py-3 tooltip-container flex-1 min-w-0 hover:bg-blue-50 transition relative">
-                    <span class="block text-[8px] sm:text-[9px] lg:text-[10px] font-bold text-blue-600 uppercase truncate">Venmo Group</span>
-                    <span id="venmoTotalDisplay" class="block text-xs sm:text-sm lg:text-xl font-black text-blue-600 truncate">$0.00</span>
+                    <span class="block text-[8px] sm:text-[9px] lg:text-[10px] font-bold text-blue-600 uppercase truncate">Venmo+</span>
+                    <span id="venmoTotalDisplay" class="block text-xs sm:text-sm lg:text-xl font-black text-blue-600">$0.00</span>
                     <div class="tooltip-box">
                         <div id="venmoBreakdown">Venmo: $0.00</div>
                         <div id="venmoFeeBreakdown" class="text-red-400 text-[10px] pl-2 border-l border-gray-600 mb-1.5">Fee: $0.00</div>
@@ -104,11 +104,11 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
                 </div>
                 <div class="p-1 sm:p-2 lg:px-5 lg:py-3 tooltip-container flex-1 min-w-0 hover:bg-purple-50 transition relative">
                     <span class="block text-[8px] sm:text-[9px] lg:text-[10px] font-bold text-purple-600 uppercase truncate">Zelle</span>
-                    <span id="zelleTotalDisplay" class="block text-xs sm:text-sm lg:text-xl font-black text-purple-600 truncate">$0.00</span>
+                    <span id="zelleTotalDisplay" class="block text-xs sm:text-sm lg:text-xl font-black text-purple-600">$0.00</span>
                 </div>
                 <div class="p-1 sm:p-2 lg:px-5 lg:py-3 tooltip-container flex-1 min-w-0 hover:bg-gray-50 transition relative">
                     <span class="block text-[8px] sm:text-[9px] lg:text-[10px] font-bold text-gray-400 uppercase truncate">Gross</span>
-                    <span id="grandTotalDisplay" class="block text-xs sm:text-sm lg:text-xl font-black text-gray-800 truncate">$0.00</span>
+                    <span id="grandTotalDisplay" class="block text-xs sm:text-sm lg:text-xl font-black text-gray-800">$0.00</span>
                     <div class="tooltip-box">
                         <div class="text-gray-300 text-[10px] mb-1 uppercase tracking-wider">Total Revenue</div>
                         <div id="netRevenueBreakdown">Net Rev: $0.00</div>
@@ -118,12 +118,13 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
                 </div>
                 <div class="p-1 sm:p-2 lg:px-5 lg:py-3 bg-gray-50 tooltip-container flex-1 min-w-0 hover:bg-gray-100 transition relative rounded-r-xl">
                     <span class="block text-[8px] sm:text-[9px] lg:text-[10px] font-bold text-gray-500 uppercase truncate">Net Income</span>
-                    <span id="netTotalDisplay" class="block text-xs sm:text-sm lg:text-xl font-black text-brand-blue truncate">$0.00</span>
+                    <span id="netTotalDisplay" class="block text-xs sm:text-sm lg:text-xl font-black text-brand-blue">$0.00</span>
                     <div class="tooltip-box">
                         <div id="taxBreakdown2" class="text-yellow-400">Tax: $0.00</div>
                         <div id="feeBreakdown" class="text-red-400 mt-1">Fees: $0.00</div>
                         <div id="netVenmoFee" class="text-red-400/80 text-[10px] pl-2 border-l border-gray-600">- Venmo: $0.00</div>
                         <div id="netCcFee" class="text-red-400/80 text-[10px] pl-2 border-l border-gray-600">- CC: $0.00</div>
+                        <div id="expenseBreakdown" class="text-orange-400 mb-1">Expenses: $0.00</div>
                     </div>
                 </div>
             </div>
@@ -565,6 +566,13 @@ const App = {
         document.getElementById('checkoutBtn').disabled = this.state.cart.length === 0;
     },
 
+    removeFromCart(id) {
+    // Filter the cart to remove the item with the matching ID
+    this.state.cart = this.state.cart.filter(item => item.id !== id);
+    // Re-render the cart to show updated state
+    this.renderCart();
+},
+
     renderPayments() {
         const container = document.getElementById('paymentTypeContainer');
         container.innerHTML = '';
@@ -584,7 +592,7 @@ const App = {
     checkout() {
         const subtotal = this.state.cart.reduce((sum, i) => sum + (i.unitPrice * i.qty), 0);
         const discount = parseFloat(document.getElementById('discountInput').value) || 0;
-        const orderTotal = subtotal > 0 ? Math.max(0, subtotal - discount) : subtotal;
+        const orderTotal = roundToCent(subtotal > 0 ? Math.max(0, subtotal - discount) : subtotal);
 
         let fee = 0;
         let tax = 0;
@@ -629,75 +637,76 @@ updateHistory() {
     const body = document.getElementById('salesTableBody');
     body.innerHTML = '';
 
+    // Initialize session totals
     let s = {
         gross: 0, cashGroup: 0, venmoGroup: 0, zelle: 0,
         fees: 0, venmoFees: 0, ccFees: 0, tax: 0,
-        exactCash: 0, mb: 0, exactVenmo: 0, cc: 0
+        exactCash: 0, mb: 0, exactVenmo: 0, cc: 0,
+        expenses: 0 // Track total expenses for the tooltip
     };
 
     const payColors = { Cash: 'green', Venmo: 'blue', Zelle: 'purple', CC: 'yellow', MB: 'gray' };
 
     [...this.state.sales].reverse().forEach(order => {
+        // Core session math
         s.gross += order.total;
         s.tax += order.tax;
         s.fees += order.fee;
 
+        // Payment Grouping Math
         if(order.payment === 'Cash') { s.cashGroup += order.total; s.exactCash += order.total; }
         else if(order.payment === 'MB') { s.cashGroup += order.total; s.mb += order.total; }
         else if(order.payment === 'Venmo') { s.venmoGroup += order.total; s.exactVenmo += order.total; s.venmoFees += order.fee; }
         else if(order.payment === 'CC') { s.venmoGroup += order.total; s.cc += order.total; s.ccFees += order.fee; }
         else if(order.payment === 'Zelle') { s.zelle += order.total; }
 
+        // Calculate total quantity for this order
         const totalQty = order.items.reduce((sum, i) => sum + i.qty, 0);
-        const netAmt = order.total - order.fee - order.tax;
-        const grossColorClass = order.total < 0 ? 'text-red-600' : 'text-gray-800';
-        const netColorClass = netAmt < 0 ? 'text-red-600' : 'text-brand-blue';
 
+        // Calculate the specific NET for THIS order (Gross - Fees - Tax)
+        const orderNetAmount = roundToCent(order.total - order.fee - order.tax);
+
+        // Track session expenses (Sum of items marked as 'Expense' category)
+        const orderExpenses = order.items
+            .filter(item => item.category === 'Expense')
+            .reduce((sum, item) => sum + (item.unitPrice * item.qty), 0);
+
+        // We use Math.abs because expense prices are stored as negative numbers
+        s.expenses += Math.abs(orderExpenses);
+
+        // Styling classes
+        const grossColorClass = order.total < 0 ? 'text-red-600' : 'text-gray-800';
+        const netColorClass = orderNetAmount < 0 ? 'text-red-600' : 'text-brand-blue';
+
+        // Format timestamp for display
         const timeHTML = order.timestamp.includes(', ')
             ? order.timestamp.replace(', ', '<br><span class="text-[8px] text-gray-400">') + '</span>'
             : order.timestamp;
 
         const pColor = payColors[order.payment] || 'gray';
 
+        // Render Row
         const tr = document.createElement('tr');
         tr.className = "hover:bg-gray-50 transition";
 
-        // Category Pills
         const categoryPills = [...new Set(order.items.map(i => i.category))].map(c => {
             const theme = CONFIG.themes[c] || { bg: 'gray-100', text: 'gray-500' };
             return `<span class="text-[8px] uppercase font-bold bg-${theme.bg} text-${theme.text} px-1.5 py-0.5 rounded">${c}</span>`;
         }).join('');
 
-        // Subcategory Pills with Inherited Colors
         const subCategoryPills = [...new Set(order.items.map(i => {
             const sc = i.subCategory;
             if (!sc) return '';
-
-            // Determine color base
-            let color = 'gray';
-
-            // 1. Try to find if any item in this order with this subcat has a teaType
-            const itemWithTea = order.items.find(item => item.subCategory === sc && item.teaType);
-            if (itemWithTea) {
-                color = CONFIG.themes.Tea[itemWithTea.teaType] || 'gray';
-            } else {
-                // 2. Fallback to category theme
-                color = (CONFIG.themes[i.category] && CONFIG.themes[i.category].main.split('-')[0]) || 'gray';
-            }
-
-            // Slate needs specific handling for readability
-            const isSlate = color === 'slate';
-            const bgClass = isSlate ? `bg-slate-200` : `bg-${color}-50`;
-            const textClass = isSlate ? `text-slate-800` : `text-${color}-700`;
-            const borderClass = isSlate ? `border-slate-300` : `border-${color}-200`;
-
-            return `<span class="text-[8px] uppercase font-bold border ${borderClass} ${bgClass} ${textClass} px-1.5 py-0.5 rounded shadow-sm">${sc}</span>`;
+            let color = (CONFIG.themes[i.category] && CONFIG.themes[i.category].main.split('-')[0]) || 'gray';
+            const bgClass = color === 'slate' ? `bg-slate-200` : `bg-${color}-50`;
+            const textClass = color === 'slate' ? `text-slate-800` : `text-${color}-700`;
+            return `<span class="text-[8px] uppercase font-bold border border-${color}-200 ${bgClass} ${textClass} px-1.5 py-0.5 rounded shadow-sm">${sc}</span>`;
         }).filter(Boolean))].join('');
 
         tr.innerHTML = `
-            <td class="p-2 lg:p-3 text-[9px] lg:text-[10px] text-gray-500 font-mono leading-tight whitespace-nowrap lg:whitespace-normal">${timeHTML}</td>
+            <td class="p-2 lg:p-3 text-[9px] lg:text-[10px] text-gray-500 font-mono leading-tight">${timeHTML}</td>
             <td class="p-2 lg:p-3 w-full">
-                <div class="text-[11px] lg:text-xs font-bold text-contrast-blue whitespace-normal break-words">${order.items.map(i => `${i.qty}x ${i.name}`).join(', ')}</div>
+                <div class="text-[11px] lg:text-xs font-bold text-contrast-blue">${order.items.map(i => `${i.qty}x ${i.name}`).join(', ')}</div>
                 <div class="flex flex-wrap gap-1 mt-1">
                     ${categoryPills}
                     ${subCategoryPills}
@@ -708,38 +717,40 @@ updateHistory() {
                 <span class="text-[8px] lg:text-[9px] font-black uppercase px-2 py-0.5 rounded-full border border-${pColor}-200 bg-${pColor}-50 text-${pColor}-700">${order.payment}</span>
             </td>
             <td class="p-2 lg:p-3 text-right">
-                ${(order.discount > 0 && order.subtotal > 0) ? `<div class="text-[9px] lg:text-[10px] text-brand-blue font-bold mb-0.5 tracking-tighter">-${fmt(order.discount)}</div>` : ''}
+                ${(order.discount > 0) ? `<div class="text-[9px] lg:text-[10px] text-brand-blue font-bold mb-0.5">-${fmt(order.discount)}</div>` : ''}
                 <div class="font-mono text-xs lg:text-sm font-black ${grossColorClass}">${fmt(order.total)}</div>
             </td>
-            <td class="p-2 lg:p-3 text-right font-mono text-xs lg:text-sm font-black ${netColorClass}">${fmt(netAmt)}</td>
+            <td class="p-2 lg:p-3 text-right font-mono text-xs lg:text-sm font-black ${netColorClass}">${fmt(orderNetAmount)}</td>
             <td class="p-2 lg:p-3 text-right"><button onclick="App.deleteOrder(${order.id})" class="text-gray-300 hover:text-red-500 font-bold text-base">&times;</button></td>
         `;
         body.appendChild(tr);
     });
 
-        document.getElementById('cashTotalDisplay').innerText = fmt(s.cashGroup);
-        document.getElementById('venmoTotalDisplay').innerText = fmt(s.venmoGroup);
-        document.getElementById('zelleTotalDisplay').innerText = fmt(s.zelle);
-        document.getElementById('grandTotalDisplay').innerText = fmt(s.gross);
-        document.getElementById('netTotalDisplay').innerText = fmt(s.gross - s.fees - s.tax);
+    // --- Update Summary Displays ---
+    document.getElementById('cashTotalDisplay').innerText = fmt(s.cashGroup);
+    document.getElementById('venmoTotalDisplay').innerText = fmt(s.venmoGroup);
+    document.getElementById('zelleTotalDisplay').innerText = fmt(s.zelle);
+    document.getElementById('grandTotalDisplay').innerText = fmt(s.gross);
+    document.getElementById('netTotalDisplay').innerText = fmt(roundToCent(s.gross - s.fees - s.tax));
 
-        document.getElementById('cashBreakdown').innerText = `Cash: ${fmt(s.exactCash)}`;
-        document.getElementById('mbBreakdown').innerText = `MarketBucks: ${fmt(s.mb)}`;
+    // Update Tooltips
+    document.getElementById('cashBreakdown').innerText = `Cash: ${fmt(s.exactCash)}`;
+    document.getElementById('mbBreakdown').innerText = `MarketBucks: ${fmt(s.mb)}`;
+    document.getElementById('venmoBreakdown').innerText = `Venmo: ${fmt(s.exactVenmo)}`;
+    document.getElementById('venmoFeeBreakdown').innerText = `Fee: ${fmt(s.venmoFees)}`;
+    document.getElementById('ccBreakdown').innerText = `Credit Card: ${fmt(s.cc)}`;
+    document.getElementById('ccFeeBreakdown').innerText = `Fee: ${fmt(s.ccFees)}`;
+    document.getElementById('netRevenueBreakdown').innerText = `Net Rev: ${fmt(s.gross - s.tax - s.fees)}`;
+    document.getElementById('taxBreakdown').innerText = `Est. Tax: ${fmt(s.tax)}`;
+    document.getElementById('grossFeeBreakdown').innerText = `Est. Fees: ${fmt(s.fees)}`;
 
-        document.getElementById('venmoBreakdown').innerText = `Venmo: ${fmt(s.exactVenmo)}`;
-        document.getElementById('venmoFeeBreakdown').innerText = `Fee: ${fmt(s.venmoFees)}`;
-        document.getElementById('ccBreakdown').innerText = `Credit Card: ${fmt(s.cc)}`;
-        document.getElementById('ccFeeBreakdown').innerText = `Fee: ${fmt(s.ccFees)}`;
-
-        document.getElementById('netRevenueBreakdown').innerText = `Net Rev: ${fmt(s.gross - s.tax - s.fees)}`;
-        document.getElementById('taxBreakdown').innerText = `Est. Tax: ${fmt(s.tax)}`;
-        document.getElementById('grossFeeBreakdown').innerText = `Est. Fees: ${fmt(s.fees)}`;
-
-        document.getElementById('taxBreakdown2').innerText = `Tax: ${fmt(s.tax)}`;
-        document.getElementById('feeBreakdown').innerText = `Total Fees: ${fmt(s.fees)}`;
-        document.getElementById('netVenmoFee').innerText = `- Venmo: ${fmt(s.venmoFees)}`;
-        document.getElementById('netCcFee').innerText = `- CC: ${fmt(s.ccFees)}`;
-    },
+    // Net Income Tooltip specific
+    document.getElementById('taxBreakdown2').innerText = `Tax: ${fmt(s.tax)}`;
+    document.getElementById('feeBreakdown').innerText = `Total Fees: ${fmt(s.fees)}`;
+    document.getElementById('netVenmoFee').innerText = `- Venmo: ${fmt(s.venmoFees)}`;
+    document.getElementById('netCcFee').innerText = `- CC: ${fmt(s.ccFees)}`;
+    document.getElementById('expenseBreakdown').innerText = `Expenses: -${fmt(s.expenses)}`;
+},
 
     save() { localStorage.setItem('salesData_v8', JSON.stringify(this.state.sales)); },
     clearData() { if(confirm('Clear all session data?')) { this.state.sales = []; this.save(); this.updateHistory(); } },
