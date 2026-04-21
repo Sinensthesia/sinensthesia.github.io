@@ -80,7 +80,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Ensure the grid cells expand to fill the available space
         expandRows: true,
-
+        buttonText: {
+            today: "☀️"
+        },
         headerToolbar: {
             left: 'prev,next today',
             center: 'title',
