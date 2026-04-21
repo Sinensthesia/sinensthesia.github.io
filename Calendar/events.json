@@ -1,0 +1,36 @@
+[
+  {
+    "title": "Highland Park Farmers Market",
+    "start": "2026-03-06",
+    "end": "2026-12-11",
+    "daysOfWeek": [5],
+    "url": "https://www.mainstreethp.org/",
+    "location": "212 Raritan Avenue Highland Park, NJ 08904",
+    "image": "../Resources/Calendar/h.png"
+  },
+  {
+    "title": "Madison Farm & Artisan Market",
+    "daysOfWeek": [6],
+    "startRecur": "2026-05-23",
+    "endRecur": "2026-12-12",
+    "url": "https://www.rosenet.org/380/Madison-Farm-Artisan-Market",
+    "location": "28 Prospect St Lot, Madison, NJ 07940",
+    "image": "../Resources/Calendar/mad.png"
+  },
+  {
+    "title": "Riverview Farmers Market",
+    "start": "2026-05-03",
+    "end": "2026-11-22",
+    "daysOfWeek": [0],
+    "url": "https://riverviewfarmersmarket.org/",
+    "location": "Riverview-Fisk Park 498 Palisade Ave Jersey City, NJ",
+    "image": "../Resources/Calendar/rv.jpg"
+   },
+   {
+    "title": "CHP Handmade & Handcrafted Showcase",
+    "start": "2026-04-25",
+    "url": "https://www.facebook.com/photo/?fbid=1416962633779800&set=a.458290462980360",
+    "location": "152 Cedar Grove Ln, Somerset, NJ, United States, 08873",
+    "cancelled": true
+   }
+]

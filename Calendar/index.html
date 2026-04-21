@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sinensthesia | Event Schedule</title>
+
+  <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
+  <script src="./calendar.js" defer></script>
+
+  <style>
+    /* --- Base --- */
+    body {
+      background-color: #f8f4ec;
+      font-family: Garamond, "Times New Roman", serif;
+      color: #000080;
+      padding: 20px;
+      margin: 0;
+      position: relative;
+    }
+
+    a { color: #000080; text-decoration: none; }
+    /* --- Refined Embed Optimizations --- */
+    body.is-embedded {
+        padding: 0 !important;
+        /* Match exactly the Linktea background color */
+        background-color: #FDFBF5 !important;
+        background-image: none !important;
+    }
+
+    body.is-embedded #page-header {
+        display: none !important;
+    }
+
+    /* Remove card styling so content sits flat on the fdfbf5 background */
+    body.is-embedded #calendar-container,
+    body.is-embedded .sidebar-legend {
+        background-color: transparent !important;
+        box-shadow: none !important;
+        border: none !important;
+        backdrop-filter: none !important;
+        padding: 15px !important;
+    }
+
+    @media (min-width: 900px) {
+        body.is-embedded .layout-wrapper {
+            height: 100vh;
+            gap: 0;
+        }
+
+        /* Subtle separator line using a slightly darker version of the cream */
+        body.is-embedded .sidebar-legend {
+            border-left: 1px solid rgba(0, 35, 102, 0.1);
+        }
+    }
+
+    /* --- Particle Effect CSS --- */
+    #particle-container {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      z-index: -1;
+      pointer-events: none;
+      overflow: hidden;
+      opacity: 0;
+      transition: opacity 0.5s ease-in-out;
+    }
+    #particle-container.particles-visible { opacity: 1; }
+    @keyframes float-bright {
+        0% { transform: translateY(0px) rotate(0deg); opacity: 0.7; }
+        50% { transform: translateY(-15px) rotate(180deg); opacity: 0.3; }
+        100% { transform: translateY(0px) rotate(360deg); opacity: 0.7; }
+    }
+    @keyframes float-subtle {
+        0% { transform: translateY(0px) rotate(0deg); opacity: 0.3; }
+        50% { transform: translateY(-20px) rotate(180deg); opacity: 0.1; }
+        100% { transform: translateY(0px) rotate(360deg); opacity: 0.3; }
+    }
+    .particle { position: absolute; animation-timing-function: ease-in-out; animation-iteration-count: infinite; }
+    .particle-bright { animation-name: float-bright; }
+    .particle-subtle { animation-name: float-subtle; }
+
+    /* --- Header --- */
+    #page-header { text-align: center; margin-bottom: 20px; }
+    .brand-title { font-size: 2.5em; margin: 0; font-weight: normal; letter-spacing: 1px; }
+
+    /* --- Responsive Layout Wrapper --- */
+    .layout-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      max-width: 1400px;
+      margin: 0 auto;
+      /* Mobile: Let it be as tall as it needs to be */
+      height: auto;
+    }
+
+    @media (min-width: 900px) {
+      .layout-wrapper {
+        flex-direction: row;
+        align-items: stretch;
+        /* Desktop: Lock the height to the screen to enable internal scrolling */
+        height: 85vh;
+      }
+      #calendar-container {
+        flex: 3.5;
+        overflow-y: auto;
+      }
+      .sidebar-legend {
+        flex: 1;
+        overflow-y: auto;
+        height: 100%;
+      }
+    }
+
+    /* --- Mobile Specific Toolbar Fix --- */
+    @media (max-width: 899px) {
+      /* Force the header to stack vertically */
+      .fc-header-toolbar {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 10px;
+      }
+
+      /* Make each chunk take full width to allow centering */
+      .fc-toolbar-chunk {
+        width: 100% !important;
+        display: flex !important;
+        justify-content: center !important;
+      }
+
+      /* Adjust font sizes for mobile screens */
+      .fc-toolbar-title {
+        font-size: 1.6em !important;
+        margin-top: 5px;
+      }
+
+      .brand-title {
+        font-size: 2.2em;
+      }
+
+      #calendar-container, .sidebar-legend {
+        height: auto !important;
+        overflow-y: visible !important;
+        padding: 10px; /* Tighter padding for mobile */
+      }
+    }
+
+    /* Containers (Universal) */
+    #calendar-container, .sidebar-legend {
+      background-color: rgba(255, 255, 255, 0.95);
+      padding: 15px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 128, 0.08);
+      box-sizing: border-box;
+      backdrop-filter: blur(2px);
+    }
+
+    /* --- FullCalendar UI Tweaks --- */
+    .fc-toolbar-chunk { width: 33.333%; }
+    .fc-toolbar-chunk:nth-child(1) { display: flex; justify-content: flex-start; }
+    .fc-toolbar-chunk:nth-child(2) { display: flex; justify-content: center; }
+    .fc-toolbar-chunk:nth-child(3) { display: flex; justify-content: flex-end; }
+
+    .fc-toolbar-title {
+      font-family: Garamond, "Times New Roman", serif !important;
+      font-size: 2.2em !important;
+      font-style: italic;
+      color: #000080;
+    }
+
+    .fc-button-primary {
+      background-color: transparent !important;
+      border: 1px solid rgba(0, 0, 128, 0.2) !important;
+      color: #000080 !important;
+      box-shadow: none !important;
+      padding: 2px 10px !important;
+    }
+
+    /* TIGHTER GRID */
+    .fc-theme-standard td, .fc-theme-standard th { border-color: rgba(0, 0, 128, 0.1) !important; }
+    .fc-col-header-cell-cushion { font-size: 1.1em; padding: 4px 0 !important; color: #000080; }
+    .fc-daygrid-day-number { font-size: 1em; padding: 2px 8px !important; color: #000080; }
+
+    /* Remove excessive whitespace in grid cells */
+    .fc-daygrid-day-events { margin: 1 !important; }
+    .fc-daygrid-event-harness { margin: 0 !important; padding: 0px 0; }
+
+    .fc-event { border: none !important; background: transparent !important; cursor: pointer; }
+    .fc-event:hover { opacity: 0.8; transform: scale(1.02); transition: all 0.2s ease; }
+
+    /* --- Sidebar Legend --- */
+    .sidebar-section { margin-bottom: 30px; }
+    .sidebar-title {
+      margin-top: 0; font-style: italic;
+      border-bottom: 1px solid rgba(0, 0, 128, 0.15);
+      padding-bottom: 8px; margin-bottom: 15px; font-size: 1.6em;
+    }
+    .legend-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 15px; }
+    .legend-item { display: flex; align-items: center; font-size: 1.05em; }
+    .legend-logo { width: 80px; height: auto; margin-right: 15px; border-radius: 4px; flex-shrink: 0; }
+    .legend-text { display: flex; flex-direction: column; }
+    .legend-title { font-weight: bold; line-height: 1.2; }
+    .legend-dates { font-style: italic; font-size: 0.9em; opacity: 0.8; margin-top: 2px; }
+    .legend-location { font-size: 0.85em; margin-top: 3px; display: inline-flex; align-items: center; opacity: 0.8; }
+    .legend-location:hover { opacity: 1; text-decoration: underline; }
+    .legend-empty { font-style: italic; font-size: 0.9em; opacity: 0.6; }
+  </style>
+</head>
+<body>
+  <div id="particle-container"></div>
+  <header id="page-header"><h1 class="brand-title">Sinensthesia</h1></header>
+  <div class="layout-wrapper">
+    <div id="calendar-container"><div id='calendar'></div></div>
+    <aside class="sidebar-legend">
+      <div class="sidebar-section"><h3 class="sidebar-title">Markets</h3><ul class="legend-list" id="legend-markets"></ul></div>
+      <div class="sidebar-section"><h3 class="sidebar-title">Events</h3><ul class="legend-list" id="legend-events"></ul></div>
+      <div class="sidebar-section"><h3 class="sidebar-title" style="color: #b30000; border-bottom-color: rgba(179, 0, 0, 0.15);">Cancellations</h3><ul class="legend-list" id="legend-cancelled"></ul></div>
+    </aside>
+  </div>
+</body>
+</html>

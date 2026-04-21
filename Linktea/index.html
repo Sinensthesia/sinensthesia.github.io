@@ -61,6 +61,17 @@
             opacity: 0.1;
         }
 
+        /* Adjusting the calendar popup size specifically for the embed */
+        #calendar-popup .menu-popup-body {
+            max-width: 1200px; /* Matching the calendar layout-wrapper max-width */
+            width: 95vw;
+        }
+
+        /* Prevent body scroll when modal is open */
+        body.modal-open {
+            overflow: hidden;
+        }
+
         #particle-container {
             position: fixed;
             inset: 0;
@@ -206,32 +217,20 @@
         </div>
     </div>
 
-    <!-- Swap between these two popups for Instagram-embed calendar vs quick text based calendar -->
-    <div id="calendar-popup-hidden" class="modal fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
-        <div class="menu-popup-body bg-[#FDFBF5] text-[#1E2A4A] p-2 rounded-lg shadow-xl relative w-full max-w-[400px] overflow-y-auto max-h-[80vh] flex flex-col items-center">
-            <blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="https://www.instagram.com/p/DSVb941EbI0/?utm_source=ig_embed&amp;utm_campaign=loading" data-instgrm-version="14" style=" background:#FFF; border:0; border-radius:3px; box-shadow:0 0 1px 0 rgba(0,0,0,0.5),0 1px 10px 0 rgba(0,0,0,0.15); margin: 1px; max-width:540px; min-width:326px; padding:0; width:99.375%; width:-webkit-calc(100% - 2px); width:calc(100% - 2px);">
-            </blockquote>
-            </div>
-    </div>
-
-    <!-- Swap between these two popups for Instagram-embed calendar vs quick text based calendar -->
     <div id="calendar-popup" class="modal fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
-        <div class="menu-popup-body bg-[#FDFBF5] text-[#1E2A4A] p-8 rounded-lg shadow-xl relative max-w-md w-full text-center overflow-y-auto max-h-[90vh]">
+        <div class="menu-popup-body bg-[#FDFBF5] text-[#1E2A4A] rounded-lg shadow-xl relative w-full max-w-5xl p-0 overflow-hidden flex flex-col h-[85vh]">
 
-            <h2 class="text-3xl font-bold mb-4 brand-font text-[#002366]">2026 Calendar</h2>
-            <p class="mb-6 text-sm leading-relaxed">
-                Friday: 11AM-5PM EST ❁ Highland Park Farmers Market
-                <br>
-                Saturday: 9AM-2PM EST ❁ Madison Farm & Artisan Market
-                <br>
-                Sunday: 10AM-2PM EST ❁ Riverview Farmers Market - Jersey City
-            </p>
+            <button id="close-calendar" class="absolute top-4 right-4 z-[60] text-[#002366] hover:opacity-70">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
 
-            <div class="mb-6 hidden">
-                <p class="font-semibold mb-2">In the meantime, visit my socials:</p>
-                <a href="https://youtube.com/@Sinensthesia" class="block text-[#0505af] underline hover:opacity-80 mb-1">YouTube</a>
-                <a href="https://www.instagram.com/sinensthesia/" target="_blank" class="block text-[#0505af] underline hover:opacity-80">Instagram</a>
-            </div>
+           <iframe
+                src="../calendar/index.html"
+                style="width: 100%; height: 100%; border: none; background-color: #FDFBF5;"
+                title="Sinensthesia Event Calendar">
+            </iframe>
         </div>
     </div>
 
@@ -416,22 +415,30 @@
             const openModal = (modal) => modal.classList.remove('hidden');
             const closeModal = (modal) => modal.classList.add('hidden');
 
+            const closeCalendarButton = document.getElementById('close-calendar');
+
             openCalendarButton.addEventListener('click', () => {
+                document.body.classList.add('modal-open');
                 openModal(calendarPopup);
-                // Force Instagram to process the embed now that the modal is visible
-                if (window.instgrm && window.instgrm.Embeds) {
-                    window.instgrm.Embeds.process();
-                }
+
+                // Optional: If you want the calendar to refresh every time it's opened
+                const iframe = calendarPopup.querySelector('iframe');
+                iframe.src = iframe.src;
+            });
+
+            // Close with the dedicated X button
+            closeCalendarButton.addEventListener('click', () => {
+                document.body.classList.remove('modal-open');
+                closeModal(calendarPopup);
             });
 
             // Close when clicking the background
             calendarPopup.addEventListener('click', (e) => {
-                // Only close if clicking the backdrop, not the embed itself
                 if (e.target === calendarPopup) {
+                    document.body.classList.remove('modal-open');
                     closeModal(calendarPopup);
                 }
             });
-
             openCateringButton.addEventListener('click', () => openModal(cateringPopup));
             cateringPopup.addEventListener('click', () => closeModal(cateringPopup));
 
