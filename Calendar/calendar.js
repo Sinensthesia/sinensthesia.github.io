@@ -126,7 +126,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     html: `<div style="display: flex; justify-content: center; align-items: center; position: relative; height: 100%;">
                     <img src="${finalImageUrl}" style="max-width: 95%; max-height: 65px; object-fit: contain; opacity: 0.3; filter: grayscale(100%);">
                     <div style="position: absolute; width: 80%; height: 2px; background-color: #b30000; transform: rotate(-15deg);"></div>
-                    <div style="position: absolute; color: #b30000; font-weight: 900; font-size: 0.65em; background: rgba(255,255,255,0.9); padding: 1px 4px; border-radius: 2px; text-transform: uppercase;">Canceled</div>
+                    <div style="position: absolute; color: #b30000; font-weight: 900; font-size: 0.65em; background: rgba(255,255,255,0.9); padding: 1px 4px; border-radius: 2px; text-transform: uppercase;">Cancelled</div>
                     </div>`
                 };
             } else {
