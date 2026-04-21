@@ -74,9 +74,9 @@ document.addEventListener('DOMContentLoaded', function() {
     buildLegend();
     const calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
-        // If we are embedded, use 'auto' to prevent internal scrollbars
-        // If not, we use the dashboard 100% height
-        height: window.self !== window.top ? 'auto' : '100%',
+        // Use 'auto' height on mobile (width < 900)
+        // Use '100%' on desktop (but only if NOT embedded)
+        height: window.innerWidth < 900 ? 'auto' : (window.self !== window.top ? 'auto' : '100%'),
 
         // Ensure the grid cells expand to fill the available space
         expandRows: true,

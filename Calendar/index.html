@@ -113,39 +113,51 @@
       }
     }
 
-    /* --- Mobile Specific Toolbar Fix --- */
+   /* --- Comprehensive Mobile Fix --- */
     @media (max-width: 899px) {
-      /* Force the header to stack vertically */
+      .layout-wrapper {
+        display: block !important; /* Switch from flex to standard block for natural stacking */
+        height: auto !important;
+        margin: 0 auto;
+      }
+
+      #calendar-container {
+        width: 100% !important;
+        height: auto !important;
+        margin-bottom: 20px;
+        padding: 10px !important;
+      }
+
+      .sidebar-legend {
+        width: 100% !important;
+        height: auto !important;
+        overflow-y: visible !important; /* Disable internal scrolling on mobile */
+        padding: 15px !important;
+      }
+
+      /* Fix the toolbar stacking and overlapping month title */
       .fc-header-toolbar {
         display: flex !important;
         flex-direction: column !important;
-        gap: 10px;
+        gap: 8px;
+        margin-bottom: 10px !important;
       }
 
-      /* Make each chunk take full width to allow centering */
       .fc-toolbar-chunk {
         width: 100% !important;
-        display: flex !important;
         justify-content: center !important;
       }
 
-      /* Adjust font sizes for mobile screens */
       .fc-toolbar-title {
-        font-size: 1.6em !important;
-        margin-top: 5px;
+        font-size: 1.5em !important;
+        text-align: center;
       }
 
-      .brand-title {
-        font-size: 2.2em;
-      }
-
-      #calendar-container, .sidebar-legend {
-        height: auto !important;
-        overflow-y: visible !important;
-        padding: 10px; /* Tighter padding for mobile */
+      /* Make logos slightly smaller so the grid doesn't explode on narrow screens */
+      .fc-event img {
+        max-height: 35px !important;
       }
     }
-
     /* Containers (Universal) */
     #calendar-container, .sidebar-legend {
       background-color: rgba(255, 255, 255, 0.95);
