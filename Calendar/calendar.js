@@ -41,8 +41,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     const mapQuery = encodeURIComponent(event.location);
                     const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${mapQuery}`;
                     locationHtml = event.cancelled
-                    ? `<span class="legend-location">📍 ${event.location}</span>`
-                    : `<a href="${mapsUrl}" target="_blank" class="legend-location">📍 ${event.location}</a>`;
+                    ? `<span class="legend-location"> ${event.location}</span>`
+                    : `<a href="${mapsUrl}" target="_blank" class="legend-location"> ${event.location}</a>`;
                 }
 
                 const finalLegendImageUrl = event.image || BRAND_DEFAULT_LOGO;
