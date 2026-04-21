@@ -11,8 +11,8 @@
   {
     "title": "Madison Farm & Artisan Market",
     "daysOfWeek": [6],
-    "startRecur": "2026-05-23",
-    "endRecur": "2026-12-12",
+    "start": "2026-05-23",
+    "end": "2026-12-12",
     "url": "https://www.rosenet.org/380/Madison-Farm-Artisan-Market",
     "location": "28 Prospect St Lot, Madison, NJ 07940",
     "image": "../Resources/Calendar/mad.png"
