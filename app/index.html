@@ -1,543 +1,898 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Sales Report App</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<script>
-tailwind.config = {
-    theme: {
-        extend: {
-            colors: {
-                'brand-blue': '#1e3a8a',
-                'contrast-blue': '#172554',
-                'cream': '#FDFBF5',
+    <head>
+        <meta charset="UTF-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+        />
+        <title>Sales Report App</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script>
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        colors: {
+                            'brand-blue': '#1e3a8a',
+                            'contrast-blue': '#172554',
+                            cream: '#FDFBF5',
+                        },
+                    },
+                },
+            };
+        </script>
+        <style>
+            /* Base Pill Styles */
+            .pill-btn {
+                transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+                white-space: nowrap;
+                border: 1px solid transparent;
+                font-weight: 600;
             }
-        }
-    }
-}
-</script>
-<style>
-/* Base Pill Styles */
-.pill-btn { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); white-space: nowrap; border: 1px solid transparent; font-weight: 600; }
-.pill-btn.active { transform: translateY(-1px); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border: 1px solid rgba(255,255,255,0.2); }
-.multi-pill-btn.active { background-color: #dbeafe; color: #1e3a8a; border-color: #1e3a8a; font-weight: bold; }
+            .pill-btn.active {
+                transform: translateY(-1px);
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+            }
+            .multi-pill-btn.active {
+                background-color: #dbeafe;
+                color: #1e3a8a;
+                border-color: #1e3a8a;
+                font-weight: bold;
+            }
 
-/* Scrollbars */
-.scroller::-webkit-scrollbar { width: 6px; height: 6px; }
-.scroller::-webkit-scrollbar-track { background: transparent; }
-.scroller::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-.scroller::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+            /* Scrollbars */
+            .scroller::-webkit-scrollbar {
+                width: 6px;
+                height: 6px;
+            }
+            .scroller::-webkit-scrollbar-track {
+                background: transparent;
+            }
+            .scroller::-webkit-scrollbar-thumb {
+                background: #cbd5e1;
+                border-radius: 10px;
+            }
+            .scroller::-webkit-scrollbar-thumb:hover {
+                background: #94a3b8;
+            }
 
-/* Layout Fixes */
-input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
-.cart-item { animation: slideIn 0.2s ease-out; }
-@keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+            /* Layout Fixes */
+            input[type='number']::-webkit-inner-spin-button {
+                -webkit-appearance: none;
+            }
+            .cart-item {
+                animation: slideIn 0.2s ease-out;
+            }
+            @keyframes slideIn {
+                from {
+                    opacity: 0;
+                    transform: translateX(-10px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateX(0);
+                }
+            }
 
-/* Tooltips: Desktop ONLY */
-.tooltip-container { position: relative; cursor: help; z-index: 50; }
-.tooltip-box {
-    display: none;
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    margin-top: 8px;
-    background-color: #1e293b;
-    color: white;
-    padding: 8px 12px;
-    border-radius: 6px;
-    font-size: 0.75rem;
-    white-space: nowrap;
-    z-index: 100;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
-    text-align: left;
-    font-weight: normal;
-    pointer-events: none;
-}
-.tooltip-box::before { content: ""; position: absolute; bottom: 100%; left: 50%; margin-left: -5px; border-width: 5px; border-style: solid; border-color: transparent transparent #1e293b transparent; }
+            /* Tooltips: Desktop ONLY */
+            .tooltip-container {
+                position: relative;
+                cursor: help;
+                z-index: 50;
+            }
+            .tooltip-box {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 50%;
+                transform: translateX(-50%);
+                margin-top: 8px;
+                background-color: #1e293b;
+                color: white;
+                padding: 8px 12px;
+                border-radius: 6px;
+                font-size: 0.75rem;
+                white-space: nowrap;
+                z-index: 100;
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+                text-align: left;
+                font-weight: normal;
+                pointer-events: none;
+            }
+            .tooltip-box::before {
+                content: '';
+                position: absolute;
+                bottom: 100%;
+                left: 50%;
+                margin-left: -5px;
+                border-width: 5px;
+                border-style: solid;
+                border-color: transparent transparent #1e293b transparent;
+            }
 
-@media (min-width: 1024px) {
-    .tooltip-container:hover .tooltip-box { display: block; }
-}
-</style>
-</head>
-<body class="bg-gray-100 p-2 sm:p-4 lg:p-6 font-sans text-gray-800 flex flex-col min-h-screen lg:h-screen lg:overflow-hidden overflow-x-hidden w-full">
+            @media (min-width: 1024px) {
+                .tooltip-container:hover .tooltip-box {
+                    display: block;
+                }
+            }
+        </style>
+    </head>
+    <body
+        class="bg-gray-100 p-2 sm:p-4 lg:p-6 font-sans text-gray-800 flex flex-col min-h-screen lg:h-screen lg:overflow-hidden overflow-x-hidden w-full"
+    >
+        <div class="max-w-[1800px] mx-auto w-full flex flex-col flex-1 min-h-0">
+            <div
+                class="flex flex-col xl:flex-row justify-between items-start xl:items-end mb-4 lg:mb-6 gap-4 lg:gap-6 flex-shrink-0 relative z-20 w-full"
+            >
+                <div class="w-full xl:w-auto">
+                    <input
+                        type="text"
+                        id="reportTitle"
+                        class="text-2xl lg:text-3xl font-bold text-contrast-blue bg-transparent border-b-2 border-transparent hover:border-gray-300 focus:border-brand-blue focus:outline-none w-full md:w-96 transition"
+                        value="Daily Sales"
+                    />
 
-<div class="max-w-[1800px] mx-auto w-full flex flex-col flex-1 min-h-0">
-
-    <div class="flex flex-col xl:flex-row justify-between items-start xl:items-end mb-4 lg:mb-6 gap-4 lg:gap-6 flex-shrink-0 relative z-20 w-full">
-        <div class="w-full xl:w-auto">
-            <input type="text" id="reportTitle" class="text-2xl lg:text-3xl font-bold text-contrast-blue bg-transparent border-b-2 border-transparent hover:border-gray-300 focus:border-brand-blue focus:outline-none w-full md:w-96 transition" value="Daily Sales">
-
-            <div class="flex items-center gap-3 lg:gap-4 mt-2">
-                <div class="flex items-center gap-2 bg-white px-2 py-1 rounded shadow-sm border border-gray-200">
-                    <label class="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" id="retroToggle" class="sr-only peer" onchange="App.toggleRetroMode()">
-                        <div class="w-6 h-3.5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-2.5 after:w-2.5 after:transition-all peer-checked:bg-brand-blue"></div>
-                    </label>
-                    <span class="text-[9px] lg:text-[10px] font-bold text-gray-500 uppercase tracking-wide">Retro Mode</span>
-                </div>
-
-                <p class="text-xs lg:text-sm text-gray-500 font-mono" id="sessionClock"></p>
-                <input type="date" id="retroDateInput" class="hidden text-base lg:text-sm bg-white border border-gray-300 rounded px-2 py-1 outline-none focus:border-brand-blue text-gray-600 font-mono shadow-sm">
-            </div>
-        </div>
-
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 w-full xl:w-auto overflow-visible">
-            <div class="flex text-center w-full divide-x divide-gray-100">
-                <div class="p-1 sm:p-2 lg:px-5 lg:py-3 tooltip-container flex-1 min-w-0 hover:bg-green-50 transition relative rounded-l-xl">
-                    <span class="block text-[8px] sm:text-[9px] lg:text-[10px] font-bold text-green-600 uppercase truncate">Cash+</span>
-                    <span id="cashTotalDisplay" class="block text-xs sm:text-sm lg:text-xl font-black text-green-600">$0.00</span>
-                    <div class="tooltip-box"><div id="cashBreakdown">Cash: $0.00</div><div id="mbBreakdown">MarketBucks: $0.00</div></div>
-                </div>
-                <div class="p-1 sm:p-2 lg:px-5 lg:py-3 tooltip-container flex-1 min-w-0 hover:bg-blue-50 transition relative">
-                    <span class="block text-[8px] sm:text-[9px] lg:text-[10px] font-bold text-blue-600 uppercase truncate">Venmo+</span>
-                    <span id="venmoTotalDisplay" class="block text-xs sm:text-sm lg:text-xl font-black text-blue-600">$0.00</span>
-                    <div class="tooltip-box">
-                        <div id="venmoBreakdown">Venmo: $0.00</div>
-                        <div id="venmoFeeBreakdown" class="text-red-400 text-[10px] pl-2 border-l border-gray-600 mb-1.5">Fee: $0.00</div>
-                        <div id="ccBreakdown">Credit Card: $0.00</div>
-                        <div id="ccFeeBreakdown" class="text-red-400 text-[10px] pl-2 border-l border-gray-600">Fee: $0.00</div>
-                    </div>
-                </div>
-                <div class="p-1 sm:p-2 lg:px-5 lg:py-3 tooltip-container flex-1 min-w-0 hover:bg-purple-50 transition relative">
-                    <span class="block text-[8px] sm:text-[9px] lg:text-[10px] font-bold text-purple-600 uppercase truncate">Zelle</span>
-                    <span id="zelleTotalDisplay" class="block text-xs sm:text-sm lg:text-xl font-black text-purple-600">$0.00</span>
-                </div>
-                <div class="p-1 sm:p-2 lg:px-5 lg:py-3 tooltip-container flex-1 min-w-0 hover:bg-gray-50 transition relative">
-                    <span class="block text-[8px] sm:text-[9px] lg:text-[10px] font-bold text-gray-400 uppercase truncate">Gross</span>
-                    <span id="grandTotalDisplay" class="block text-xs sm:text-sm lg:text-xl font-black text-gray-800">$0.00</span>
-                    <div class="tooltip-box">
-                        <div class="text-gray-300 text-[10px] mb-1 uppercase tracking-wider">Total Revenue</div>
-                        <div id="netRevenueBreakdown">Net Rev: $0.00</div>
-                        <div id="taxBreakdown" class="text-yellow-400">Est. Tax: $0.00</div>
-                        <div id="grossFeeBreakdown" class="text-red-400">Est. Fees: $0.00</div>
-                    </div>
-                </div>
-                <div class="p-1 sm:p-2 lg:px-5 lg:py-3 bg-gray-50 tooltip-container flex-1 min-w-0 hover:bg-gray-100 transition relative rounded-r-xl">
-                    <span class="block text-[8px] sm:text-[9px] lg:text-[10px] font-bold text-gray-500 uppercase truncate">Net Income</span>
-                    <span id="netTotalDisplay" class="block text-xs sm:text-sm lg:text-xl font-black text-brand-blue">$0.00</span>
-                    <div class="tooltip-box">
-                        <div id="taxBreakdown2" class="text-yellow-400">Tax: $0.00</div>
-                        <div id="feeBreakdown" class="text-red-400 mt-1">Fees: $0.00</div>
-                        <div id="netVenmoFee" class="text-red-400/80 text-[10px] pl-2 border-l border-gray-600">- Venmo: $0.00</div>
-                        <div id="netCcFee" class="text-red-400/80 text-[10px] pl-2 border-l border-gray-600">- CC: $0.00</div>
-                        <div id="expenseBreakdown" class="text-orange-400 mb-1">Expenses: $0.00</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 flex-1 min-h-0 w-full">
-
-        <div class="lg:col-span-4 flex flex-col min-h-0 h-full">
-            <div class="bg-cream rounded-xl shadow-lg border border-gray-200 flex flex-col flex-1 overflow-hidden">
-                <div class="p-3 lg:p-4 border-b bg-white/50 flex-shrink-0">
-                    <h2 class="text-sm font-bold text-brand-blue uppercase tracking-widest">Add Item</h2>
-                </div>
-
-                <div class="p-3 lg:p-4 overflow-y-auto scroller flex-1 space-y-4 lg:space-y-6">
-                    <div>
-                        <span class="text-[10px] font-bold text-gray-400 uppercase mb-2 block">Category</span>
-                        <div id="categoryContainer" class="flex flex-wrap gap-1.5 lg:gap-2"></div>
-                    </div>
-
-                    <div id="subCatWrapper" class="hidden">
-                        <span class="text-[10px] font-bold text-gray-400 uppercase mb-2 block">Item Type</span>
-                        <div id="subCategoryContainer" class="flex flex-wrap gap-1.5 lg:gap-2"></div>
-                    </div>
-
-                    <div id="beverageModifiersWrapper" class="hidden bg-white border border-gray-200 rounded-lg p-3 space-y-4 shadow-sm">
-                        <div id="teaTypeWrapper">
-                            <span class="text-[10px] font-bold text-gray-400 uppercase mb-2 block">Tea Base</span>
-                            <div id="teaTypeContainer" class="flex flex-wrap gap-1.5"></div>
+                    <div class="flex items-center gap-3 lg:gap-4 mt-2">
+                        <div
+                            class="flex items-center gap-2 bg-white px-2 py-1 rounded shadow-sm border border-gray-200"
+                        >
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    id="retroToggle"
+                                    class="sr-only peer"
+                                    onchange="App.toggleRetroMode()"
+                                />
+                                <div
+                                    class="w-6 h-3.5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-2.5 after:w-2.5 after:transition-all peer-checked:bg-brand-blue"
+                                ></div>
+                            </label>
+                            <span
+                                class="text-[9px] lg:text-[10px] font-bold text-gray-500 uppercase tracking-wide"
+                                >Retro Mode</span
+                            >
                         </div>
-                        <div class="grid grid-cols-2 gap-3 lg:gap-4">
-                            <div>
-                                <span class="text-[10px] font-bold text-gray-400 uppercase mb-2 block">Additions (+$1)</span>
-                                <div id="additionsContainer" class="flex flex-col gap-1.5"></div>
-                            </div>
-                            <div>
-                                <span class="text-[10px] font-bold text-gray-400 uppercase mb-2 block">Toppings (+$1)</span>
-                                <div id="toppingsContainer" class="flex flex-col gap-1.5"></div>
-                            </div>
-                        </div>
-                    </div>
 
-                    <div class="space-y-4">
-                        <div>
-                            <span class="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Display Name</span>
-                            <input type="text" id="itemInput" class="w-full px-3 py-2 bg-white border border-gray-300 rounded text-base lg:text-sm focus:border-brand-blue outline-none transition">
-                        </div>
-                        <div class="grid grid-cols-2 gap-3 lg:gap-4">
-                            <div>
-                                <span class="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Value / Price</span>
-                                <input type="number" id="unitPriceInput" class="w-full px-3 py-2 bg-white border border-gray-200 rounded font-bold text-brand-blue text-base lg:text-lg" step="0.01">
+                        <p class="text-xs lg:text-sm text-gray-500 font-mono" id="sessionClock"></p>
+                        <input
+                            type="date"
+                            id="retroDateInput"
+                            class="hidden text-base lg:text-sm bg-white border border-gray-300 rounded px-2 py-1 outline-none focus:border-brand-blue text-gray-600 font-mono shadow-sm"
+                        />
+                    </div>
+                </div>
+
+                <div
+                    class="bg-white rounded-xl shadow-sm border border-gray-200 w-full xl:w-auto overflow-visible"
+                >
+                    <div class="flex text-center w-full divide-x divide-gray-100">
+                        <div
+                            class="p-1 sm:p-2 lg:px-5 lg:py-3 tooltip-container flex-1 min-w-0 hover:bg-green-50 transition relative rounded-l-xl"
+                        >
+                            <span
+                                class="block text-[8px] sm:text-[9px] lg:text-[10px] font-bold text-green-600 uppercase truncate"
+                                >Cash+</span
+                            >
+                            <span
+                                id="cashTotalDisplay"
+                                class="block text-xs sm:text-sm lg:text-xl font-black text-green-600"
+                                >$0.00</span
+                            >
+                            <div class="tooltip-box">
+                                <div id="cashBreakdown">Cash: $0.00</div>
+                                <div id="mbBreakdown">MarketBucks: $0.00</div>
                             </div>
-                            <div>
-                                <span class="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Quantity</span>
-                                <div class="flex items-center bg-white border border-gray-300 rounded overflow-hidden">
-                                    <button onclick="App.adjQty(-1)" class="px-3 py-2 bg-gray-50 hover:bg-gray-100 border-r text-lg">-</button>
-                                    <input type="number" id="qtyInput" value="1" min="1" class="w-full text-center font-bold text-base lg:text-sm outline-none">
-                                    <button onclick="App.adjQty(1)" class="px-3 py-2 bg-gray-50 hover:bg-gray-100 border-l text-lg">+</button>
+                        </div>
+                        <div
+                            class="p-1 sm:p-2 lg:px-5 lg:py-3 tooltip-container flex-1 min-w-0 hover:bg-blue-50 transition relative"
+                        >
+                            <span
+                                class="block text-[8px] sm:text-[9px] lg:text-[10px] font-bold text-blue-600 uppercase truncate"
+                                >Venmo+</span
+                            >
+                            <span
+                                id="venmoTotalDisplay"
+                                class="block text-xs sm:text-sm lg:text-xl font-black text-blue-600"
+                                >$0.00</span
+                            >
+                            <div class="tooltip-box">
+                                <div id="venmoBreakdown">Venmo: $0.00</div>
+                                <div
+                                    id="venmoFeeBreakdown"
+                                    class="text-red-400 text-[10px] pl-2 border-l border-gray-600 mb-1.5"
+                                >
+                                    Fee: $0.00
+                                </div>
+                                <div id="ccBreakdown">Credit Card: $0.00</div>
+                                <div
+                                    id="ccFeeBreakdown"
+                                    class="text-red-400 text-[10px] pl-2 border-l border-gray-600"
+                                >
+                                    Fee: $0.00
+                                </div>
+                            </div>
+                        </div>
+                        <div
+                            class="p-1 sm:p-2 lg:px-5 lg:py-3 tooltip-container flex-1 min-w-0 hover:bg-purple-50 transition relative"
+                        >
+                            <span
+                                class="block text-[8px] sm:text-[9px] lg:text-[10px] font-bold text-purple-600 uppercase truncate"
+                                >Zelle</span
+                            >
+                            <span
+                                id="zelleTotalDisplay"
+                                class="block text-xs sm:text-sm lg:text-xl font-black text-purple-600"
+                                >$0.00</span
+                            >
+                        </div>
+                        <div
+                            class="p-1 sm:p-2 lg:px-5 lg:py-3 tooltip-container flex-1 min-w-0 hover:bg-gray-50 transition relative"
+                        >
+                            <span
+                                class="block text-[8px] sm:text-[9px] lg:text-[10px] font-bold text-gray-400 uppercase truncate"
+                                >Gross</span
+                            >
+                            <span
+                                id="grandTotalDisplay"
+                                class="block text-xs sm:text-sm lg:text-xl font-black text-gray-800"
+                                >$0.00</span
+                            >
+                        </div>
+                        <div
+                            class="p-1 sm:p-2 lg:px-5 lg:py-3 bg-gray-50 tooltip-container flex-1 min-w-0 hover:bg-gray-100 transition relative rounded-r-xl"
+                        >
+                            <span
+                                class="block text-[8px] sm:text-[9px] lg:text-[10px] font-bold text-gray-500 uppercase truncate"
+                                >Net</span
+                            >
+                            <span
+                                id="netTotalDisplay"
+                                class="block text-xs sm:text-sm lg:text-xl font-black text-brand-blue"
+                                >$0.00</span
+                            >
+                            <div class="tooltip-box">
+                                <div
+                                    class="text-gray-300 text-[10px] mb-1 uppercase tracking-wider"
+                                >
+                                    Net Income
+                                </div>
+
+                                <div id="taxBreakdown" class="text-yellow-400">Tax: $0.00</div>
+                                <div id="feeBreakdown" class="text-red-400 mt-1">Fees: $0.00</div>
+                                <div
+                                    id="netVenmoFee"
+                                    class="text-red-400/80 text-[10px] pl-2 border-l border-gray-600"
+                                >
+                                    - Venmo: $0.00
+                                </div>
+                                <div
+                                    id="netCcFee"
+                                    class="text-red-400/80 text-[10px] pl-2 border-l border-gray-600"
+                                >
+                                    - CC: $0.00
+                                </div>
+                                <div id="expenseBreakdown" class="text-orange-400 mb-1">
+                                    Expenses: $0.00
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-
-                <div class="p-3 lg:p-4 bg-gray-50 border-t flex-shrink-0">
-                    <button onclick="App.addToCart()" id="addBtn" class="w-full py-3 lg:py-4 bg-brand-blue text-white rounded-lg font-bold hover:bg-blue-900 transition flex items-center justify-center gap-2 shadow-md">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4" stroke-width="2" stroke-linecap="round"></path></svg>
-                        Add to Order
-                    </button>
-                </div>
             </div>
-        </div>
 
-        <div class="lg:col-span-3 flex flex-col min-h-0 h-full">
-            <div class="bg-white rounded-xl shadow-lg border-2 border-brand-blue flex flex-col flex-1 overflow-hidden">
-                <div class="p-3 lg:p-4 border-b flex justify-between items-center bg-blue-50 flex-shrink-0">
-                    <h2 class="font-black text-brand-blue uppercase text-xs tracking-widest">Active Cart</h2>
-                    <span id="cartCount" class="bg-brand-blue text-white text-[10px] px-2 py-0.5 rounded-full font-bold">0</span>
-                </div>
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 flex-1 min-h-0 w-full">
+                <div class="lg:col-span-4 flex flex-col min-h-0 h-full">
+                    <div
+                        class="bg-cream rounded-xl shadow-lg border border-gray-200 flex flex-col flex-1 overflow-hidden"
+                    >
+                        <div class="p-3 lg:p-4 border-b bg-white/50 flex-shrink-0">
+                            <h2 class="text-sm font-bold text-brand-blue uppercase tracking-widest">
+                                Add Item
+                            </h2>
+                        </div>
 
-                <div id="cartList" class="flex-1 overflow-y-auto p-3 lg:p-4 space-y-2 lg:space-y-3 scroller bg-gray-50/30 min-h-[200px] lg:min-h-0">
-                    <div id="cartEmpty" class="text-center py-10 lg:py-20 text-gray-400 text-sm italic">The cart is currently empty...</div>
-                </div>
+                        <div
+                            class="p-3 lg:p-4 overflow-y-auto scroller flex-1 space-y-4 lg:space-y-6"
+                        >
+                            <div>
+                                <span
+                                    class="text-[10px] font-bold text-gray-400 uppercase mb-2 block"
+                                    >Category</span
+                                >
+                                <div
+                                    id="categoryContainer"
+                                    class="flex flex-wrap gap-1.5 lg:gap-2"
+                                ></div>
+                            </div>
 
-                <div class="p-3 lg:p-4 bg-white border-t space-y-3 flex-shrink-0 w-full">
-                    <div class="flex justify-between items-center text-sm">
-                        <span class="font-bold text-gray-400 uppercase">Subtotal</span>
-                        <span id="cartSubtotalText" class="font-bold text-gray-600">$0.00</span>
-                    </div>
+                            <div id="subCatWrapper" class="hidden">
+                                <span
+                                    class="text-[10px] font-bold text-gray-400 uppercase mb-2 block"
+                                    >Item Type</span
+                                >
+                                <div
+                                    id="subCategoryContainer"
+                                    class="flex flex-wrap gap-1.5 lg:gap-2"
+                                ></div>
+                            </div>
 
-                    <div class="flex justify-between items-center text-sm pb-2 border-b border-gray-100">
-                        <span class="font-bold text-gray-400 uppercase">Discount</span>
-                        <div class="flex items-center">
-                            <span class="text-gray-400 mr-1 font-bold">-$</span>
-                            <input type="number" id="discountInput" value="0" step="0.50" min="0" class="w-16 text-right bg-red-50 border border-red-200 rounded px-1.5 py-0.5 font-bold text-red-600 text-base lg:text-sm outline-none focus:border-red-400 transition" oninput="App.renderCart()">
+                            <div
+                                id="beverageModifiersWrapper"
+                                class="hidden bg-white border border-gray-200 rounded-lg p-3 space-y-4 shadow-sm"
+                            >
+                                <div id="teaTypeWrapper">
+                                    <span
+                                        class="text-[10px] font-bold text-gray-400 uppercase mb-2 block"
+                                        >Tea Base</span
+                                    >
+                                    <div id="teaTypeContainer" class="flex flex-wrap gap-1.5"></div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-3 lg:gap-4">
+                                    <div>
+                                        <span
+                                            class="text-[10px] font-bold text-gray-400 uppercase mb-2 block"
+                                            >Additions (+$1)</span
+                                        >
+                                        <div
+                                            id="additionsContainer"
+                                            class="flex flex-col gap-1.5"
+                                        ></div>
+                                    </div>
+                                    <div>
+                                        <span
+                                            class="text-[10px] font-bold text-gray-400 uppercase mb-2 block"
+                                            >Toppings (+$1)</span
+                                        >
+                                        <div
+                                            id="toppingsContainer"
+                                            class="flex flex-col gap-1.5"
+                                        ></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="space-y-4">
+                                <div>
+                                    <span
+                                        class="text-[10px] font-bold text-gray-400 uppercase mb-1 block"
+                                        >Display Name</span
+                                    >
+                                    <input
+                                        type="text"
+                                        id="itemInput"
+                                        class="w-full px-3 py-2 bg-white border border-gray-300 rounded text-base lg:text-sm focus:border-brand-blue outline-none transition"
+                                    />
+                                </div>
+                                <div class="grid grid-cols-2 gap-3 lg:gap-4">
+                                    <div>
+                                        <span
+                                            class="text-[10px] font-bold text-gray-400 uppercase mb-1 block"
+                                            >Value / Price</span
+                                        >
+                                        <input
+                                            type="number"
+                                            id="unitPriceInput"
+                                            class="w-full px-3 py-2 bg-white border border-gray-200 rounded font-bold text-brand-blue text-base lg:text-lg"
+                                            step="0.01"
+                                        />
+                                    </div>
+                                    <div>
+                                        <span
+                                            class="text-[10px] font-bold text-gray-400 uppercase mb-1 block"
+                                            >Quantity</span
+                                        >
+                                        <div
+                                            class="flex items-center bg-white border border-gray-300 rounded overflow-hidden"
+                                        >
+                                            <button
+                                                onclick="App.adjQty(-1)"
+                                                class="px-3 py-2 bg-gray-50 hover:bg-gray-100 border-r text-lg"
+                                            >
+                                                -
+                                            </button>
+                                            <input
+                                                type="number"
+                                                id="qtyInput"
+                                                value="1"
+                                                min="1"
+                                                class="w-full text-center font-bold text-base lg:text-sm outline-none"
+                                            />
+                                            <button
+                                                onclick="App.adjQty(1)"
+                                                class="px-3 py-2 bg-gray-50 hover:bg-gray-100 border-l text-lg"
+                                            >
+                                                +
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-3 lg:p-4 bg-gray-50 border-t flex-shrink-0">
+                            <button
+                                onclick="App.addToCart()"
+                                id="addBtn"
+                                class="w-full py-3 lg:py-4 bg-brand-blue text-white rounded-lg font-bold hover:bg-blue-900 transition flex items-center justify-center gap-2 shadow-md"
+                            >
+                                <svg
+                                    class="w-5 h-5"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        d="M12 4v16m8-8H4"
+                                        stroke-width="2"
+                                        stroke-linecap="round"
+                                    ></path>
+                                </svg>
+                                Add to Order
+                            </button>
                         </div>
                     </div>
+                </div>
 
-                    <div class="flex justify-between items-baseline pt-1">
-                        <span class="text-xs font-bold text-gray-800 uppercase">Total</span>
-                        <span id="cartTotalText" class="text-xl lg:text-2xl font-black text-gray-800">$0.00</span>
+                <div class="lg:col-span-3 flex flex-col min-h-0 h-full">
+                    <div
+                        class="bg-white rounded-xl shadow-lg border-2 border-brand-blue flex flex-col flex-1 overflow-hidden"
+                    >
+                        <div
+                            class="p-3 lg:p-4 border-b flex justify-between items-center bg-blue-50 flex-shrink-0"
+                        >
+                            <h2
+                                class="font-black text-brand-blue uppercase text-xs tracking-widest"
+                            >
+                                Active Cart
+                            </h2>
+                            <span
+                                id="cartCount"
+                                class="bg-brand-blue text-white text-[10px] px-2 py-0.5 rounded-full font-bold"
+                                >0</span
+                            >
+                        </div>
+
+                        <div
+                            id="cartList"
+                            class="flex-1 overflow-y-auto p-3 lg:p-4 space-y-2 lg:space-y-3 scroller bg-gray-50/30 min-h-[200px] lg:min-h-0"
+                        >
+                            <div
+                                id="cartEmpty"
+                                class="text-center py-10 lg:py-20 text-gray-400 text-sm italic"
+                            >
+                                The cart is currently empty...
+                            </div>
+                        </div>
+
+                        <div class="p-3 lg:p-4 bg-white border-t space-y-3 flex-shrink-0 w-full">
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="font-bold text-gray-400 uppercase">Subtotal</span>
+                                <span id="cartSubtotalText" class="font-bold text-gray-600"
+                                    >$0.00</span
+                                >
+                            </div>
+
+                            <div
+                                class="flex justify-between items-center text-sm pb-2 border-b border-gray-100"
+                            >
+                                <span class="font-bold text-gray-400 uppercase">Discount</span>
+                                <div class="flex items-center">
+                                    <span class="text-gray-400 mr-1 font-bold">-$</span>
+                                    <input
+                                        type="number"
+                                        id="discountInput"
+                                        value="0"
+                                        step="0.50"
+                                        min="0"
+                                        class="w-16 text-right bg-red-50 border border-red-200 rounded px-1.5 py-0.5 font-bold text-red-600 text-base lg:text-sm outline-none focus:border-red-400 transition"
+                                        oninput="App.renderCart()"
+                                    />
+                                </div>
+                            </div>
+
+                            <div
+                                class="flex justify-between items-center text-sm pb-2 border-b border-gray-100 mt-2"
+                            >
+                                <span class="font-bold text-gray-400 uppercase">Tip</span>
+                                <div class="flex items-center">
+                                    <span class="text-green-600 mr-1 font-bold">+$</span>
+                                    <input
+                                        type="number"
+                                        id="tipInput"
+                                        value="0"
+                                        step="1.00"
+                                        min="0"
+                                        class="w-16 text-right bg-green-50 border border-green-200 rounded px-1.5 py-0.5 font-bold text-green-600 text-base lg:text-sm outline-none focus:border-green-400 transition"
+                                        oninput="App.renderCart()"
+                                    />
+                                </div>
+                            </div>
+
+                            <div class="flex justify-between items-baseline pt-1">
+                                <span class="text-xs font-bold text-gray-800 uppercase">Total</span>
+                                <span
+                                    id="cartTotalText"
+                                    class="text-xl lg:text-2xl font-black text-gray-800"
+                                    >$0.00</span
+                                >
+                            </div>
+
+                            <div class="pt-2">
+                                <span
+                                    class="text-[10px] font-bold text-gray-400 uppercase mb-2 block"
+                                    >Payment / Fund Source</span
+                                >
+                                <div id="paymentTypeContainer" class="flex flex-wrap gap-1.5"></div>
+                            </div>
+
+                            <button
+                                onclick="App.checkout()"
+                                id="checkoutBtn"
+                                disabled
+                                class="w-full py-3 lg:py-4 mt-2 bg-green-600 text-white rounded-lg font-black uppercase tracking-widest disabled:opacity-30 disabled:grayscale transition-all shadow-lg hover:bg-green-700 active:scale-[0.98]"
+                            >
+                                Complete Transaction
+                            </button>
+                        </div>
                     </div>
+                </div>
 
-                    <div class="pt-2">
-                        <span class="text-[10px] font-bold text-gray-400 uppercase mb-2 block">Payment / Fund Source</span>
-                        <div id="paymentTypeContainer" class="flex flex-wrap gap-1.5"></div>
+                <div class="lg:col-span-5 flex flex-col min-h-0 h-full">
+                    <div
+                        class="bg-white rounded-xl shadow-md border border-gray-200 flex flex-col flex-1 overflow-hidden"
+                    >
+                        <div
+                            class="p-3 lg:p-4 border-b bg-gray-50 flex justify-between items-center flex-shrink-0"
+                        >
+                            <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest">
+                                Transaction History
+                            </h2>
+                            <div class="flex gap-4">
+                                <button
+                                    onclick="App.clearData()"
+                                    class="text-red-400 text-[10px] font-bold uppercase hover:text-red-600"
+                                >
+                                    Reset
+                                </button>
+                                <label
+                                    class="text-green-600 text-[10px] font-bold uppercase hover:underline cursor-pointer"
+                                >
+                                    Import CSV
+                                    <input
+                                        type="file"
+                                        id="csvImport"
+                                        class="hidden"
+                                        accept=".csv"
+                                        onchange="App.importCSV(event)"
+                                    />
+                                </label>
+                                <button
+                                    onclick="App.exportToCSV()"
+                                    class="text-blue-600 text-[10px] font-bold uppercase hover:underline"
+                                >
+                                    Export CSV
+                                </button>
+                            </div>
+                        </div>
+
+                        <div
+                            class="flex-1 overflow-x-auto overflow-y-auto scroller min-h-[300px] lg:min-h-0 bg-white"
+                        >
+                            <table
+                                class="w-full text-left text-sm border-collapse whitespace-nowrap lg:whitespace-normal"
+                            >
+                                <thead
+                                    class="bg-gray-50 sticky top-0 z-10 text-[9px] lg:text-[10px] text-gray-400 uppercase border-b shadow-sm"
+                                >
+                                    <tr>
+                                        <th class="p-2 lg:p-3">Date/Time</th>
+                                        <th class="p-2 lg:p-3 w-full">Items / Details</th>
+                                        <th class="p-2 lg:p-3 text-center">Qty</th>
+                                        <th class="p-2 lg:p-3 text-center">Source</th>
+                                        <th class="p-2 lg:p-3 text-right">Disc.</th>
+                                        <th class="p-2 lg:p-3 text-right">Tip</th>
+                                        <th class="p-2 lg:p-3 text-right">Gross</th>
+                                        <th class="p-2 lg:p-3 text-right text-brand-blue">Net</th>
+                                        <th class="p-2 lg:p-3"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="salesTableBody" class="divide-y divide-gray-100"></tbody>
+                            </table>
+                        </div>
                     </div>
-
-                    <button onclick="App.checkout()" id="checkoutBtn" disabled class="w-full py-3 lg:py-4 mt-2 bg-green-600 text-white rounded-lg font-black uppercase tracking-widest disabled:opacity-30 disabled:grayscale transition-all shadow-lg hover:bg-green-700 active:scale-[0.98]">
-                        Complete Transaction
-                    </button>
                 </div>
             </div>
         </div>
 
-        <div class="lg:col-span-5 flex flex-col min-h-0 h-full">
-            <div class="bg-white rounded-xl shadow-md border border-gray-200 flex flex-col flex-1 overflow-hidden">
-                <div class="p-3 lg:p-4 border-b bg-gray-50 flex justify-between items-center flex-shrink-0">
-                    <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest">Transaction History</h2>
-                    <div class="flex gap-4">
-                        <button onclick="App.clearData()" class="text-red-400 text-[10px] font-bold uppercase hover:text-red-600">Reset</button>
-                        <label class="text-green-600 text-[10px] font-bold uppercase hover:underline cursor-pointer">
-                            Import CSV
-                            <input type="file" id="csvImport" class="hidden" accept=".csv" onchange="App.importCSV(event)">
-                        </label>
-                        <button onclick="App.exportToCSV()" class="text-blue-600 text-[10px] font-bold uppercase hover:underline">Export CSV</button>
-                    </div>
-                </div>
+        <script>
+            // Rounds to 2 decimal places properly
+            const roundToCent = (num) => Math.round((num + Number.EPSILON) * 100) / 100;
 
-                <div class="flex-1 overflow-x-auto overflow-y-auto scroller min-h-[300px] lg:min-h-0 bg-white">
-                    <table class="w-full text-left text-sm border-collapse whitespace-nowrap lg:whitespace-normal">
-                        <thead class="bg-gray-50 sticky top-0 z-10 text-[9px] lg:text-[10px] text-gray-400 uppercase border-b shadow-sm">
-                            <tr>
-                                <th class="p-2 lg:p-3">Date/Time</th>
-                                <th class="p-2 lg:p-3 w-full">Items / Details</th>
-                                <th class="p-2 lg:p-3 text-center">Qty</th>
-                                <th class="p-2 lg:p-3 text-center">Source</th>
-                                <th class="p-2 lg:p-3 text-right">Gross</th>
-                                <th class="p-2 lg:p-3 text-right text-brand-blue">Net</th>
-                                <th class="p-2 lg:p-3"></th>
-                            </tr>
-                        </thead>
-                        <tbody id="salesTableBody" class="divide-y divide-gray-100"></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+            /** NATIVE CURRENCY FORMATTER **/
+            const fmt = (n) =>
+                new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(
+                    n || 0
+                );
 
-<script>
-// Rounds to 2 decimal places properly
-const roundToCent = (num) => Math.round((num + Number.EPSILON) * 100) / 100;
-
-/** NATIVE CURRENCY FORMATTER **/
-const fmt = (n) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(n || 0);
-
-/** CONFIGURATION & THEMES **/
-const CONFIG = {
-    categories: {
-        "Beverage": ["Tea", "Soda", "Milk", "Hot Chocolate"],
-        "Snack": ["Rice Crispy", "Tanghulu", "Other"],
-        "Merchandise": ["Packaged Tea", "Accessories"],
-        "Expense": ["Supplies", "Labor", "Refund", "Misc"]
-    },
-    modifiers: {
-        teaTypes: ["Black", "Green", "Oolong", "Herbal", "White", "Hojicha"],
-        additions: ["Oat Milk", "Whole Milk", "Strawberry", "Apple"],
-        toppings: ["Boba", "Jelly", "Puree", "Popping Candy"]
-    },
-    payments: ["Cash", "Venmo", "Zelle", "CC", "MB"],
-    taxRate: 0.06625,
-    fees: { Venmo: (t) => (t * 0.019) + 0.10, CC: (t) => (t * 0.0229) + 0.10 },
-    themes: {
-        Beverage: { main: 'blue-600', bg: 'blue-50', text: 'blue-700', ring: 'blue-300', shades: ['bg-blue-900', 'bg-blue-700', 'bg-blue-500', 'bg-blue-400'] },
-        Snack: { main: 'orange-500', bg: 'orange-50', text: 'orange-700', ring: 'orange-300', shades: ['bg-orange-800', 'bg-orange-600', 'bg-orange-400'] },
-        Merchandise: { main: 'purple-600', bg: 'purple-50', text: 'purple-700', ring: 'purple-300', shades: ['bg-purple-800', 'bg-purple-600', 'bg-purple-400'] },
-        Expense: { main: 'red-600', bg: 'red-50', text: 'red-700', ring: 'red-300', shades: ['bg-red-800', 'bg-red-600', 'bg-red-400'] },
-        Tea: { Black: 'red', Green: 'green', Oolong: 'amber', Herbal: 'teal', White: 'slate' }
-    }
-};
-
-const App = {
-    state: {
-        sales: JSON.parse(localStorage.getItem('salesData_v8')) || [],
-        cart: [],
-        builder: { cat: null, sub: null, tea: null, adds: new Set(), tops: new Set() },
-        payType: "Cash"
-    },
-
-    init() {
-        this.renderCategories();
-        this.renderPayments();
-        this.updateHistory();
-        setInterval(() => {
-            if(!document.getElementById('retroToggle').checked) {
-                document.getElementById('sessionClock').innerText = new Date().toLocaleString([], {
-                    month: 'numeric', day: 'numeric', year: '2-digit', hour: '2-digit', minute: '2-digit'
-                });
-            }
-        }, 1000);
-
-        document.getElementById('sessionClock').innerText = new Date().toLocaleString([], {
-            month: 'numeric', day: 'numeric', year: '2-digit', hour: '2-digit', minute: '2-digit'
-        });
-    },
-
-    toggleRetroMode() {
-        const isRetro = document.getElementById('retroToggle').checked;
-        const clock = document.getElementById('sessionClock');
-        const dateInput = document.getElementById('retroDateInput');
-
-        if (isRetro) {
-            clock.classList.add('hidden');
-            dateInput.classList.remove('hidden');
-            if (!dateInput.value) {
-                const today = new Date();
-                const offset = today.getTimezoneOffset() * 60000;
-                const localDate = new Date(today.getTime() - offset).toISOString().split('T')[0];
-                dateInput.value = localDate;
-            }
-        } else {
-            clock.classList.remove('hidden');
-            dateInput.classList.add('hidden');
-        }
-    },
-
-    renderCategories() {
-        const container = document.getElementById('categoryContainer');
-        container.innerHTML = '';
-        Object.keys(CONFIG.categories).forEach(cat => {
-            const theme = CONFIG.themes[cat];
-            const active = this.state.builder.cat === cat;
-            const btn = document.createElement('button');
-            btn.className = `pill-btn px-3 lg:px-4 py-1.5 text-[10px] lg:text-xs rounded-full ${active ? `active bg-${theme.main} text-white ring-2 ring-${theme.ring}` : `bg-${theme.bg} text-${theme.text} hover:opacity-80`}`;
-            btn.textContent = cat;
-            btn.onclick = () => {
-                this.state.builder.cat = cat;
-                this.state.builder.sub = CONFIG.categories[cat][0];
-                this.state.builder.tea = null;
-                this.state.builder.adds.clear();
-                this.state.builder.tops.clear();
-                this.renderCategories();
-                this.renderSubCategories();
+            /** CONFIGURATION & THEMES **/
+            const CONFIG = {
+                categories: {
+                    Beverage: ['Tea', 'Soda', 'Milk', 'Hot Chocolate'],
+                    Snack: ['Rice Crispy', 'Tanghulu', 'Other'],
+                    Merchandise: ['Packaged Tea', 'Accessories'],
+                    Expense: ['Supplies', 'Labor', 'Refund', 'Misc'],
+                },
+                modifiers: {
+                    teaTypes: ['Black', 'Green', 'Oolong', 'Herbal', 'White', 'Hojicha'],
+                    additions: ['Oat Milk', 'Whole Milk', 'Strawberry', 'Apple'],
+                    toppings: ['Boba', 'Jelly', 'Puree', 'Popping Candy'],
+                },
+                payments: ['Cash', 'Venmo', 'Zelle', 'CC', 'MB'],
+                taxRate: 0.06625,
+                fees: { Venmo: (t) => t * 0.019 + 0.1, CC: (t) => t * 0.0229 + 0.1 },
+                themes: {
+                    Beverage: {
+                        main: 'blue-600',
+                        bg: 'blue-50',
+                        text: 'blue-700',
+                        ring: 'blue-300',
+                        shades: ['bg-blue-900', 'bg-blue-700', 'bg-blue-500', 'bg-blue-400'],
+                    },
+                    Snack: {
+                        main: 'orange-500',
+                        bg: 'orange-50',
+                        text: 'orange-700',
+                        ring: 'orange-300',
+                        shades: ['bg-orange-800', 'bg-orange-600', 'bg-orange-400'],
+                    },
+                    Merchandise: {
+                        main: 'purple-600',
+                        bg: 'purple-50',
+                        text: 'purple-700',
+                        ring: 'purple-300',
+                        shades: ['bg-purple-800', 'bg-purple-600', 'bg-purple-400'],
+                    },
+                    Expense: {
+                        main: 'red-600',
+                        bg: 'red-50',
+                        text: 'red-700',
+                        ring: 'red-300',
+                        shades: ['bg-red-800', 'bg-red-600', 'bg-red-400'],
+                    },
+                    Tea: {
+                        Black: 'red',
+                        Green: 'green',
+                        Oolong: 'amber',
+                        Herbal: 'teal',
+                        White: 'slate',
+                    },
+                },
             };
-            container.appendChild(btn);
-        });
-    },
 
-    renderSubCategories() {
-        const cat = this.state.builder.cat;
-        const subs = CONFIG.categories[cat] || [];
-        const theme = CONFIG.themes[cat];
-        const wrap = document.getElementById('subCatWrapper');
-        const container = document.getElementById('subCategoryContainer');
+            const App = {
+                state: {
+                    sales: JSON.parse(localStorage.getItem('salesData_v8')) || [],
+                    cart: [],
+                    builder: { cat: null, sub: null, tea: null, adds: new Set(), tops: new Set() },
+                    payType: 'Cash',
+                },
 
-        wrap.classList.toggle('hidden', subs.length === 0);
-        container.innerHTML = '';
-        subs.forEach((sub, i) => {
-            const active = this.state.builder.sub === sub;
-            const btn = document.createElement('button');
-            const shade = theme.shades[i % theme.shades.length];
-            btn.className = `pill-btn px-3 py-1.5 text-[10px] lg:text-xs rounded-full ${active ? `active ${shade} text-white ring-2 ring-${theme.ring}` : `bg-${theme.bg} text-${theme.text} border-transparent`}`;
-            btn.textContent = sub;
-            btn.onclick = () => {
-                this.state.builder.sub = sub;
-                this.state.builder.tea = null;
-                this.state.builder.adds.clear();
-                this.state.builder.tops.clear();
-                this.renderSubCategories();
-            };
-            container.appendChild(btn);
-        });
+                init() {
+                    this.renderCategories();
+                    this.renderPayments();
+                    this.updateHistory();
+                    setInterval(() => {
+                        if (!document.getElementById('retroToggle').checked) {
+                            document.getElementById('sessionClock').innerText =
+                                new Date().toLocaleString([], {
+                                    month: 'numeric',
+                                    day: 'numeric',
+                                    year: '2-digit',
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                });
+                        }
+                    }, 1000);
+                },
 
-        document.getElementById('beverageModifiersWrapper').classList.toggle('hidden', cat !== 'Beverage');
-        document.getElementById('teaTypeWrapper').classList.toggle('hidden', this.state.builder.sub !== 'Tea');
-        this.renderModifiers();
-        this.syncBuilderName();
-    },
+                toggleRetroMode() {
+                    const isRetro = document.getElementById('retroToggle').checked;
+                    const clock = document.getElementById('sessionClock');
+                    const dateInput = document.getElementById('retroDateInput');
+                    if (isRetro) {
+                        clock.classList.add('hidden');
+                        dateInput.classList.remove('hidden');
+                        if (!dateInput.value) {
+                            const today = new Date();
+                            const offset = today.getTimezoneOffset() * 60000;
+                            dateInput.value = new Date(today.getTime() - offset)
+                                .toISOString()
+                                .split('T')[0];
+                        }
+                    } else {
+                        clock.classList.remove('hidden');
+                        dateInput.classList.add('hidden');
+                    }
+                },
 
-    renderModifiers() {
-        this.renderPills('teaTypes', 'teaTypeContainer', 'tea', false);
-        this.renderPills('additions', 'additionsContainer', 'adds', true);
-        this.renderPills('toppings', 'toppingsContainer', 'tops', true);
-    },
+                renderCategories() {
+                    const container = document.getElementById('categoryContainer');
+                    container.innerHTML = '';
+                    Object.keys(CONFIG.categories).forEach((cat) => {
+                        const theme = CONFIG.themes[cat];
+                        const active = this.state.builder.cat === cat;
+                        const btn = document.createElement('button');
+                        btn.className = `pill-btn px-3 lg:px-4 py-1.5 text-[10px] lg:text-xs rounded-full ${active ? `active bg-${theme.main} text-white ring-2 ring-${theme.ring}` : `bg-${theme.bg} text-${theme.text} hover:opacity-80`}`;
+                        btn.textContent = cat;
+                        btn.onclick = () => {
+                            this.state.builder.cat = cat;
+                            this.state.builder.sub = CONFIG.categories[cat][0];
+                            this.state.builder.tea = null;
+                            this.state.builder.adds.clear();
+                            this.state.builder.tops.clear();
+                            this.renderCategories();
+                            this.renderSubCategories();
+                        };
+                        container.appendChild(btn);
+                    });
+                },
 
-    renderPills(configKey, elementId, stateKey, isSet) {
-        const container = document.getElementById(elementId);
-        container.innerHTML = '';
-        CONFIG.modifiers[configKey].forEach(item => {
-            const active = isSet ? this.state.builder[stateKey].has(item) : this.state.builder[stateKey] === item;
-            const btn = document.createElement('button');
+                renderSubCategories() {
+                    const cat = this.state.builder.cat;
+                    const subs = CONFIG.categories[cat] || [];
+                    const theme = CONFIG.themes[cat];
+                    const wrap = document.getElementById('subCatWrapper');
+                    const container = document.getElementById('subCategoryContainer');
+                    wrap.classList.toggle('hidden', subs.length === 0);
+                    container.innerHTML = '';
+                    subs.forEach((sub, i) => {
+                        const active = this.state.builder.sub === sub;
+                        const btn = document.createElement('button');
+                        const shade = theme.shades[i % theme.shades.length];
+                        btn.className = `pill-btn px-3 py-1.5 text-[10px] lg:text-xs rounded-full ${active ? `active ${shade} text-white ring-2 ring-${theme.ring}` : `bg-${theme.bg} text-${theme.text} border-transparent`}`;
+                        btn.textContent = sub;
+                        btn.onclick = () => {
+                            this.state.builder.sub = sub;
+                            this.state.builder.tea = null;
+                            this.state.builder.adds.clear();
+                            this.state.builder.tops.clear();
+                            this.renderSubCategories();
+                        };
+                        container.appendChild(btn);
+                    });
+                    document
+                        .getElementById('beverageModifiersWrapper')
+                        .classList.toggle('hidden', cat !== 'Beverage');
+                    document
+                        .getElementById('teaTypeWrapper')
+                        .classList.toggle('hidden', this.state.builder.sub !== 'Tea');
+                    this.renderModifiers();
+                    this.syncBuilderName();
+                },
 
-            let colorClass = "bg-gray-100 text-gray-500";
-            if(active) {
-                if(configKey === 'teaTypes') {
-                    const teaColor = CONFIG.themes.Tea[item] || 'blue';
-                    colorClass = `bg-${teaColor}-600 text-white border-${teaColor}-700 ring-2 ring-${teaColor}-200`;
-                } else {
-                    colorClass = "bg-brand-blue text-white border-brand-blue ring-2 ring-blue-200";
-                }
-            }
+                renderModifiers() {
+                    this.renderPills('teaTypes', 'teaTypeContainer', 'tea', false);
+                    this.renderPills('additions', 'additionsContainer', 'adds', true);
+                    this.renderPills('toppings', 'toppingsContainer', 'tops', true);
+                },
 
-            btn.className = `text-left px-2 lg:px-3 py-1.5 rounded-lg text-[9px] lg:text-[10px] font-bold border transition ${colorClass}`;
-            btn.textContent = item;
-            btn.onclick = () => {
-                if(isSet) {
-                    this.state.builder[stateKey].has(item) ? this.state.builder[stateKey].delete(item) : this.state.builder[stateKey].add(item);
-                } else {
-                    this.state.builder[stateKey] = item;
-                }
-                this.renderModifiers();
-                this.syncBuilderName();
-            };
-            container.appendChild(btn);
-        });
-    },
+                renderPills(configKey, elementId, stateKey, isSet) {
+                    const container = document.getElementById(elementId);
+                    container.innerHTML = '';
+                    CONFIG.modifiers[configKey].forEach((item) => {
+                        const active = isSet
+                            ? this.state.builder[stateKey].has(item)
+                            : this.state.builder[stateKey] === item;
+                        const btn = document.createElement('button');
+                        let colorClass = 'bg-gray-100 text-gray-500';
+                        if (active) {
+                            if (configKey === 'teaTypes') {
+                                const teaColor = CONFIG.themes.Tea[item] || 'blue';
+                                colorClass = `bg-${teaColor}-600 text-white border-${teaColor}-700 ring-2 ring-${teaColor}-200`;
+                            } else {
+                                colorClass =
+                                    'bg-brand-blue text-white border-brand-blue ring-2 ring-blue-200';
+                            }
+                        }
+                        btn.className = `text-left px-2 lg:px-3 py-1.5 rounded-lg text-[9px] lg:text-[10px] font-bold border transition ${colorClass}`;
+                        btn.textContent = item;
+                        btn.onclick = () => {
+                            if (isSet) {
+                                this.state.builder[stateKey].has(item)
+                                    ? this.state.builder[stateKey].delete(item)
+                                    : this.state.builder[stateKey].add(item);
+                            } else {
+                                this.state.builder[stateKey] = item;
+                            }
+                            this.renderModifiers();
+                            this.syncBuilderName();
+                        };
+                        container.appendChild(btn);
+                    });
+                },
 
-    adjQty(v) {
-        const input = document.getElementById('qtyInput');
-        input.value = Math.max(1, parseInt(input.value) + v);
-    },
+                adjQty(v) {
+                    const input = document.getElementById('qtyInput');
+                    input.value = Math.max(1, parseInt(input.value) + v);
+                },
 
-    syncBuilderName() {
-        const b = this.state.builder;
-        let finalName = "";
+                syncBuilderName() {
+                    const b = this.state.builder;
+                    let finalName = '';
+                    if (b.cat) {
+                        const addsArray = [...b.adds];
+                        const topsArray = [...b.tops];
+                        const flavors = addsArray.filter((a) => !a.toLowerCase().includes('milk'));
+                        const milks = addsArray.filter((a) => a.toLowerCase().includes('milk'));
+                        let coreParts = [];
+                        if (b.tea) coreParts.push(b.tea);
+                        if (b.sub) coreParts.push(b.sub);
+                        let coreName = coreParts.join(' ');
+                        let prefix = flavors.length > 0 ? flavors.join(' & ') + ' ' : '';
+                        let suffixes = [...milks, ...topsArray];
+                        let suffix = suffixes.length > 0 ? ' w/ ' + suffixes.join(', ') : '';
+                        finalName = prefix + coreName + suffix;
+                    }
+                    document.getElementById('itemInput').value = finalName.trim();
+                    let price = 0;
+                    if (b.cat === 'Beverage') {
+                        price = { Tea: 5, Soda: 3, Milk: 3, 'Hot Chocolate': 5 }[b.sub] || 0;
+                        if (b.adds.size > 0) price += 1;
+                        if (b.tops.size > 0) price += 1;
+                    } else if (b.cat === 'Snack') {
+                        price = 4;
+                    } else if (b.cat === 'Merchandise') {
+                        price = 5;
+                    } else if (b.cat === 'Expense') {
+                        price = 0;
+                    }
+                    document.getElementById('unitPriceInput').value = price.toFixed(2);
+                },
 
-        if (b.cat) {
-            const addsArray = [...b.adds];
-            const topsArray = [...b.tops];
+                addToCart() {
+                    if (!this.state.builder.cat) return;
+                    let rawPrice = parseFloat(document.getElementById('unitPriceInput').value) || 0;
+                    if (this.state.builder.cat === 'Expense') rawPrice = -Math.abs(rawPrice);
+                    let computedSubCategory = this.state.builder.sub || '';
+                    if (this.state.builder.cat === 'Beverage' && this.state.builder.sub === 'Tea') {
+                        if (
+                            this.state.builder.adds.size === 0 &&
+                            this.state.builder.tops.size === 0
+                        )
+                            computedSubCategory = 'Brewed tea';
+                        else if (
+                            [...this.state.builder.adds].some((a) =>
+                                a.toLowerCase().includes('milk')
+                            )
+                        )
+                            computedSubCategory = 'Latte';
+                    }
+                    const item = {
+                        id: Date.now(),
+                        name: document.getElementById('itemInput').value || computedSubCategory,
+                        unitPrice: rawPrice,
+                        qty: parseInt(document.getElementById('qtyInput').value),
+                        category: this.state.builder.cat,
+                        subCategory: computedSubCategory,
+                        theme: CONFIG.themes[this.state.builder.cat],
+                    };
+                    this.state.cart.push(item);
+                    this.renderCart();
+                    document.getElementById('qtyInput').value = 1;
+                },
 
-            const flavors = addsArray.filter(a => !a.toLowerCase().includes('milk'));
-            const milks = addsArray.filter(a => a.toLowerCase().includes('milk'));
-
-            let coreParts = [];
-            if (b.tea) coreParts.push(b.tea);
-            if (b.sub) coreParts.push(b.sub);
-            let coreName = coreParts.join(' ');
-
-            let prefix = flavors.length > 0 ? flavors.join(' & ') + ' ' : '';
-
-            let suffixes = [...milks, ...topsArray];
-            let suffix = suffixes.length > 0 ? ' w/ ' + suffixes.join(', ') : '';
-
-            finalName = prefix + coreName + suffix;
-        }
-
-        document.getElementById('itemInput').value = finalName.trim();
-
-        let price = 0;
-        if (b.cat === 'Beverage') {
-            price = { 'Tea': 5, 'Soda': 3, 'Milk': 3, 'Hot Chocolate': 5 }[b.sub] || 0;
-            if (b.adds.size > 0) price += 1;
-            if (b.tops.size > 0) price += 1;
-        } else if (b.cat === 'Snack') {
-            price = 4;
-        } else if (b.cat === 'Merchandise') {
-            price = 5;
-        } else if (b.cat === 'Expense') {
-            price = 0;
-        }
-
-        document.getElementById('unitPriceInput').value = price.toFixed(2);
-    },
-
-    addToCart() {
-        if(!this.state.builder.cat) return;
-
-        let rawPrice = parseFloat(document.getElementById('unitPriceInput').value) || 0;
-
-        if(this.state.builder.cat === 'Expense') {
-            rawPrice = -Math.abs(rawPrice);
-        }
-
-        let computedSubCategory = this.state.builder.sub || "";
-        if (this.state.builder.cat === 'Beverage' && this.state.builder.sub === 'Tea') {
-            const addsCount = this.state.builder.adds.size;
-            const topsCount = this.state.builder.tops.size;
-            const hasMilk = [...this.state.builder.adds].some(a => a.toLowerCase().includes('milk'));
-
-            if (addsCount === 0 && topsCount === 0) {
-                computedSubCategory = 'Brewed tea';
-            } else if (hasMilk) {
-                computedSubCategory = 'Latte';
-            }
-        }
-
-        const item = {
-            id: Date.now(),
-            name: document.getElementById('itemInput').value || computedSubCategory,
-            unitPrice: rawPrice,
-            qty: parseInt(document.getElementById('qtyInput').value),
-            category: this.state.builder.cat,
-            subCategory: computedSubCategory,
-            theme: CONFIG.themes[this.state.builder.cat]
-        };
-
-        this.state.cart.push(item);
-        this.renderCart();
-        document.getElementById('qtyInput').value = 1;
-    },
-
-    renderCart() {
-        const list = document.getElementById('cartList');
-        const empty = document.getElementById('cartEmpty');
-        list.querySelectorAll('.cart-item').forEach(e => e.remove());
-
-        let subtotal = 0;
-        this.state.cart.forEach(item => {
-            subtotal += (item.unitPrice * item.qty);
-            const div = document.createElement('div');
-            div.className = 'cart-item bg-white border border-gray-100 p-2 lg:p-3 rounded-xl flex justify-between items-center shadow-sm hover:border-gray-300 transition';
-            div.innerHTML = `
+                renderCart() {
+                    const list = document.getElementById('cartList');
+                    const empty = document.getElementById('cartEmpty');
+                    list.querySelectorAll('.cart-item').forEach((e) => e.remove());
+                    let subtotal = 0;
+                    this.state.cart.forEach((item) => {
+                        subtotal += item.unitPrice * item.qty;
+                        const div = document.createElement('div');
+                        div.className =
+                            'cart-item bg-white border border-gray-100 p-2 lg:p-3 rounded-xl flex justify-between items-center shadow-sm hover:border-gray-300 transition';
+                        div.innerHTML = `
                 <div class="flex flex-col min-w-0 pr-2">
                     <div class="flex items-center gap-1.5 flex-wrap">
                          <span class="bg-${item.theme.bg} text-${item.theme.text} text-[8px] lg:text-[9px] font-black px-1.5 py-0.5 rounded uppercase flex-shrink-0">${item.category}</span>
@@ -548,334 +903,301 @@ const App = {
                 <div class="flex items-center gap-2 lg:gap-3 flex-shrink-0">
                     <span class="text-xs lg:text-sm font-black ${item.unitPrice < 0 ? 'text-red-600' : 'text-brand-blue'}">${fmt(item.unitPrice * item.qty)}</span>
                     <button onclick="App.removeFromCart(${item.id})" class="text-gray-300 hover:text-red-500 text-lg font-bold">&times;</button>
-                </div>
-            `;
-            list.appendChild(div);
-        });
-
-        const discountInput = parseFloat(document.getElementById('discountInput').value) || 0;
-        const finalTotal = subtotal > 0 ? Math.max(0, subtotal - discountInput) : subtotal;
-
-        empty.classList.toggle('hidden', this.state.cart.length > 0);
-        document.getElementById('cartSubtotalText').innerText = fmt(subtotal);
-        document.getElementById('cartTotalText').innerText = fmt(finalTotal);
-
-        document.getElementById('cartTotalText').className = finalTotal < 0 ? "text-xl lg:text-2xl font-black text-red-600" : "text-xl lg:text-2xl font-black text-gray-800";
-
-        document.getElementById('cartCount').innerText = this.state.cart.length;
-        document.getElementById('checkoutBtn').disabled = this.state.cart.length === 0;
-    },
-
-    removeFromCart(id) {
-    // Filter the cart to remove the item with the matching ID
-    this.state.cart = this.state.cart.filter(item => item.id !== id);
-    // Re-render the cart to show updated state
-    this.renderCart();
-},
-
-    renderPayments() {
-        const container = document.getElementById('paymentTypeContainer');
-        container.innerHTML = '';
-        const map = { Cash: 'green', Venmo: 'blue', Zelle: 'purple', CC: 'yellow', MB: 'gray' };
-
-        CONFIG.payments.forEach(p => {
-            const color = map[p] || 'gray';
-            const active = this.state.payType === p;
-            const btn = document.createElement('button');
-            btn.className = `px-2 lg:px-3 py-1 lg:py-1.5 rounded-lg text-[9px] lg:text-[10px] font-black border transition ${active ? `bg-${color}-600 text-white border-${color}-700 ring-2 ring-${color}-200` : `bg-${color}-50 text-${color}-700 border-${color}-100`}`;
-            btn.textContent = p;
-            btn.onclick = () => { this.state.payType = p; this.renderPayments(); };
-            container.appendChild(btn);
-        });
-    },
-
-    checkout() {
-        const subtotal = this.state.cart.reduce((sum, i) => sum + (i.unitPrice * i.qty), 0);
-        const discount = parseFloat(document.getElementById('discountInput').value) || 0;
-        const orderTotal = roundToCent(subtotal > 0 ? Math.max(0, subtotal - discount) : subtotal);
-
-        let fee = 0;
-        let tax = 0;
-
-        if (orderTotal > 0) {
-            const feeFunc = CONFIG.fees[this.state.payType];
-            fee = feeFunc ? roundToCent(feeFunc(orderTotal)) : 0;
-            tax = roundToCent(orderTotal * CONFIG.taxRate);
-        }
-
-        const isRetro = document.getElementById('retroToggle').checked;
-        let finalTimestamp = '';
-        if (isRetro) {
-            const retroDateVal = document.getElementById('retroDateInput').value;
-            const d = new Date(retroDateVal + 'T12:00:00');
-            finalTimestamp = d.toLocaleDateString([], { month: 'numeric', day: 'numeric', year: '2-digit' });
-        } else {
-            finalTimestamp = new Date().toLocaleString([], { month: 'numeric', day: 'numeric', year: '2-digit', hour: '2-digit', minute: '2-digit' });
-        }
-
-        const order = {
-            id: Date.now(),
-            timestamp: finalTimestamp,
-            items: [...this.state.cart],
-            subtotal: subtotal,
-            discount: discount,
-            total: orderTotal,
-            payment: this.state.payType,
-            fee: fee,
-            tax: tax
-        };
-
-        this.state.sales.push(order);
-        this.state.cart = [];
-        document.getElementById('discountInput').value = '0';
-        this.save();
-        this.renderCart();
-        this.updateHistory();
-    },
-
-updateHistory() {
-    const body = document.getElementById('salesTableBody');
-    body.innerHTML = '';
-
-    // Initialize session totals
-    let s = {
-        gross: 0, cashGroup: 0, venmoGroup: 0, zelle: 0,
-        fees: 0, venmoFees: 0, ccFees: 0, tax: 0,
-        exactCash: 0, mb: 0, exactVenmo: 0, cc: 0,
-        expenses: 0 // Track total expenses for the tooltip
-    };
-
-    const payColors = { Cash: 'green', Venmo: 'blue', Zelle: 'purple', CC: 'yellow', MB: 'gray' };
-
-    [...this.state.sales].reverse().forEach(order => {
-        // Core session math
-        s.gross += order.total;
-        s.tax += order.tax;
-        s.fees += order.fee;
-
-        // Payment Grouping Math
-        if(order.payment === 'Cash') { s.cashGroup += order.total; s.exactCash += order.total; }
-        else if(order.payment === 'MB') { s.cashGroup += order.total; s.mb += order.total; }
-        else if(order.payment === 'Venmo') { s.venmoGroup += order.total; s.exactVenmo += order.total; s.venmoFees += order.fee; }
-        else if(order.payment === 'CC') { s.venmoGroup += order.total; s.cc += order.total; s.ccFees += order.fee; }
-        else if(order.payment === 'Zelle') { s.zelle += order.total; }
-
-        // Calculate total quantity for this order
-        const totalQty = order.items.reduce((sum, i) => sum + i.qty, 0);
-
-        // Calculate the specific NET for THIS order (Gross - Fees - Tax)
-        const orderNetAmount = roundToCent(order.total - order.fee - order.tax);
-
-        // Track session expenses (Sum of items marked as 'Expense' category)
-        const orderExpenses = order.items
-            .filter(item => item.category === 'Expense')
-            .reduce((sum, item) => sum + (item.unitPrice * item.qty), 0);
-
-        // We use Math.abs because expense prices are stored as negative numbers
-        s.expenses += Math.abs(orderExpenses);
-
-        // Styling classes
-        const grossColorClass = order.total < 0 ? 'text-red-600' : 'text-gray-800';
-        const netColorClass = orderNetAmount < 0 ? 'text-red-600' : 'text-brand-blue';
-
-        // Format timestamp for display
-        const timeHTML = order.timestamp.includes(', ')
-            ? order.timestamp.replace(', ', '<br><span class="text-[8px] text-gray-400">') + '</span>'
-            : order.timestamp;
-
-        const pColor = payColors[order.payment] || 'gray';
-
-        // Render Row
-        const tr = document.createElement('tr');
-        tr.className = "hover:bg-gray-50 transition";
-
-        const categoryPills = [...new Set(order.items.map(i => i.category))].map(c => {
-            const theme = CONFIG.themes[c] || { bg: 'gray-100', text: 'gray-500' };
-            return `<span class="text-[8px] uppercase font-bold bg-${theme.bg} text-${theme.text} px-1.5 py-0.5 rounded">${c}</span>`;
-        }).join('');
-
-        const subCategoryPills = [...new Set(order.items.map(i => {
-            const sc = i.subCategory;
-            if (!sc) return '';
-            let color = (CONFIG.themes[i.category] && CONFIG.themes[i.category].main.split('-')[0]) || 'gray';
-            const bgClass = color === 'slate' ? `bg-slate-200` : `bg-${color}-50`;
-            const textClass = color === 'slate' ? `text-slate-800` : `text-${color}-700`;
-            return `<span class="text-[8px] uppercase font-bold border border-${color}-200 ${bgClass} ${textClass} px-1.5 py-0.5 rounded shadow-sm">${sc}</span>`;
-        }).filter(Boolean))].join('');
-
-        tr.innerHTML = `
-            <td class="p-2 lg:p-3 text-[9px] lg:text-[10px] text-gray-500 font-mono leading-tight">${timeHTML}</td>
-            <td class="p-2 lg:p-3 w-full">
-                <div class="text-[11px] lg:text-xs font-bold text-contrast-blue">${order.items.map(i => `${i.qty}x ${i.name}`).join(', ')}</div>
-                <div class="flex flex-wrap gap-1 mt-1">
-                    ${categoryPills}
-                    ${subCategoryPills}
-                </div>
-            </td>
-            <td class="p-2 lg:p-3 text-center font-bold text-gray-600 text-xs lg:text-sm">${totalQty}</td>
-            <td class="p-2 lg:p-3 text-center">
-                <span class="text-[8px] lg:text-[9px] font-black uppercase px-2 py-0.5 rounded-full border border-${pColor}-200 bg-${pColor}-50 text-${pColor}-700">${order.payment}</span>
-            </td>
-            <td class="p-2 lg:p-3 text-right">
-                ${(order.discount > 0) ? `<div class="text-[9px] lg:text-[10px] text-brand-blue font-bold mb-0.5">-${fmt(order.discount)}</div>` : ''}
-                <div class="font-mono text-xs lg:text-sm font-black ${grossColorClass}">${fmt(order.total)}</div>
-            </td>
-            <td class="p-2 lg:p-3 text-right font-mono text-xs lg:text-sm font-black ${netColorClass}">${fmt(orderNetAmount)}</td>
-            <td class="p-2 lg:p-3 text-right"><button onclick="App.deleteOrder(${order.id})" class="text-gray-300 hover:text-red-500 font-bold text-base">&times;</button></td>
-        `;
-        body.appendChild(tr);
-    });
-
-    // --- Update Summary Displays ---
-    document.getElementById('cashTotalDisplay').innerText = fmt(s.cashGroup);
-    document.getElementById('venmoTotalDisplay').innerText = fmt(s.venmoGroup);
-    document.getElementById('zelleTotalDisplay').innerText = fmt(s.zelle);
-    document.getElementById('grandTotalDisplay').innerText = fmt(s.gross);
-    document.getElementById('netTotalDisplay').innerText = fmt(roundToCent(s.gross - s.fees - s.tax));
-
-    // Update Tooltips
-    document.getElementById('cashBreakdown').innerText = `Cash: ${fmt(s.exactCash)}`;
-    document.getElementById('mbBreakdown').innerText = `MarketBucks: ${fmt(s.mb)}`;
-    document.getElementById('venmoBreakdown').innerText = `Venmo: ${fmt(s.exactVenmo)}`;
-    document.getElementById('venmoFeeBreakdown').innerText = `Fee: ${fmt(s.venmoFees)}`;
-    document.getElementById('ccBreakdown').innerText = `Credit Card: ${fmt(s.cc)}`;
-    document.getElementById('ccFeeBreakdown').innerText = `Fee: ${fmt(s.ccFees)}`;
-    document.getElementById('netRevenueBreakdown').innerText = `Net Rev: ${fmt(s.gross - s.tax - s.fees)}`;
-    document.getElementById('taxBreakdown').innerText = `Est. Tax: ${fmt(s.tax)}`;
-    document.getElementById('grossFeeBreakdown').innerText = `Est. Fees: ${fmt(s.fees)}`;
-
-    // Net Income Tooltip specific
-    document.getElementById('taxBreakdown2').innerText = `Tax: ${fmt(s.tax)}`;
-    document.getElementById('feeBreakdown').innerText = `Total Fees: ${fmt(s.fees)}`;
-    document.getElementById('netVenmoFee').innerText = `- Venmo: ${fmt(s.venmoFees)}`;
-    document.getElementById('netCcFee').innerText = `- CC: ${fmt(s.ccFees)}`;
-    document.getElementById('expenseBreakdown').innerText = `Expenses: -${fmt(s.expenses)}`;
-},
-
-    save() { localStorage.setItem('salesData_v8', JSON.stringify(this.state.sales)); },
-    clearData() { if(confirm('Clear all session data?')) { this.state.sales = []; this.save(); this.updateHistory(); } },
-    deleteOrder(id) { this.state.sales = this.state.sales.filter(o => o.id !== id); this.save(); this.updateHistory(); },
-
-    importCSV(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const content = e.target.result;
-            const lines = content.split(/\r?\n/).filter(line => line.trim() !== '');
-
-            // Temporary map to group line items by Order ID
-            const ordersMap = new Map();
-
-            // Skip header row
-            for (let i = 1; i < lines.length; i++) {
-                // Robust Regex to handle quoted strings containing commas (like our item names and timestamps)
-                const values = lines[i].match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g);
-
-                if (!values || values.length < 10) continue;
-
-                // Clean up quotes from the regex match
-                const row = values.map(v => v.replace(/^"|"$/g, '').trim());
-
-                // Column Mapping based on our Option 2 Export:
-                // 0: Order ID, 1: Date/Time, 2: Category, 3: Subcategory, 4: Item Name,
-                // 5: Unit Price, 6: Qty, 7: Line Total, 8: Order Subtotal, 9: Order Discount,
-                // 10: Order Gross Total, 11: Order Net Total, 12: Order Tax, 13: Order Fees, 14: Payment Method
-
-                const orderId   = row[0];
-                const timestamp = row[1]; // Now correctly captures "4/15/26, 7:30 PM"
-                const category  = row[2];
-                const subCat    = row[3];
-                const itemName  = row[4];
-                const unitPrice = parseFloat(row[5]);
-                const qty       = parseInt(row[6]);
-                const subtotal  = parseFloat(row[8]);
-                const discount  = parseFloat(row[9]);
-                const gross     = parseFloat(row[10]);
-                const tax       = parseFloat(row[12]);
-                const fee       = parseFloat(row[13]);
-                const payment   = row[14];
-
-                if (!ordersMap.has(orderId)) {
-                    ordersMap.set(orderId, {
-                        id: parseInt(orderId) || Date.now() + i,
-                        timestamp: timestamp,
-                        subtotal: subtotal,
-                        discount: discount,
-                        total: gross,
-                        payment: payment,
-                        fee: fee,
-                        tax: tax,
-                        items: []
+                </div>`;
+                        list.appendChild(div);
                     });
-                }
+                    const disc = parseFloat(document.getElementById('discountInput').value) || 0;
+                    const tip = parseFloat(document.getElementById('tipInput').value) || 0;
+                    const taxable = subtotal > 0 ? Math.max(0, subtotal - disc) : subtotal;
+                    const finalTotal = roundToCent(taxable + tip);
+                    empty.classList.toggle('hidden', this.state.cart.length > 0);
+                    document.getElementById('cartSubtotalText').innerText = fmt(subtotal);
+                    document.getElementById('cartTotalText').innerText = fmt(finalTotal);
+                    document.getElementById('cartTotalText').className =
+                        finalTotal < 0
+                            ? 'text-xl lg:text-2xl font-black text-red-600'
+                            : 'text-xl lg:text-2xl font-black text-gray-800';
+                    document.getElementById('cartCount').innerText = this.state.cart.length;
+                    document.getElementById('checkoutBtn').disabled = this.state.cart.length === 0;
+                },
 
-                ordersMap.get(orderId).items.push({
-                    name: itemName,
-                    unitPrice: unitPrice,
-                    qty: qty,
-                    category: category,
-                    subCategory: subCat === 'Unknown' ? '' : subCat,
-                    theme: CONFIG.themes[category] || { bg: 'gray-100', text: 'gray-700' }
-                });
-            }
+                removeFromCart(id) {
+                    this.state.cart = this.state.cart.filter((item) => item.id !== id);
+                    this.renderCart();
+                },
 
-            const importedSales = Array.from(ordersMap.values());
+                renderPayments() {
+                    const container = document.getElementById('paymentTypeContainer');
+                    container.innerHTML = '';
+                    const map = {
+                        Cash: 'green',
+                        Venmo: 'blue',
+                        Zelle: 'purple',
+                        CC: 'yellow',
+                        MB: 'gray',
+                    };
+                    CONFIG.payments.forEach((p) => {
+                        const color = map[p] || 'gray';
+                        const active = this.state.payType === p;
+                        const btn = document.createElement('button');
+                        btn.className = `px-2 lg:px-3 py-1 lg:py-1.5 rounded-lg text-[9px] lg:text-[10px] font-black border transition ${active ? `bg-${color}-600 text-white border-${color}-700 ring-2 ring-${color}-200` : `bg-${color}-50 text-${color}-700 border-${color}-100`}`;
+                        btn.textContent = p;
+                        btn.onclick = () => {
+                            this.state.payType = p;
+                            this.renderPayments();
+                        };
+                        container.appendChild(btn);
+                    });
+                },
 
-            if (importedSales.length === 0) {
-                alert("Could not find any valid orders in this CSV.");
-                return;
-            }
+                checkout() {
+                    const subtotal = this.state.cart.reduce(
+                        (sum, i) => sum + i.unitPrice * i.qty,
+                        0
+                    );
+                    const discount =
+                        parseFloat(document.getElementById('discountInput').value) || 0;
+                    const tip = parseFloat(document.getElementById('tipInput').value) || 0;
+                    const taxable = subtotal > 0 ? Math.max(0, subtotal - discount) : subtotal;
+                    const tax = roundToCent(taxable * CONFIG.taxRate);
+                    const orderTotal = roundToCent(taxable + tip);
+                    let fee = 0;
+                    if (orderTotal > 0) {
+                        const feeFunc = CONFIG.fees[this.state.payType];
+                        fee = feeFunc ? roundToCent(feeFunc(orderTotal)) : 0;
+                    }
+                    const isRetro = document.getElementById('retroToggle').checked;
+                    let ts = '';
+                    if (isRetro) {
+                        const val = document.getElementById('retroDateInput').value;
+                        ts = new Date(val + 'T12:00:00').toLocaleDateString([], {
+                            month: 'numeric',
+                            day: 'numeric',
+                            year: '2-digit',
+                        });
+                    } else {
+                        ts = new Date().toLocaleString([], {
+                            month: 'numeric',
+                            day: 'numeric',
+                            year: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                        });
+                    }
+                    const order = {
+                        id: Date.now(),
+                        timestamp: ts,
+                        items: [...this.state.cart],
+                        subtotal,
+                        discount,
+                        tip,
+                        total: orderTotal,
+                        payment: this.state.payType,
+                        fee,
+                        tax,
+                    };
+                    this.state.sales.push(order);
+                    this.state.cart = [];
+                    document.getElementById('discountInput').value = '0';
+                    document.getElementById('tipInput').value = '0';
+                    this.save();
+                    this.renderCart();
+                    this.updateHistory();
+                },
 
-            if (confirm(`Import ${importedSales.length} orders? This will append to your current session.`)) {
-                // Filter out duplicates based on ID if re-importing same file
-                const existingIds = new Set(this.state.sales.map(s => s.id));
-                const newOrders = importedSales.filter(o => !existingIds.has(o.id));
+                updateHistory() {
+                    const body = document.getElementById('salesTableBody');
+                    body.innerHTML = '';
+                    let s = {
+                        gross: 0,
+                        cashGroup: 0,
+                        venmoGroup: 0,
+                        zelle: 0,
+                        fees: 0,
+                        venmoFees: 0,
+                        ccFees: 0,
+                        tax: 0,
+                        exactCash: 0,
+                        mb: 0,
+                        exactVenmo: 0,
+                        cc: 0,
+                        expenses: 0,
+                        tips: 0,
+                    };
+                    const payColors = {
+                        Cash: 'green',
+                        Venmo: 'blue',
+                        Zelle: 'purple',
+                        CC: 'yellow',
+                        MB: 'gray',
+                    };
+                    [...this.state.sales].reverse().forEach((order) => {
+                        s.gross += order.total;
+                        s.tax += order.tax;
+                        s.fees += order.fee;
+                        s.tips += order.tip || 0;
+                        if (order.payment === 'Cash') {
+                            s.cashGroup += order.total;
+                            s.exactCash += order.total;
+                        } else if (order.payment === 'MB') {
+                            s.cashGroup += order.total;
+                            s.mb += order.total;
+                        } else if (order.payment === 'Venmo') {
+                            s.venmoGroup += order.total;
+                            s.exactVenmo += order.total;
+                            s.venmoFees += order.fee;
+                        } else if (order.payment === 'CC') {
+                            s.venmoGroup += order.total;
+                            s.cc += order.total;
+                            s.ccFees += order.fee;
+                        } else if (order.payment === 'Zelle') {
+                            s.zelle += order.total;
+                        }
+                        const totalQty = order.items.reduce((sum, i) => sum + i.qty, 0);
+                        const netAmt = roundToCent(order.total - order.fee - order.tax);
+                        s.expenses += Math.abs(
+                            order.items
+                                .filter((i) => i.category === 'Expense')
+                                .reduce((sum, i) => sum + i.unitPrice * i.qty, 0)
+                        );
+                        const pColor = payColors[order.payment] || 'gray';
+                        const tr = document.createElement('tr');
+                        tr.className = 'hover:bg-gray-50 transition border-b border-gray-50';
+                        const catPills = [...new Set(order.items.map((i) => i.category))]
+                            .map(
+                                (c) =>
+                                    `<span class="text-[8px] uppercase font-bold bg-${CONFIG.themes[c].bg} text-${CONFIG.themes[c].text} px-1.5 py-0.5 rounded">${c}</span>`
+                            )
+                            .join('');
+                        tr.innerHTML = `
+                <td class="p-2 lg:p-3 text-[9px] lg:text-[10px] text-gray-500 font-mono">${order.timestamp}</td>
+                <td class="p-2 lg:p-3 w-full"><div class="text-[11px] lg:text-xs font-bold">${order.items.map((i) => `${i.qty}x ${i.name}`).join(', ')}</div><div class="flex gap-1 mt-1">${catPills}</div></td>
+                <td class="p-2 lg:p-3 text-center font-bold text-xs">${totalQty}</td>
+                <td class="p-2 lg:p-3 text-center"><span class="text-[8px] font-black uppercase px-2 py-0.5 rounded-full border border-${pColor}-200 bg-${pColor}-50 text-${pColor}-700">${order.payment}</span></td>
+                <td class="p-2 lg:p-3 text-right font-mono text-xs text-red-500">${order.discount > 0 ? `-${order.discount.toFixed(2)}` : '—'}</td>
+                <td class="p-2 lg:p-3 text-right font-mono text-xs text-green-600">${order.tip > 0 ? `+${order.tip.toFixed(2)}` : '—'}</td>
+                <td class="p-2 lg:p-3 text-right font-mono text-xs font-black">${fmt(order.total)}</td>
+                <td class="p-2 lg:p-3 text-right font-mono text-xs font-black text-brand-blue">${fmt(netAmt)}</td>
+                <td class="p-2 lg:p-3 text-right"><button onclick="App.deleteOrder(${order.id})" class="text-gray-300 hover:text-red-500 font-bold">&times;</button></td>`;
+                        body.appendChild(tr);
+                    });
+                    document.getElementById('cashTotalDisplay').innerText = fmt(s.cashGroup);
+                    document.getElementById('venmoTotalDisplay').innerText = fmt(s.venmoGroup);
+                    document.getElementById('zelleTotalDisplay').innerText = fmt(s.zelle);
+                    document.getElementById('grandTotalDisplay').innerText = fmt(s.gross);
+                    document.getElementById('netTotalDisplay').innerText = fmt(
+                        roundToCent(s.gross - s.fees - s.tax)
+                    );
+                    document.getElementById('cashBreakdown').innerText =
+                        `Cash: ${fmt(s.exactCash)}`;
+                    document.getElementById('mbBreakdown').innerText = `MarketBucks: ${fmt(s.mb)}`;
+                    document.getElementById('venmoBreakdown').innerText =
+                        `Venmo: ${fmt(s.exactVenmo)}`;
+                    document.getElementById('venmoFeeBreakdown').innerText =
+                        `Fee: ${fmt(s.venmoFees)}`;
+                    document.getElementById('ccBreakdown').innerText = `Credit Card: ${fmt(s.cc)}`;
+                    document.getElementById('ccFeeBreakdown').innerText = `Fee: ${fmt(s.ccFees)}`;
+                    document.getElementById('taxBreakdown').innerText = `Tax: ${fmt(s.tax)}`;
+                    document.getElementById('feeBreakdown').innerText =
+                        `Total Fees: ${fmt(s.fees)}`;
+                    document.getElementById('netVenmoFee').innerText =
+                        `- Venmo: ${fmt(s.venmoFees)}`;
+                    document.getElementById('netCcFee').innerText = `- CC: ${fmt(s.ccFees)}`;
+                    document.getElementById('expenseBreakdown').innerText =
+                        `Expenses: -${fmt(s.expenses)}`;
+                },
 
-                this.state.sales = [...this.state.sales, ...newOrders];
-                this.save();
-                this.updateHistory();
-                alert(`Successfully imported ${newOrders.length} new orders.`);
-            }
-            event.target.value = '';
-        };
-        reader.readAsText(file);
-    },
+                save() {
+                    localStorage.setItem('salesData_v8', JSON.stringify(this.state.sales));
+                },
+                clearData() {
+                    if (confirm('Clear all session data?')) {
+                        this.state.sales = [];
+                        this.save();
+                        this.updateHistory();
+                    }
+                },
+                deleteOrder(id) {
+                    this.state.sales = this.state.sales.filter((o) => o.id !== id);
+                    this.save();
+                    this.updateHistory();
+                },
 
-    exportToCSV() {
-        // Line Item Ledger implementation
-        let csv = "Order ID,Date/Time,Category,Subcategory,Item Name,Item Unit Price,Item Qty,Item Line Total,Order Subtotal,Order Discount,Order Gross Total,Order Net Total,Order Tax,Order Fees,Payment Method\n";
+                importCSV(event) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const content = e.target.result;
+                        const lines = content.split(/\r?\n/).filter((line) => line.trim() !== '');
+                        const ordersMap = new Map();
+                        for (let i = 1; i < lines.length; i++) {
+                            const values = lines[i].match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g);
+                            if (!values || values.length < 10) continue;
+                            const row = values.map((v) => v.replace(/^"|"$/g, '').trim());
+                            const orderId = row[0];
+                            if (!ordersMap.has(orderId)) {
+                                ordersMap.set(orderId, {
+                                    id: parseInt(orderId) || Date.now() + i,
+                                    timestamp: row[1],
+                                    subtotal: parseFloat(row[8]),
+                                    discount: parseFloat(row[9]),
+                                    tip: parseFloat(row[10]),
+                                    total: parseFloat(row[11]),
+                                    payment: row[15],
+                                    fee: parseFloat(row[14]),
+                                    tax: parseFloat(row[13]),
+                                    items: [],
+                                });
+                            }
+                            ordersMap.get(orderId).items.push({
+                                name: row[4],
+                                unitPrice: parseFloat(row[5]),
+                                qty: parseInt(row[6]),
+                                category: row[2],
+                                subCategory: row[3] === 'Unknown' ? '' : row[3],
+                                theme: CONFIG.themes[row[2]] || {
+                                    bg: 'gray-100',
+                                    text: 'gray-700',
+                                },
+                            });
+                        }
+                        const imported = Array.from(ordersMap.values());
+                        if (imported.length > 0 && confirm(`Import ${imported.length} orders?`)) {
+                            const existingIds = new Set(this.state.sales.map((s) => s.id));
+                            this.state.sales = [
+                                ...this.state.sales,
+                                ...imported.filter((o) => !existingIds.has(o.id)),
+                            ];
+                            this.save();
+                            this.updateHistory();
+                        }
+                    };
+                    reader.readAsText(file);
+                },
 
-        this.state.sales.forEach(o => {
-            const cleanTimestamp = o.timestamp.replace(/,/g, '');
-            const netAmt = o.total - o.tax - o.fee;
+                exportToCSV() {
+                    let csv =
+                        'Order ID,Date/Time,Category,Subcategory,Item Name,Item Unit Price,Item Qty,Item Line Total,Order Subtotal,Order Discount,Order Tip,Order Gross Total,Order Net Total,Order Tax,Order Fees,Payment Method\n';
+                    this.state.sales.forEach((o) => {
+                        const ts = o.timestamp.replace(/,/g, '');
+                        const net = o.total - o.tax - o.fee;
+                        o.items.forEach((item) => {
+                            csv += `${o.id},${ts},${item.category},${item.subCategory || 'Unknown'},"${item.name}",${item.unitPrice.toFixed(2)},${item.qty},${(item.unitPrice * item.qty).toFixed(2)},${o.subtotal.toFixed(2)},${o.discount.toFixed(2)},${(o.tip || 0).toFixed(2)},${o.total.toFixed(2)},${net.toFixed(2)},${o.tax.toFixed(2)},${o.fee.toFixed(2)},${o.payment}\n`;
+                        });
+                    });
+                    const blob = new Blob([csv], { type: 'text/csv' });
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    const rawTitle =
+                        document.getElementById('reportTitle').value.trim() || 'sales_report';
+                    a.href = url;
+                    a.download = `${rawTitle.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_${new Date().toISOString().split('T')[0]}.csv`;
+                    a.click();
+                },
+            };
 
-            o.items.forEach(item => {
-                const lineTotal = item.unitPrice * item.qty;
-                const subCat = item.subCategory || "Unknown";
-
-                csv += `${o.id},${cleanTimestamp},${item.category},${subCat},"${item.name}",${item.unitPrice.toFixed(2)},${item.qty},${lineTotal.toFixed(2)},${o.subtotal.toFixed(2)},${o.discount.toFixed(2)},${o.total.toFixed(2)},${netAmt.toFixed(2)},${o.tax.toFixed(2)},${o.fee.toFixed(2)},${o.payment}\n`;
-            });
-        });
-
-        // Generate Filename from reportTitle
-        const rawTitle = document.getElementById('reportTitle').value.trim() || "sales_report";
-        const sanitizedTitle = rawTitle.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-        const dateStr = new Date().toISOString().split('T')[0];
-        const fileName = `${sanitizedTitle}_${dateStr}.csv`;
-
-        const blob = new Blob([csv], { type: 'text/csv' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = fileName;
-        a.click();
-        window.URL.revokeObjectURL(url);
-    }
-};
-
-App.init();
-</script>
-</body>
+            App.init();
+        </script>
+    </body>
 </html>
