@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Sinensthesia Invoice Generator</title>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+        <style>
+            :root {
+                --brand-blue: #2e3b82;
+            }
+            body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background: #d6d6d6;
+                margin: 0;
+                display: flex;
+                height: 100vh;
+            }
+
+            /* Sidebar Editor */
+            .editor-panel {
+                width: 400px;
+                background: #ffffff;
+                padding: 25px;
+                box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+                overflow-y: auto;
+                z-index: 10;
+            }
+            h2 {
+                color: var(--brand-blue);
+                margin-top: 0;
+                font-size: 1.5rem;
+            }
+            label {
+                display: block;
+                margin: 12px 0 4px;
+                font-weight: bold;
+                font-size: 12px;
+                color: #555;
+                text-transform: uppercase;
+            }
+            input,
+            textarea {
+                width: 100%;
+                padding: 10px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                box-sizing: border-box;
+                font-size: 14px;
+            }
+
+            .item-row {
+                display: grid;
+                grid-template-columns: 2fr 50px 80px 30px;
+                gap: 8px;
+                margin-bottom: 8px;
+                align-items: center;
+            }
+            .btn-remove {
+                background: #ff4d4d;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                height: 35px;
+            }
+
+            .actions {
+                margin-top: 30px;
+                border-top: 1px solid #eee;
+                padding-top: 20px;
+            }
+            button {
+                width: 100%;
+                padding: 12px;
+                border-radius: 6px;
+                cursor: pointer;
+                font-weight: bold;
+                transition: 0.2s;
+            }
+            .btn-add {
+                background: white;
+                border: 2px dashed var(--brand-blue);
+                color: var(--brand-blue);
+                margin-bottom: 10px;
+            }
+            .btn-add:hover {
+                background: #f0f2ff;
+            }
+            .btn-save {
+                background: var(--brand-blue);
+                border: none;
+                color: white;
+                font-size: 16px;
+            }
+            .btn-save:hover {
+                opacity: 0.9;
+            }
+
+            /* Preview Area */
+            .preview-area {
+                flex-grow: 1;
+                display: flex;
+                justify-content: center;
+                align-items: flex-start;
+                padding: 40px;
+                overflow-y: auto;
+            }
+            #invoice-canvas {
+                width: 800px;
+                height: 1035px;
+                background-color: #f2ede4;
+                background-image: url('../Resources/Sinensthesia InvoiceBlank.png');
+                background-size: contain;
+                background-repeat: no-repeat;
+                position: relative;
+                box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
+            }
+
+            /* Dynamic Text Placement */
+            .field {
+                position: absolute;
+                color: var(--brand-blue);
+                font-family: 'Times New Roman', Times, serif;
+            }
+
+            /* Top Right Company Info Field */
+            .my-company-info {
+                top: 78px;
+                right: 55px;
+                text-align: right;
+                line-height: 1.2;
+                font-size: 18px;
+                font-style: italic;
+            }
+
+            .inv-no {
+                top: 138px;
+                left: 436px;
+                font-style: italic;
+                font-size: 24px;
+            }
+            .inv-date {
+                top: 204px;
+                right: 65px;
+                font-style: italic;
+                font-size: 26px;
+            }
+            .inv-to-box {
+                top: 208px;
+                left: 65px;
+                line-height: 1.3;
+                font-size: 19px;
+            }
+
+            .table-container {
+                position: absolute;
+                top: 400px;
+                left: 65px;
+                width: 670px;
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+            th {
+                text-align: left;
+                border-bottom: 2px solid var(--brand-blue);
+                padding: 8px;
+                font-size: 14px;
+                text-transform: uppercase;
+            }
+            td {
+                padding: 10px 8px;
+                border-bottom: 1px solid rgba(46, 59, 130, 0.2);
+                font-style: italic;
+                font-size: 16px;
+            }
+
+            .totals-block {
+                margin-top: 15px;
+                float: right;
+                text-align: right;
+                width: 250px;
+                line-height: 1.6;
+            }
+            .grand-total {
+                border-top: 2px solid var(--brand-blue);
+                font-weight: bold;
+                font-size: 20px;
+                margin-top: 5px;
+                padding-top: 5px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="editor-panel">
+            <h2>Invoice Editor</h2>
+
+            <label>Your Company Info (Top Right)</label>
+            <textarea id="in-my-info" rows="4" oninput="draw()">
+[address]&#10;[town-zip]&#10;(908) 627-2743&#10;Shawn@sinensthesia.com</textarea
+            >
+            <label>Invoice Number</label>
+            <input type="text" id="in-num" oninput="draw()" />
+
+            <label>Date</label>
+            <input type="text" id="in-date" oninput="draw()" />
+
+            <label>Bill To</label>
+            <textarea id="in-client" rows="4" oninput="draw()">
+Price Guide&#10;Tea - Half Gallon Bag - $25&#10;Topping - 16 Oz Container - $ 5</textarea
+            >
+
+            <label>Items (Description | Qty | Price)</label>
+            <div id="item-inputs">
+                <div class="item-row">
+                    <input
+                        type="text"
+                        class="d-desc"
+                        value="Tea - Half Gallon Beverage Bag"
+                        oninput="draw()"
+                    />
+                    <input type="number" class="d-qty" value="1" oninput="draw()" />
+                    <input type="number" class="d-prc" value="25" oninput="draw()" />
+                    <button
+                        class="btn-remove"
+                        onclick="
+                            this.parentElement.remove();
+                            draw();
+                        "
+                    >
+                        ×
+                    </button>
+                </div>
+            </div>
+            <button class="btn-add" onclick="addNewRow()">+ Add Item / Discount</button>
+
+            <label>Sales Tax (%)</label>
+            <input type="number" id="in-tax" value="6.625" step="0.001" oninput="draw()" />
+
+            <div class="actions">
+                <button class="btn-save" onclick="generatePDF()">Download PDF</button>
+            </div>
+        </div>
+
+        <div class="preview-area">
+            <div id="invoice-canvas">
+                <div class="field my-company-info" id="out-my-info"></div>
+
+                <div class="field inv-no" id="out-num">#10001</div>
+                <div class="field inv-date" id="out-date">April 30th, 2026</div>
+                <div class="field inv-to-box">
+                    <b style="font-size: 22px; font-style: normal">Invoice To:</b><br />
+                    <span id="out-client" style="font-style: italic"></span>
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 55%">Description</th>
+                                <th>Qty</th>
+                                <th>Price</th>
+                                <th style="text-align: right">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="out-rows"></tbody>
+                    </table>
+
+                    <div class="totals-block">
+                        <div>Subtotal: <span id="out-sub">$0.00</span></div>
+                        <div>Tax: <span id="out-tax-amt">$0.00</span></div>
+                        <div class="grand-total">Amount Due: <span id="out-total">$0.00</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+            // 1. Initialize Default Data on Load
+            window.onload = function () {
+                // Handle Date (Format: April 30th, 2026)
+                const now = new Date();
+                const options = { month: 'long', day: 'numeric', year: 'numeric' };
+                let dateStr = now.toLocaleDateString('en-US', options);
+
+                // Optional: Adding "th", "st", "rd" suffix
+                const day = now.getDate();
+                const suffix =
+                    day % 10 == 1 && day != 11
+                        ? 'st'
+                        : day % 10 == 2 && day != 12
+                          ? 'nd'
+                          : day % 10 == 3 && day != 13
+                            ? 'rd'
+                            : 'th';
+                dateStr = dateStr.replace(day, day + suffix);
+
+                document.getElementById('in-date').value = dateStr;
+
+                // Handle Invoice Number from LocalStorage
+                const savedNum = localStorage.getItem('lastInvoiceNum');
+                document.getElementById('in-num').value = savedNum ? savedNum : '10001';
+
+                draw();
+            };
+
+            function addNewRow() {
+                const container = document.getElementById('item-inputs');
+                const row = document.createElement('div');
+                row.className = 'item-row';
+                row.innerHTML = `
+            <input type="text" class="d-desc" placeholder="New Item" oninput="draw()">
+            <input type="number" class="d-qty" value="1" oninput="draw()">
+            <input type="number" class="d-prc" value="0" oninput="draw()">
+            <button class="btn-remove" onclick="this.parentElement.remove(); draw()">×</button>
+        `;
+                container.appendChild(row);
+                draw();
+            }
+
+            function draw() {
+                document.getElementById('out-my-info').innerHTML = document
+                    .getElementById('in-my-info')
+                    .value.replace(/\n/g, '<br>');
+                document.getElementById('out-num').innerText =
+                    '#' + document.getElementById('in-num').value;
+                document.getElementById('out-date').innerText =
+                    document.getElementById('in-date').value;
+                document.getElementById('out-client').innerHTML = document
+                    .getElementById('in-client')
+                    .value.replace(/\n/g, '<br>');
+
+                let subtotal = 0;
+                const descs = document.querySelectorAll('.d-desc');
+                const qtys = document.querySelectorAll('.d-qty');
+                const prcs = document.querySelectorAll('.d-prc');
+                let html = '';
+
+                descs.forEach((el, i) => {
+                    const q = parseFloat(qtys[i].value) || 0;
+                    const p = parseFloat(prcs[i].value) || 0;
+                    const lineTotal = q * p;
+                    subtotal += lineTotal;
+                    html += `<tr><td>${el.value || '...'}</td><td>${q}</td><td>$${p.toFixed(2)}</td><td style="text-align: right;">$${lineTotal.toFixed(2)}</td></tr>`;
+                });
+
+                const taxRate = parseFloat(document.getElementById('in-tax').value) / 100;
+                const taxAmt = subtotal * taxRate;
+                const finalTotal = subtotal + taxAmt;
+
+                document.getElementById('out-rows').innerHTML = html;
+                document.getElementById('out-sub').innerText = `$${subtotal.toFixed(2)}`;
+                document.getElementById('out-tax-amt').innerText = `$${taxAmt.toFixed(2)}`;
+                document.getElementById('out-total').innerText = `$${finalTotal.toFixed(2)}`;
+            }
+
+            function generatePDF() {
+                const element = document.getElementById('invoice-canvas');
+                const currentNum = document.getElementById('in-num').value;
+                const filename = `Invoice_${currentNum}.pdf`;
+
+                html2pdf()
+                    .set({
+                        margin: 0,
+                        filename: filename,
+                        image: { type: 'jpeg', quality: 1 },
+                        html2canvas: { scale: 3, useCORS: true },
+                        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
+                    })
+                    .from(element)
+                    .save();
+
+                // 2. Increment and Save
+                const nextNum = parseInt(currentNum) + 1;
+                if (!isNaN(nextNum)) {
+                    document.getElementById('in-num').value = nextNum;
+                    localStorage.setItem('lastInvoiceNum', nextNum);
+                    draw(); // Redraw preview with new number
+                }
+            }
+        </script>
+    </body>
+</html>
