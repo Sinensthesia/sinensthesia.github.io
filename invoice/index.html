@@ -9,7 +9,7 @@
                 --brand-blue: #2e3b82;
             }
             body {
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                font-family: 'Segoe UI', sans-serif;
                 background: #d6d6d6;
                 margin: 0;
                 display: flex;
@@ -34,7 +34,7 @@
                 display: block;
                 margin: 12px 0 4px;
                 font-weight: bold;
-                font-size: 12px;
+                font-size: 11px;
                 color: #555;
                 text-transform: uppercase;
             }
@@ -46,6 +46,20 @@
                 border-radius: 4px;
                 box-sizing: border-box;
                 font-size: 14px;
+                margin-bottom: 5px;
+            }
+
+            .checkbox-container {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin: 10px 0;
+                font-size: 13px;
+                color: #333;
+            }
+            .checkbox-container input {
+                width: auto;
+                margin: 0;
             }
 
             .item-row {
@@ -63,37 +77,32 @@
                 cursor: pointer;
                 height: 35px;
             }
+            .btn-add {
+                background: white;
+                border: 2px dashed var(--brand-blue);
+                color: var(--brand-blue);
+                margin-top: 10px;
+                width: 100%;
+                padding: 10px;
+                cursor: pointer;
+                font-weight: bold;
+            }
 
             .actions {
                 margin-top: 30px;
                 border-top: 1px solid #eee;
                 padding-top: 20px;
             }
-            button {
-                width: 100%;
-                padding: 12px;
-                border-radius: 6px;
-                cursor: pointer;
-                font-weight: bold;
-                transition: 0.2s;
-            }
-            .btn-add {
-                background: white;
-                border: 2px dashed var(--brand-blue);
-                color: var(--brand-blue);
-                margin-bottom: 10px;
-            }
-            .btn-add:hover {
-                background: #f0f2ff;
-            }
             .btn-save {
                 background: var(--brand-blue);
                 border: none;
                 color: white;
                 font-size: 16px;
-            }
-            .btn-save:hover {
-                opacity: 0.9;
+                width: 100%;
+                padding: 12px;
+                border-radius: 6px;
+                cursor: pointer;
+                font-weight: bold;
             }
 
             /* Preview Area */
@@ -116,21 +125,29 @@
                 box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
             }
 
-            /* Dynamic Text Placement */
             .field {
                 position: absolute;
                 color: var(--brand-blue);
                 font-family: 'Times New Roman', Times, serif;
             }
-
-            /* Top Right Company Info Field */
             .my-company-info {
-                top: 78px;
-                right: 55px;
+                top: 60px;
+                right: 65px;
                 text-align: right;
                 line-height: 1.2;
                 font-size: 18px;
                 font-style: italic;
+            }
+
+            /* Payment Instructions Styling */
+            .payment-methods {
+                top: 245px;
+                right: 65px;
+                text-align: right;
+                line-height: 1.3;
+                font-size: 14px;
+                font-style: italic;
+                opacity: 0.9;
             }
 
             .inv-no {
@@ -144,6 +161,7 @@
                 right: 65px;
                 font-style: italic;
                 font-size: 26px;
+                text-align: right;
             }
             .inv-to-box {
                 top: 208px;
@@ -152,9 +170,20 @@
                 font-size: 19px;
             }
 
+            .event-info-box {
+                position: absolute;
+                top: 335px;
+                left: 65px;
+                color: var(--brand-blue);
+                font-family: 'Times New Roman', serif;
+                font-style: italic;
+                font-size: 18px;
+                line-height: 1.4;
+            }
+
             .table-container {
                 position: absolute;
-                top: 400px;
+                top: 410px;
                 left: 65px;
                 width: 670px;
             }
@@ -180,8 +209,10 @@
                 margin-top: 15px;
                 float: right;
                 text-align: right;
-                width: 250px;
+                width: 280px;
                 line-height: 1.6;
+                color: var(--brand-blue);
+                font-family: 'Times New Roman', serif;
             }
             .grand-total {
                 border-top: 2px solid var(--brand-blue);
@@ -200,11 +231,22 @@
             <textarea id="in-my-info" rows="4" oninput="draw()">
 [address]&#10;[town-zip]&#10;(908) 627-2743&#10;Shawn@sinensthesia.com</textarea
             >
-            <label>Invoice Number</label>
-            <input type="text" id="in-num" oninput="draw()" />
 
-            <label>Date</label>
-            <input type="text" id="in-date" oninput="draw()" />
+            <div style="display: flex; gap: 10px">
+                <div style="flex: 1">
+                    <label>Invoice Number</label>
+                    <input type="text" id="in-num" oninput="draw()" />
+                </div>
+                <div style="flex: 1">
+                    <label id="date-picker-label">Event Date</label>
+                    <input type="date" id="in-event-date" oninput="draw()" />
+                </div>
+            </div>
+
+            <div class="checkbox-container">
+                <input type="checkbox" id="due-override" onchange="draw()" />
+                <span>Override (Set Direct Due Date)</span>
+            </div>
 
             <label>Bill To</label>
             <textarea id="in-client" rows="4" oninput="draw()">
@@ -246,12 +288,25 @@ Price Guide&#10;Tea - Half Gallon Bag - $25&#10;Topping - 16 Oz Container - $ 5<
         <div class="preview-area">
             <div id="invoice-canvas">
                 <div class="field my-company-info" id="out-my-info"></div>
+                <div class="field inv-no" id="out-num"></div>
+                <div class="field inv-date" id="out-date"></div>
 
-                <div class="field inv-no" id="out-num">#10001</div>
-                <div class="field inv-date" id="out-date">April 30th, 2026</div>
+                <div class="field payment-methods">
+                    Make checks payable to Sinensthesia LLC<br />
+                    Venmo: @sinensthesia<br />
+                    Zelle: (908) 627-2743
+                </div>
+
                 <div class="field inv-to-box">
                     <b style="font-size: 22px; font-style: normal">Invoice To:</b><br />
                     <span id="out-client" style="font-style: italic"></span>
+                </div>
+
+                <div class="event-info-box">
+                    <div id="out-event-row">Event Date: <span id="out-event-date"></span></div>
+                    <div id="due-message-container">
+                        Payment due no later than 7 days before the event: <b id="out-due-date"></b>
+                    </div>
                 </div>
 
                 <div class="table-container">
@@ -268,23 +323,32 @@ Price Guide&#10;Tea - Half Gallon Bag - $25&#10;Topping - 16 Oz Container - $ 5<
                     </table>
 
                     <div class="totals-block">
-                        <div>Subtotal: <span id="out-sub">$0.00</span></div>
-                        <div>Tax: <span id="out-tax-amt">$0.00</span></div>
-                        <div class="grand-total">Amount Due: <span id="out-total">$0.00</span></div>
+                        <div>Subtotal: <span id="out-sub"></span></div>
+                        <div>Tax: <span id="out-tax-amt"></span></div>
+                        <div class="grand-total">Amount Due: <span id="out-total"></span></div>
                     </div>
                 </div>
             </div>
         </div>
-        <script>
-            // 1. Initialize Default Data on Load
-            window.onload = function () {
-                // Handle Date (Format: April 30th, 2026)
-                const now = new Date();
-                const options = { month: 'long', day: 'numeric', year: 'numeric' };
-                let dateStr = now.toLocaleDateString('en-US', options);
 
-                // Optional: Adding "th", "st", "rd" suffix
-                const day = now.getDate();
+        <script>
+            function formatPrettyDate(dateObj) {
+                if (!dateObj || isNaN(dateObj.getTime())) return '';
+                const months = [
+                    'January',
+                    'February',
+                    'March',
+                    'April',
+                    'May',
+                    'June',
+                    'July',
+                    'August',
+                    'September',
+                    'October',
+                    'November',
+                    'December',
+                ];
+                const day = dateObj.getDate();
                 const suffix =
                     day % 10 == 1 && day != 11
                         ? 'st'
@@ -293,14 +357,13 @@ Price Guide&#10;Tea - Half Gallon Bag - $25&#10;Topping - 16 Oz Container - $ 5<
                           : day % 10 == 3 && day != 13
                             ? 'rd'
                             : 'th';
-                dateStr = dateStr.replace(day, day + suffix);
+                return `${months[dateObj.getMonth()]} ${day}${suffix}, ${dateObj.getFullYear()}`;
+            }
 
-                document.getElementById('in-date').value = dateStr;
-
-                // Handle Invoice Number from LocalStorage
+            window.onload = function () {
+                document.getElementById('out-date').innerText = formatPrettyDate(new Date());
                 const savedNum = localStorage.getItem('lastInvoiceNum');
                 document.getElementById('in-num').value = savedNum ? savedNum : '10001';
-
                 draw();
             };
 
@@ -308,12 +371,7 @@ Price Guide&#10;Tea - Half Gallon Bag - $25&#10;Topping - 16 Oz Container - $ 5<
                 const container = document.getElementById('item-inputs');
                 const row = document.createElement('div');
                 row.className = 'item-row';
-                row.innerHTML = `
-            <input type="text" class="d-desc" placeholder="New Item" oninput="draw()">
-            <input type="number" class="d-qty" value="1" oninput="draw()">
-            <input type="number" class="d-prc" value="0" oninput="draw()">
-            <button class="btn-remove" onclick="this.parentElement.remove(); draw()">×</button>
-        `;
+                row.innerHTML = `<input type="text" class="d-desc" placeholder="New Item" oninput="draw()"><input type="number" class="d-qty" value="1" oninput="draw()"><input type="number" class="d-prc" value="0" oninput="draw()"><button class="btn-remove" onclick="this.parentElement.remove(); draw()">×</button>`;
                 container.appendChild(row);
                 draw();
             }
@@ -324,11 +382,32 @@ Price Guide&#10;Tea - Half Gallon Bag - $25&#10;Topping - 16 Oz Container - $ 5<
                     .value.replace(/\n/g, '<br>');
                 document.getElementById('out-num').innerText =
                     '#' + document.getElementById('in-num').value;
-                document.getElementById('out-date').innerText =
-                    document.getElementById('in-date').value;
                 document.getElementById('out-client').innerHTML = document
                     .getElementById('in-client')
                     .value.replace(/\n/g, '<br>');
+
+                const dateVal = document.getElementById('in-event-date').value;
+                const overrideChecked = document.getElementById('due-override').checked;
+                const eventRow = document.getElementById('out-event-row');
+                const messageContainer = document.getElementById('due-message-container');
+                const label = document.getElementById('date-picker-label');
+
+                if (dateVal) {
+                    const selectedDate = new Date(dateVal + 'T00:00:00');
+
+                    if (overrideChecked) {
+                        label.innerText = 'Payment Due Date';
+                        eventRow.innerHTML = `Payment Due: <span>${formatPrettyDate(selectedDate)}</span>`;
+                        messageContainer.innerHTML = '';
+                    } else {
+                        label.innerText = 'Event Date';
+                        const dueDate = new Date(selectedDate);
+                        dueDate.setDate(selectedDate.getDate() - 7);
+
+                        eventRow.innerHTML = `Event Date: <span>${formatPrettyDate(selectedDate)}</span>`;
+                        messageContainer.innerHTML = `Payment due no later than 7 days before the event: <b>${formatPrettyDate(dueDate)}</b>`;
+                    }
+                }
 
                 let subtotal = 0;
                 const descs = document.querySelectorAll('.d-desc');
@@ -357,12 +436,11 @@ Price Guide&#10;Tea - Half Gallon Bag - $25&#10;Topping - 16 Oz Container - $ 5<
             function generatePDF() {
                 const element = document.getElementById('invoice-canvas');
                 const currentNum = document.getElementById('in-num').value;
-                const filename = `Invoice_${currentNum}.pdf`;
 
                 html2pdf()
                     .set({
                         margin: 0,
-                        filename: filename,
+                        filename: `Invoice_${currentNum}.pdf`,
                         image: { type: 'jpeg', quality: 1 },
                         html2canvas: { scale: 3, useCORS: true },
                         jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
@@ -370,12 +448,11 @@ Price Guide&#10;Tea - Half Gallon Bag - $25&#10;Topping - 16 Oz Container - $ 5<
                     .from(element)
                     .save();
 
-                // 2. Increment and Save
                 const nextNum = parseInt(currentNum) + 1;
                 if (!isNaN(nextNum)) {
                     document.getElementById('in-num').value = nextNum;
                     localStorage.setItem('lastInvoiceNum', nextNum);
-                    draw(); // Redraw preview with new number
+                    draw();
                 }
             }
         </script>
