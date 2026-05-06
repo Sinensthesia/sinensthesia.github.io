@@ -15,7 +15,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const calendarEl = document.getElementById('calendar');
     const BRAND_DEFAULT_LOGO = '../Resources/Web/Icon/Blue/Sinensthesia-Logo-Teacup-Icon-RGB.png';
-
     function buildLegend() {
         fetch('./events.json')
             .then((response) => response.json())
@@ -23,6 +22,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 const marketsContainer = document.getElementById('legend-markets');
                 const eventsContainer = document.getElementById('legend-events');
                 const cancelledContainer = document.getElementById('legend-cancelled');
+
                 let marketsHtml = '',
                     eventsHtml = '',
                     cancelledHtml = '';
@@ -36,7 +36,16 @@ document.addEventListener('DOMContentLoaded', function () {
                     'Saturdays',
                 ];
 
+                const now = new Date();
                 data.forEach((event) => {
+                    // --- NEW: Filter out past cancellations ---
+                    if (event.cancelled && event.start) {
+                        const eventDate = new Date(event.start);
+                        if (eventDate < now) {
+                            return; // Skip this event entirely for the sidebar
+                        }
+                    }
+
                     let dateString = '',
                         isRecurringMarket = false;
                     if (event.daysOfWeek && event.daysOfWeek.length > 0) {
@@ -53,8 +62,8 @@ document.addEventListener('DOMContentLoaded', function () {
                         const mapQuery = encodeURIComponent(event.location);
                         const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${mapQuery}`;
                         locationHtml = event.cancelled
-                            ? `<span class="legend-location"> ${event.location}</span>`
-                            : `<a href="${mapsUrl}" target="_blank" class="legend-location"> ${event.location}</a>`;
+                            ? `<span class="legend-location">📍 ${event.location}</span>`
+                            : `<a href="${mapsUrl}" target="_blank" class="legend-location">📍 ${event.location}</a>`;
                     }
 
                     const finalLegendImageUrl = event.image || BRAND_DEFAULT_LOGO;
@@ -88,21 +97,19 @@ document.addEventListener('DOMContentLoaded', function () {
                 eventsContainer.innerHTML =
                     eventsHtml || `<span class="legend-empty">No special events scheduled.</span>`;
                 cancelledContainer.innerHTML =
-                    cancelledHtml || `<span class="legend-empty">No cancellations.</span>`;
+                    cancelledHtml || `<span class="legend-empty">No upcoming cancellations.</span>`;
             });
     }
     buildLegend();
     const calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
-        // Use 'auto' height on mobile (width < 900)
-        // Use '100%' on desktop (but only if NOT embedded)
-        height: window.innerWidth < 900 ? 'auto' : window.self !== window.top ? 'auto' : '100%',
-
-        // Ensure the grid cells expand to fill the available space
+        // Set a taller height to accommodate 6 rows of large logos
+        height: 800,
+        fixedWeekCount: true, // Crucial for uniformity
+        aspectRatio: 1.35,
         expandRows: true,
-        buttonText: {
-            today: '☀️',
-        },
+
+        buttonText: { today: '☀️' },
         headerToolbar: {
             left: 'prev,next today',
             center: 'title',
@@ -155,22 +162,23 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
         },
 
+        // (Ensure your eventContent still has the large max-height logos)
         eventContent: function (arg) {
             const finalImageUrl = arg.event.extendedProps.image || BRAND_DEFAULT_LOGO;
             const isCancelled = arg.event.extendedProps.cancelled;
 
             if (isCancelled) {
                 return {
-                    html: `<div style="display: flex; justify-content: center; align-items: center; position: relative; height: 100%;">
-                    <img src="${finalImageUrl}" style="max-width: 95%; max-height: 65px; object-fit: contain; opacity: 0.3; filter: grayscale(100%);">
-                    <div style="position: absolute; width: 80%; height: 2px; background-color: #b30000; transform: rotate(-15deg);"></div>
-                    <div style="position: absolute; color: #b30000; font-weight: 900; font-size: 0.65em; background: rgba(255,255,255,0.9); padding: 1px 4px; border-radius: 2px; text-transform: uppercase;">Cancelled</div>
+                    html: `<div style="display: flex; justify-content: center; align-items: center; position: relative; height: 100%; width: 100%;">
+                    <img src="${finalImageUrl}" style="max-width: 90%; max-height: 100px; object-fit: contain; opacity: 0.3; filter: grayscale(100%);">
+                    <div style="position: absolute; width: 80%; height: 3px; background-color: #b30000; transform: rotate(-15deg);"></div>
+                    <div style="position: absolute; color: #b30000; font-weight: 900; font-size: 0.7em; background: rgba(255,255,255,0.9); padding: 1px 4px; border-radius: 2px; text-transform: uppercase;">Cancelled</div>
                     </div>`,
                 };
             } else {
                 return {
-                    html: `<div style="display: flex; justify-content: center; align-items: center; height: 100%;">
-                    <img src="${finalImageUrl}" style="max-width: 95%; max-height: 65px; object-fit: contain;">
+                    html: `<div style="display: flex; justify-content: center; align-items: center; height: 100%; width: 100%;">
+                    <img src="${finalImageUrl}" style="max-width: 90%; max-height: 100px; object-fit: contain;">
                     </div>`,
                 };
             }
