@@ -115,14 +115,15 @@
                 overflow-y: auto;
             }
             #invoice-canvas {
-                width: 800px;
-                height: 1035px;
+                width: 816px; /* Exactly 8.5 inches at 96dpi */
+                height: 1056px; /* Exactly 11 inches at 96dpi */
                 background-color: #f2ede4;
                 background-image: url('../Resources/Sinensthesia InvoiceBlank.png');
-                background-size: contain;
+                background-size: cover; /* Changed from contain to ensure no edges */
                 background-repeat: no-repeat;
                 position: relative;
                 box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
+                overflow: hidden; /* Prevents any small spills from creating pages */
             }
 
             .field {
@@ -235,7 +236,7 @@
             <div style="display: flex; gap: 10px">
                 <div style="flex: 1">
                     <label>Invoice Number</label>
-                    <input type="text" id="in-num" oninput="draw()" />
+                    <input type="number" id="in-num" oninput="draw()" />
                 </div>
                 <div style="flex: 1">
                     <label id="date-picker-label">Event Date</label>
@@ -250,7 +251,7 @@
 
             <label>Bill To</label>
             <textarea id="in-client" rows="4" oninput="draw()">
-Price Guide&#10;Tea - Half Gallon Bag - $25&#10;Topping - 16 Oz Container - $ 5</textarea
+Price Guide&#10;Tea - Half Gallon Bag - $25&#10;Topping - 16 Oz Container - $7 </textarea
             >
 
             <label>Items (Description | Qty | Price)</label>
@@ -324,7 +325,10 @@ Price Guide&#10;Tea - Half Gallon Bag - $25&#10;Topping - 16 Oz Container - $ 5<
 
                     <div class="totals-block">
                         <div>Subtotal: <span id="out-sub"></span></div>
-                        <div>Tax: <span id="out-tax-amt"></span></div>
+                        <div>
+                            Sales Tax (<span id="out-tax-rate"></span>%):
+                            <span id="out-tax-amt"></span>
+                        </div>
                         <div class="grand-total">Amount Due: <span id="out-total"></span></div>
                     </div>
                 </div>
@@ -422,13 +426,14 @@ Price Guide&#10;Tea - Half Gallon Bag - $25&#10;Topping - 16 Oz Container - $ 5<
                     subtotal += lineTotal;
                     html += `<tr><td>${el.value || '...'}</td><td>${q}</td><td>$${p.toFixed(2)}</td><td style="text-align: right;">$${lineTotal.toFixed(2)}</td></tr>`;
                 });
-
-                const taxRate = parseFloat(document.getElementById('in-tax').value) / 100;
+                const taxInput = document.getElementById('in-tax').value;
+                const taxRate = parseFloat(taxInput) / 100;
                 const taxAmt = subtotal * taxRate;
                 const finalTotal = subtotal + taxAmt;
 
                 document.getElementById('out-rows').innerHTML = html;
                 document.getElementById('out-sub').innerText = `$${subtotal.toFixed(2)}`;
+                document.getElementById('out-tax-rate').innerText = taxInput;
                 document.getElementById('out-tax-amt').innerText = `$${taxAmt.toFixed(2)}`;
                 document.getElementById('out-total').innerText = `$${finalTotal.toFixed(2)}`;
             }
@@ -437,23 +442,36 @@ Price Guide&#10;Tea - Half Gallon Bag - $25&#10;Topping - 16 Oz Container - $ 5<
                 const element = document.getElementById('invoice-canvas');
                 const currentNum = document.getElementById('in-num').value;
 
-                html2pdf()
-                    .set({
-                        margin: 0,
-                        filename: `Invoice_${currentNum}.pdf`,
-                        image: { type: 'jpeg', quality: 1 },
-                        html2canvas: { scale: 3, useCORS: true },
-                        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
-                    })
-                    .from(element)
-                    .save();
+                const opt = {
+                    margin: 0,
+                    filename: `Sinensthesia_Invoice_${currentNum}.pdf`,
+                    image: { type: 'jpeg', quality: 1 },
+                    html2canvas: {
+                        scale: 2,
+                        useCORS: true,
+                        width: 816, // Force canvas width to 8.5"
+                        height: 1056, // Force canvas height to 11"
+                    },
+                    jsPDF: {
+                        unit: 'px',
+                        format: [816, 1056], // Match the pixel size exactly
+                        hotfixes: ['px_scaling'],
+                    },
+                };
 
-                const nextNum = parseInt(currentNum) + 1;
-                if (!isNaN(nextNum)) {
-                    document.getElementById('in-num').value = nextNum;
-                    localStorage.setItem('lastInvoiceNum', nextNum);
-                    draw();
-                }
+                html2pdf()
+                    .set(opt)
+                    .from(element)
+                    .save()
+                    .then(() => {
+                        // This block ONLY runs after the PDF process is complete
+                        const nextNum = parseInt(currentNum) + 1;
+                        if (!isNaN(nextNum)) {
+                            document.getElementById('in-num').value = nextNum;
+                            localStorage.setItem('lastInvoiceNum', nextNum);
+                            draw(); // Updates the preview on screen to the new number
+                        }
+                    });
             }
         </script>
     </body>
