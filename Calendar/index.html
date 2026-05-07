@@ -380,18 +380,36 @@
                     max-height: 45px !important;
                 }
 
+                /* --- MOBILE HEADER TOOLBAR FIX FOR LONG MONTHS --- */
+                .fc-header-toolbar {
+                    gap: 5px !important; /* Small gap between buttons and text */
+                }
+
+                .fc-header-toolbar .fc-toolbar-chunk {
+                    width: auto !important; /* Remove the 33% width constraint */
+                }
+
+                .fc-header-toolbar .fc-toolbar-chunk:nth-child(1) {
+                    flex-shrink: 0 !important; /* Keep buttons full size */
+                }
+
                 .fc-header-toolbar .fc-toolbar-chunk:nth-child(2) {
                     display: flex !important;
                     justify-content: flex-end !important;
-                    width: 100% !important;
-                    padding-right: 10px;
+                    flex-grow: 1 !important; /* Push text to the right by taking up leftover space */
+                }
+
+                .fc-header-toolbar .fc-toolbar-chunk:nth-child(3) {
+                    display: none !important; /* Hide empty right chunk entirely on mobile */
                 }
 
                 .fc-toolbar-title {
                     text-align: right !important;
-                    font-size: 1.2em !important;
+                    font-size: 1.15em !important; /* Slightly smaller for mobile */
                     margin: 0 !important;
+                    white-space: nowrap !important; /* Prevent text from stacking awkwardly */
                 }
+                /* ------------------------------------------------- */
 
                 .sidebar-legend {
                     padding: 20px !important;
