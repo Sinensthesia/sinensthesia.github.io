@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', function () {
         let timeout;
         return function () {
             const context = this,
-                args = arguments;
+            args = arguments;
             clearTimeout(timeout);
             timeout = setTimeout(() => func.apply(context, args), wait);
         };
@@ -15,69 +15,75 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const calendarEl = document.getElementById('calendar');
     const BRAND_DEFAULT_LOGO =
-        '../../Resources/Web/Icon/Blue/Sinensthesia-Logo-Teacup-Icon-RGB.png';
+    '../../Resources/Web/Icon/Blue/Sinensthesia-Logo-Teacup-Icon-RGB.png';
+
     function buildLegend() {
         fetch('./events.json')
-            .then((response) => response.json())
-            .then((data) => {
-                const marketsContainer = document.getElementById('legend-markets');
-                const eventsContainer = document.getElementById('legend-events');
-                const cancelledContainer = document.getElementById('legend-cancelled');
+        .then((response) => response.json())
+        .then((data) => {
+            const marketsContainer = document.getElementById('legend-markets');
+            const eventsContainer = document.getElementById('legend-events');
+            const cancelledContainer = document.getElementById('legend-cancelled');
 
-                let marketsHtml = '',
-                    eventsHtml = '',
-                    cancelledHtml = '';
-                const dayNames = [
-                    'Sundays',
-                    'Mondays',
-                    'Tuesdays',
-                    'Wednesdays',
-                    'Thursdays',
-                    'Fridays',
-                    'Saturdays',
-                ];
+            let marketsHtml = '',
+            eventsHtml = '',
+            cancelledHtml = '';
+            const dayNames = [
+                'Sundays',
+                'Mondays',
+                'Tuesdays',
+                'Wednesdays',
+                'Thursdays',
+                'Fridays',
+                'Saturdays',
+            ];
 
-                const now = new Date();
-                data.forEach((event) => {
-                    // --- NEW: Filter out past cancellations ---
-                    if (event.cancelled && event.start) {
-                        const eventDate = new Date(event.start);
-                        if (eventDate < now) {
-                            return; // Skip this event entirely for the sidebar
-                        }
+            const now = new Date();
+            data.forEach((event) => {
+                // Filter out past cancellations
+                if (event.cancelled && event.start) {
+                    const eventDate = new Date(event.start);
+                    if (eventDate < now) {
+                        return;
                     }
+                }
 
-                    let dateString = '',
-                        isRecurringMarket = false;
-                    if (event.daysOfWeek && event.daysOfWeek.length > 0) {
-                        dateString = event.daysOfWeek.map((num) => dayNames[num]).join(', ');
-                        isRecurringMarket = true;
-                    } else if (event.start && event.end) {
-                        dateString = `${event.start} to ${event.end}`;
-                    } else if (event.start) {
-                        dateString = `${event.start}`;
-                    }
+                let dateString = '',
+                isRecurringMarket = false;
+                if (event.daysOfWeek && event.daysOfWeek.length > 0) {
+                    dateString = event.daysOfWeek.map((num) => dayNames[num]).join(', ');
+                    isRecurringMarket = true;
+                } else if (event.start && event.end) {
+                    dateString = `${event.start} to ${event.end}`;
+                } else if (event.start) {
+                    dateString = `${event.start}`;
+                }
 
-                    let locationHtml = '';
-                    if (event.location) {
-                        const mapQuery = encodeURIComponent(event.location);
-                        const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${mapQuery}`;
-                        locationHtml = event.cancelled
-                            ? `<span class="legend-location">📍 ${event.location}</span>`
-                            : `<a href="${mapsUrl}" target="_blank" class="legend-location">📍 ${event.location}</a>`;
-                    }
+                let locationHtml = '';
+                if (event.location) {
+                    const mapQuery = encodeURIComponent(event.location);
+                    const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${mapQuery}`;
+                    locationHtml = event.cancelled
+                    ? `<span class="legend-location">📍 ${event.location}</span>`
+                    : `<a href="${mapsUrl}" target="_blank" class="legend-location">📍 ${event.location}</a>`;
+                }
 
-                    const finalLegendImageUrl = event.image || BRAND_DEFAULT_LOGO;
-                    const titleStyle = event.cancelled
-                        ? 'text-decoration: line-through; opacity: 0.6;'
-                        : '';
-                    const cancelledBadge = event.cancelled
-                        ? `<span style="color: #b30000; font-weight: bold; font-size: 0.85em;">CANCELLED</span>`
-                        : '';
+                const finalLegendImageUrl = event.image || BRAND_DEFAULT_LOGO;
+                const titleStyle = event.cancelled
+                ? 'text-decoration: line-through; opacity: 0.6;'
+                : '';
+                const cancelledBadge = event.cancelled
+                ? `<span style="color: #b30000; font-weight: bold; font-size: 0.85em;">CANCELLED</span>`
+                : '';
 
-                    const itemHtml = `
+                // Make the image a link if a URL is provided
+                const imageMarkup = event.url
+                ? `<a href="${event.url}" target="_blank" style="flex-shrink: 0; display: flex;"><img src="${finalLegendImageUrl}" alt="${event.title}" class="legend-logo" style="${event.cancelled ? 'filter: grayscale(100%);' : ''}"></a>`
+                : `<img src="${finalLegendImageUrl}" alt="${event.title}" class="legend-logo" style="${event.cancelled ? 'filter: grayscale(100%);' : ''}">`;
+
+                const itemHtml = `
                 <li class="legend-item" style="${event.cancelled ? 'opacity: 0.8;' : ''}">
-                <img src="${finalLegendImageUrl}" alt="${event.title}" class="legend-logo" style="${event.cancelled ? 'filter: grayscale(100%);' : ''}">
+                ${imageMarkup}
                 <div class="legend-text">
                 <span class="legend-title" style="${titleStyle}">${event.title}</span>
                 ${cancelledBadge}
@@ -87,26 +93,27 @@ document.addEventListener('DOMContentLoaded', function () {
                 </li>
                 `;
 
-                    if (event.cancelled) cancelledHtml += itemHtml;
-                    else if (isRecurringMarket) marketsHtml += itemHtml;
-                    else eventsHtml += itemHtml;
-                });
+                if (event.cancelled) cancelledHtml += itemHtml;
+                else if (isRecurringMarket) marketsHtml += itemHtml;
+                else eventsHtml += itemHtml;
+            });
 
                 marketsContainer.innerHTML =
-                    marketsHtml ||
-                    `<span class="legend-empty">No recurring markets scheduled.</span>`;
+                marketsHtml ||
+                `<span class="legend-empty">No recurring markets scheduled.</span>`;
                 eventsContainer.innerHTML =
-                    eventsHtml || `<span class="legend-empty">No special events scheduled.</span>`;
+                eventsHtml || `<span class="legend-empty">No special events scheduled.</span>`;
                 cancelledContainer.innerHTML =
-                    cancelledHtml || `<span class="legend-empty">No upcoming cancellations.</span>`;
-            });
+                cancelledHtml || `<span class="legend-empty">No upcoming cancellations.</span>`;
+        });
     }
+
     buildLegend();
+
     const calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
-        // Set a taller height to accommodate 6 rows of large logos
         height: 'auto',
-        fixedWeekCount: true, // Crucial for uniformity
+        fixedWeekCount: true,
         aspectRatio: 1.35,
         expandRows: true,
 
@@ -118,52 +125,56 @@ document.addEventListener('DOMContentLoaded', function () {
         },
         events: function (fetchInfo, successCallback, failureCallback) {
             fetch('./events.json')
-                .then((r) => r.json())
-                .then((data) => {
-                    const processedEvents = [],
-                        cancellationsMap = {};
-                    data.forEach((e) => {
-                        if (e.cancelled && e.start)
-                            cancellationsMap[`${e.start}|${e.title}`] = true;
-                        if (e.cancelled) processedEvents.push(e);
-                    });
-                    data.forEach((e) => {
-                        if (e.cancelled) return;
-                        if (e.daysOfWeek) {
-                            let cur = new Date(
-                                (e.startRecur || e.start || '2025-01-01') + 'T00:00:00'
-                            );
-                            let end = new Date((e.endRecur || e.end || '2030-12-31') + 'T00:00:00');
-                            while (cur <= end) {
-                                if (e.daysOfWeek.includes(cur.getDay())) {
-                                    let ds = cur.toISOString().split('T')[0];
-                                    if (!cancellationsMap[`${ds}|${e.title}`])
-                                        processedEvents.push({
-                                            ...e,
-                                            start: ds,
-                                            end: null,
-                                            daysOfWeek: undefined,
-                                        });
-                                }
-                                cur.setDate(cur.getDate() + 1);
-                            }
-                        } else if (e.start && e.end) {
-                            let cur = new Date(e.start + 'T00:00:00'),
-                                end = new Date(e.end + 'T00:00:00');
-                            while (cur <= end) {
+            .then((r) => r.json())
+            .then((data) => {
+                const processedEvents = [],
+                cancellationsMap = {};
+                data.forEach((e) => {
+                    if (e.cancelled && e.start)
+                        cancellationsMap[`${e.start}|${e.title}`] = true;
+                    // Strip URL to remove link behavior in the calendar grid
+                    if (e.cancelled) processedEvents.push({ ...e, url: '' });
+                });
+                data.forEach((e) => {
+                    if (e.cancelled) return;
+                    if (e.daysOfWeek) {
+                        let cur = new Date(
+                            (e.startRecur || e.start || '2025-01-01') + 'T00:00:00'
+                        );
+                        let end = new Date((e.endRecur || e.end || '2030-12-31') + 'T00:00:00');
+                        while (cur <= end) {
+                            if (e.daysOfWeek.includes(cur.getDay())) {
                                 let ds = cur.toISOString().split('T')[0];
                                 if (!cancellationsMap[`${ds}|${e.title}`])
-                                    processedEvents.push({ ...e, start: ds, end: null });
-                                cur.setDate(cur.getDate() + 1);
+                                    // Strip URL
+                                    processedEvents.push({
+                                        ...e,
+                                        start: ds,
+                                        end: null,
+                                        daysOfWeek: undefined,
+                                        url: ''
+                                    });
                             }
-                        } else if (!cancellationsMap[`${e.start}|${e.title}`])
-                            processedEvents.push(e);
-                    });
-                    successCallback(processedEvents);
+                            cur.setDate(cur.getDate() + 1);
+                        }
+                    } else if (e.start && e.end) {
+                        let cur = new Date(e.start + 'T00:00:00'),
+                             end = new Date(e.end + 'T00:00:00');
+                             while (cur <= end) {
+                                 let ds = cur.toISOString().split('T')[0];
+                                 if (!cancellationsMap[`${ds}|${e.title}`])
+                                     // Strip URL
+                                     processedEvents.push({ ...e, start: ds, end: null, url: '' });
+                                     cur.setDate(cur.getDate() + 1);
+                             }
+                    } else if (!cancellationsMap[`${e.start}|${e.title}`])
+                        // Strip URL
+                        processedEvents.push({ ...e, url: '' });
                 });
+                successCallback(processedEvents);
+            });
         },
 
-        // (Ensure your eventContent still has the large max-height logos)
         eventContent: function (arg) {
             const finalImageUrl = arg.event.extendedProps.image || BRAND_DEFAULT_LOGO;
             const isCancelled = arg.event.extendedProps.cancelled;
@@ -183,13 +194,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     </div>`,
                 };
             }
-        },
-        eventClick: function (info) {
-            if (info.event.url) {
-                info.jsEvent.preventDefault();
-                window.open(info.event.url, '_blank');
-            }
-        },
+        }
     });
 
     calendar.render();
@@ -205,60 +210,60 @@ document.addEventListener('DOMContentLoaded', function () {
                 const currentWidth = Math.max(320, Math.min(window.innerWidth, 1280));
                 const scaleFactor = (currentWidth - 320) / 960;
                 const brightCount = Math.round(1 + 19 * scaleFactor),
-                    subtleCount = Math.round(15 + 15 * scaleFactor);
-                const textRect = textContent.getBoundingClientRect(),
-                    containerRect = particleContainer.getBoundingClientRect();
-                const leftBoundary = textRect.left - containerRect.left,
-                    rightBoundary = textRect.right - containerRect.left;
-                const accentColors = ['#34D399', '#FB7185', '#f9c74f'],
-                    starburstSVG = `<svg class="particle" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L9.5 9.5 2 12l7.5 2.5L12 22l2.5-7.5L22 12l-7.5-2.5z"/></svg>`;
-                const specialImagePaths = [
-                    '../../Resources/KrikosInner.png',
-                    '../../Resources/StellaInner.png',
-                ];
+                       subtleCount = Math.round(15 + 15 * scaleFactor);
+                       const textRect = textContent.getBoundingClientRect(),
+                       containerRect = particleContainer.getBoundingClientRect();
+                       const leftBoundary = textRect.left - containerRect.left,
+                       rightBoundary = textRect.right - containerRect.left;
+                       const accentColors = ['#34D399', '#FB7185', '#f9c74f'],
+                       starburstSVG = `<svg class="particle" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L9.5 9.5 2 12l7.5 2.5L12 22l2.5-7.5L22 12l-7.5-2.5z"/></svg>`;
+                       const specialImagePaths = [
+                           '../../Resources/KrikosInner.png',
+                           '../../Resources/StellaInner.png',
+                       ];
 
-                for (let i = 0; i < brightCount; i++) {
-                    let p = i === 0 ? document.createElement('img') : document.createElement('div');
-                    if (i === 0) p.src = specialImagePaths[Math.floor(Math.random() * 2)];
-                    else {
-                        p.innerHTML = starburstSVG;
-                        p = p.firstChild;
-                        p.style.color =
-                            Math.random() < 0.15
-                                ? accentColors[Math.floor(Math.random() * 3)]
-                                : '#002366';
-                    }
-                    p.classList.add('particle', 'particle-bright');
-                    p.style.width = `${Math.random() * 20 + 5}px`;
-                    p.style.height = p.style.width;
-                    p.style.top = `${Math.random() * 100}%`;
-                    p.style.animationDuration = `${Math.random() * 8 + 4}s`;
-                    if (window.innerWidth < 768) p.style.left = `${Math.random() * 100}%`;
-                    else
-                        p.style.left =
-                            Math.random() > 0.5
-                                ? `${Math.random() * leftBoundary}px`
-                                : `${rightBoundary + Math.random() * (containerRect.width - rightBoundary)}px`;
-                    fragment.appendChild(p);
-                }
-                for (let i = 0; i < subtleCount; i++) {
-                    let p = document.createElement('div');
-                    p.innerHTML = starburstSVG;
-                    p = p.firstChild;
-                    p.classList.add('particle-subtle');
-                    p.style.width = `${Math.random() * 12 + 4}px`;
-                    p.style.height = p.style.width;
-                    p.style.top = `${Math.random() * 100}%`;
-                    p.style.left = `${Math.random() * 100}%`;
-                    p.style.animationDuration = `${Math.random() * 10 + 8}s`;
-                    p.style.color =
-                        Math.random() < 0.15
-                            ? accentColors[Math.floor(Math.random() * 3)]
-                            : '#002366';
-                    fragment.appendChild(p);
-                }
-                particleContainer.appendChild(fragment);
-                particleContainer.classList.add('particles-visible');
+                       for (let i = 0; i < brightCount; i++) {
+                           let p = i === 0 ? document.createElement('img') : document.createElement('div');
+                           if (i === 0) p.src = specialImagePaths[Math.floor(Math.random() * 2)];
+                           else {
+                               p.innerHTML = starburstSVG;
+                               p = p.firstChild;
+                               p.style.color =
+                               Math.random() < 0.15
+                               ? accentColors[Math.floor(Math.random() * 3)]
+                               : '#002366';
+                           }
+                           p.classList.add('particle', 'particle-bright');
+                           p.style.width = `${Math.random() * 20 + 5}px`;
+                           p.style.height = p.style.width;
+                           p.style.top = `${Math.random() * 100}%`;
+                           p.style.animationDuration = `${Math.random() * 8 + 4}s`;
+                           if (window.innerWidth < 768) p.style.left = `${Math.random() * 100}%`;
+                           else
+                               p.style.left =
+                               Math.random() > 0.5
+                               ? `${Math.random() * leftBoundary}px`
+                               : `${rightBoundary + Math.random() * (containerRect.width - rightBoundary)}px`;
+                           fragment.appendChild(p);
+                       }
+                       for (let i = 0; i < subtleCount; i++) {
+                           let p = document.createElement('div');
+                           p.innerHTML = starburstSVG;
+                           p = p.firstChild;
+                           p.classList.add('particle-subtle');
+                           p.style.width = `${Math.random() * 12 + 4}px`;
+                           p.style.height = p.style.width;
+                           p.style.top = `${Math.random() * 100}%`;
+                           p.style.left = `${Math.random() * 100}%`;
+                           p.style.animationDuration = `${Math.random() * 10 + 8}s`;
+                           p.style.color =
+                           Math.random() < 0.15
+                           ? accentColors[Math.floor(Math.random() * 3)]
+                           : '#002366';
+                           fragment.appendChild(p);
+                       }
+                       particleContainer.appendChild(fragment);
+                       particleContainer.classList.add('particles-visible');
             }, 500);
         };
         generateParticles();

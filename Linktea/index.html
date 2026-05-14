@@ -1,507 +1,707 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sinensthesia | Specialty Bubble Tea Catering & Pop-ups</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="canonical" href="https://sinensthesia.com/Linktea" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="manifest" href="/site.webmanifest">
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@700&family=Inter:wght@500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../style.css">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #FDFBF5;
-            color: #002366;
-        }
-        .brand-font {
-            font-family: 'Cormorant Garamond', serif;
-        }
-        .link-button {
-            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, opacity 0.2s ease-in-out;
-        }
-        .image-overlay-button:hover,
-        .tip-jar-button:hover {
-            box-shadow: 0 8px 20px -4px rgba(0, 35, 102, 0.15);
-        }
-        .link-button span {
-            display: inline-block;
-            transition: transform 0.2s ease-in-out;
-        }
-        .link-button:hover span {
-            transform: translateY(-4px);
-        }
-        #social-icons-container .link-button:hover,
-        .tip-jar-icons .link-button:hover {
-            transform: translateY(-4px);
-            opacity: 0.8;
-        }
-
-        .image-overlay-button {
-            position: relative;
-            overflow: hidden;
-            z-index: 1;
-        }
-
-        /* Adjusting the calendar popup size specifically for the embed */
-        #calendar-popup .menu-popup-body {
-            max-width: 1200px; /* Matching the calendar layout-wrapper max-width */
-            width: 95vw;
-        }
-
-        /* Prevent body scroll when modal is open */
-        body.modal-open {
-            overflow: hidden;
-        }
-
-        #particle-container {
-            position: fixed;
-            inset: 0;
-            z-index: 0;
-            opacity: 0;
-            transition: opacity 2s ease-in-out;
-        }
-        #particle-container.particles-visible {
-            opacity: 1;
-        }
-        @keyframes float-subtle {
-            0% { transform: translateY(0px) rotate(0deg); opacity: 0.7; }
-            50% { transform: translateY(-20px) rotate(180deg); opacity: 0.3; }
-            100% { transform: translateY(0px) rotate(360deg); opacity: 0.7; }
-        }
-        .particle {
-            position: absolute;
-            animation: float-subtle ease-in-out infinite;
-        }
-        .modal {
-            transition: opacity 0.3s ease-in-out;
-        }
-
-        @media (min-width: 768px) {
-            .image-overlay-button::before {
-                background-size: 50%;
-                background-position: 40% 70%;
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Sinensthesia | Specialty Bubble Tea Catering & Pop-ups</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link rel="canonical" href="https://sinensthesia.com/Linktea" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+        <link rel="manifest" href="/site.webmanifest" />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@700&family=Inter:wght@500;600&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="../style.css" />
+        <style>
+            body {
+                font-family: 'Inter', sans-serif;
+                background-color: #fdfbf5;
+                color: #002366;
             }
-        }
-        @media (min-width: 1025px) {
-            .image-overlay-button::before {
-                background-size: 25%;
-                background-position: 46% 88%;
+            .brand-font {
+                font-family: 'Cormorant Garamond', serif;
             }
-        }
-        .menu-popup-body {
-            font-family: 'Inter', sans-serif;
-            color: #1E2A4A;
-            background-color: #FDFBF5;
-        }
+            .link-button {
+                transition:
+                    transform 0.2s ease-in-out,
+                    box-shadow 0.2s ease-in-out,
+                    opacity 0.2s ease-in-out;
+            }
+            .image-overlay-button:hover,
+            .tip-jar-button:hover {
+                box-shadow: 0 8px 20px -4px rgba(0, 35, 102, 0.15);
+            }
+            .link-button span {
+                display: inline-block;
+                transition: transform 0.2s ease-in-out;
+            }
+            .link-button:hover span {
+                transform: translateY(-4px);
+            }
+            #social-icons-container .link-button:hover,
+            .tip-jar-icons .link-button:hover {
+                transform: translateY(-4px);
+                opacity: 0.8;
+            }
 
-        /* --- Added definitions for custom sizes --- */
-        .h-84 { height: 21rem; } /* 336px */
-        .w-84 { width: 21rem; }  /* 336px */
-        .h-48 { height: 12rem; } /* 192px */
-        .w-48 { width: 12rem; } /* 192px */
-        .h-24 { height: 6rem; }  /* 96px */
-        .h-44 { height: 11rem; } /* 176px */
-        /* --- End custom sizes --- */
+            .image-overlay-button {
+                position: relative;
+                overflow: hidden;
+                z-index: 1;
+            }
 
-        /* --- Added Flip Card Animation --- */
-        .flip-container {
-            perspective: 1000px;
-        }
-        .flipper {
-            position: relative;
-            /* Added a bouncier easing function for the flip */
-            transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-            transform-style: preserve-3d;
-        }
-        .flip-front, .flip-back {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            backface-visibility: hidden;
-            /* Added for smoother look */
-            overflow: hidden;
-            border-radius: 0.5rem;
-        }
-        .flip-back {
-            transform: rotateY(180deg);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            /* REMOVED background-color */
-        }
-        /* --- End Flip Card Animation --- */
-    </style>
-</head>
-<body class="antialiased flex items-center justify-center min-h-screen p-4">
+            /* Adjusting the calendar popup size specifically for the embed */
+            #calendar-popup .menu-popup-body {
+                max-width: 1200px; /* Matching the calendar layout-wrapper max-width */
+                width: 95vw;
+            }
 
-    <div id="particle-container"></div>
+            /* Prevent body scroll when modal is open */
+            body.modal-open {
+                overflow: hidden;
+            }
 
-    <div class="w-full max-w-md mx-auto text-center relative z-10">
+            #particle-container {
+                position: fixed;
+                inset: 0;
+                z-index: 0;
+                opacity: 0;
+                transition: opacity 2s ease-in-out;
+            }
+            #particle-container.particles-visible {
+                opacity: 1;
+            }
+            @keyframes float-subtle {
+                0% {
+                    transform: translateY(0px) rotate(0deg);
+                    opacity: 0.7;
+                }
+                50% {
+                    transform: translateY(-20px) rotate(180deg);
+                    opacity: 0.3;
+                }
+                100% {
+                    transform: translateY(0px) rotate(360deg);
+                    opacity: 0.7;
+                }
+            }
+            .particle {
+                position: absolute;
+                animation: float-subtle ease-in-out infinite;
+            }
+            .modal {
+                transition: opacity 0.3s ease-in-out;
+            }
 
-        <!-- The container div just sets perspective and centers -->
-        <div id="logo-flipper" class="flip-container mx-auto w-84">
-            <!-- The flipper div gets the size -->
-            <div class="flipper h-84 w-84">
-                <div class="flip-front">
-                    <!-- Original Logo -->
-                    <img src="../Resources/Web/Icon/Sinensthesia-Logo-Teacup-Icon-RGB.png" alt="Sinensthesia Icon" class="object-contain h-full w-full">
-                </div>
-                <div class="flip-back">
-                    <!-- New structured content -->
-                    <div class="flex flex-col items-center justify-center h-full w-full p-6 text-center">
-                        <div id="qr-text" class="font-semibold text-2xl mb-2 text-[#002366]"></div>
-                        <img id="qr-image" src="../Resources/qr-code.png" alt="QR Code" class="object-contain h-full w-full flex-1 min-h-0">
+            @media (min-width: 768px) {
+                .image-overlay-button::before {
+                    background-size: 50%;
+                    background-position: 40% 70%;
+                }
+            }
+            @media (min-width: 1025px) {
+                .image-overlay-button::before {
+                    background-size: 25%;
+                    background-position: 46% 88%;
+                }
+            }
+            .menu-popup-body {
+                font-family: 'Inter', sans-serif;
+                color: #1e2a4a;
+                background-color: #fdfbf5;
+            }
+
+            /* --- Added definitions for custom sizes --- */
+            .h-84 {
+                height: 21rem;
+            } /* 336px */
+            .w-84 {
+                width: 21rem;
+            } /* 336px */
+            .h-48 {
+                height: 12rem;
+            } /* 192px */
+            .w-48 {
+                width: 12rem;
+            } /* 192px */
+            .h-24 {
+                height: 6rem;
+            } /* 96px */
+            .h-44 {
+                height: 11rem;
+            } /* 176px */
+            /* --- End custom sizes --- */
+
+            /* --- Added Flip Card Animation --- */
+            .flip-container {
+                perspective: 1000px;
+            }
+            .flipper {
+                position: relative;
+                /* Added a bouncier easing function for the flip */
+                transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+                transform-style: preserve-3d;
+            }
+            .flip-front,
+            .flip-back {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                backface-visibility: hidden;
+                /* Added for smoother look */
+                overflow: hidden;
+                border-radius: 0.5rem;
+            }
+            .flip-back {
+                transform: rotateY(180deg);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                /* REMOVED background-color */
+            }
+            /* --- End Flip Card Animation --- */
+        </style>
+    </head>
+    <body class="antialiased flex items-center justify-center min-h-screen p-4">
+        <div id="particle-container"></div>
+
+        <div class="w-full max-w-md mx-auto text-center relative z-10">
+            <div id="logo-flipper" class="flip-container mx-auto w-84">
+                <div class="flipper h-84 w-84">
+                    <div class="flip-front">
+                        <img
+                            src="../Resources/Web/Icon/Sinensthesia-Logo-Teacup-Icon-RGB.png"
+                            alt="Sinensthesia Icon"
+                            class="object-contain h-full w-full"
+                        />
+                    </div>
+                    <div class="flip-back">
+                        <div
+                            class="flex flex-col items-center justify-center h-full w-full p-6 text-center"
+                        >
+                            <div
+                                id="qr-text"
+                                class="font-semibold text-2xl mb-2 text-[#002366]"
+                            ></div>
+                            <img
+                                id="qr-image"
+                                src="../Resources/qr-code.png"
+                                alt="QR Code"
+                                class="object-contain h-full w-full flex-1 min-h-0"
+                            />
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <img src="../Resources/Web/Wordmark/Sinensthesia-Logo-Teacup-Wordmark-RGB.png" alt="Sinensthesia Wordmark" class="mx-auto mb-10 -mt-12 h-44 object-contain">
+            <img
+                src="../Resources/Web/Wordmark/Sinensthesia-Logo-Teacup-Wordmark-RGB.png"
+                alt="Sinensthesia Wordmark"
+                class="mx-auto mb-10 -mt-12 h-44 object-contain"
+            />
 
-        <div class="mt-6 space-y-4">
-            <div id="social-icons-container" class="flex justify-center space-x-6">
-                <a href="https://youtube.com/@Sinensthesia" target="_blank" class="link-button text-[#0505af]" rel="noopener noreferrer">
-                    <svg viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8"><g clip-path="url(#clip0_youtube)"><path fill-rule="evenodd" clip-rule="evenodd" d="M25.7437 5.59677C26.9266 5.92581 27.8594 6.89355 28.175 8.12258C28.75 10.3516 28.75 15 28.75 15C28.75 15 28.75 19.65 28.175 21.8774C27.8594 23.1065 26.9266 24.0742 25.7437 24.4032C23.6 25 15 25 15 25C15 25 6.40156 25 4.25625 24.4032C3.07344 24.0742 2.14062 23.1065 1.825 21.8774C1.25 19.6484 1.25 15 1.25 15C1.25 15 1.25 10.3516 1.825 8.12258C2.14062 6.89355 3.07344 5.92581 4.25625 5.59677C6.4 5 15 5 15 5C15 5 23.6 5 25.7437 5.59677ZM19.375 15L12.1875 19.221V10.779L19.375 15Z" fill="currentColor"></path></g><defs><clipPath id="clip0_youtube"><rect width="27.5" height="20" fill="white" transform="translate(1.25 5)"></rect></clipPath></defs></svg>
+            <div class="mt-6 space-y-4">
+                <div id="social-icons-container" class="flex justify-center space-x-6">
+                    <a
+                        href="https://youtube.com/@Sinensthesia"
+                        target="_blank"
+                        class="link-button text-[#0505af]"
+                        rel="noopener noreferrer"
+                    >
+                        <svg
+                            viewBox="0 0 30 30"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                            class="h-8 w-8"
+                        >
+                            <g clip-path="url(#clip0_youtube)">
+                                <path
+                                    fill-rule="evenodd"
+                                    clip-rule="evenodd"
+                                    d="M25.7437 5.59677C26.9266 5.92581 27.8594 6.89355 28.175 8.12258C28.75 10.3516 28.75 15 28.75 15C28.75 15 28.75 19.65 28.175 21.8774C27.8594 23.1065 26.9266 24.0742 25.7437 24.4032C23.6 25 15 25 15 25C15 25 6.40156 25 4.25625 24.4032C3.07344 24.0742 2.14062 23.1065 1.825 21.8774C1.25 19.6484 1.25 15 1.25 15C1.25 15 1.25 10.3516 1.825 8.12258C2.14062 6.89355 3.07344 5.92581 4.25625 5.59677C6.4 5 15 5 15 5C15 5 23.6 5 25.7437 5.59677ZM19.375 15L12.1875 19.221V10.779L19.375 15Z"
+                                    fill="currentColor"
+                                ></path>
+                            </g>
+                            <defs>
+                                <clipPath id="clip0_youtube">
+                                    <rect
+                                        width="27.5"
+                                        height="20"
+                                        fill="white"
+                                        transform="translate(1.25 5)"
+                                    ></rect>
+                                </clipPath>
+                            </defs>
+                        </svg>
+                    </a>
+                    <a
+                        href="https://www.instagram.com/sinensthesia/"
+                        target="_blank"
+                        class="link-button text-[#0505af]"
+                        rel="noopener noreferrer"
+                    >
+                        <svg
+                            viewBox="0 0 30 30"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                            class="h-8 w-8"
+                        >
+                            <path
+                                d="M15.0059 6.80113C17.6793 6.80113 17.9959 6.81285 19.0473 6.85974C20.0244 6.90272 20.5521 7.06681 20.9038 7.20356C21.369 7.38328 21.7051 7.60207 22.053 7.9498C22.4047 8.30143 22.6197 8.63352 22.7995 9.09846C22.9363 9.45009 23.1004 9.98144 23.1434 10.9543C23.1903 12.0092 23.2021 12.3257 23.2021 14.9941C23.2021 17.6665 23.1903 17.983 23.1434 19.034C23.1004 20.0107 22.9363 20.5382 22.7995 20.8898C22.6197 21.3548 22.4008 21.6908 22.053 22.0385C21.7012 22.3901 21.369 22.605 20.9038 22.7847C20.5521 22.9215 20.0205 23.0856 19.0473 23.1285C17.992 23.1754 17.6754 23.1871 15.0059 23.1871C12.3324 23.1871 12.0158 23.1754 10.9644 23.1285C9.9873 23.0856 9.45964 22.9215 9.10788 22.7847C8.64276 22.605 8.30662 22.3862 7.95876 22.0385C7.607 21.6869 7.39203 21.3548 7.21223 20.8898C7.07543 20.5382 6.91128 20.0068 6.86828 19.034C6.82138 17.9791 6.80965 17.6626 6.80965 14.9941C6.80965 12.3217 6.82138 12.0053 6.86828 10.9543C6.91128 9.97753 7.07543 9.45009 7.21223 9.09846C7.39203 8.63352 7.6109 8.29752 7.95876 7.9498C8.31053 7.59816 8.64276 7.38328 9.10788 7.20356C9.45964 7.06681 9.99121 6.90272 10.9644 6.85974C12.0158 6.81285 12.3324 6.80113 15.0059 6.80113ZM15.0059 5C12.2894 5 11.9494 5.01172 10.8824 5.05861C9.81923 5.10549 9.08833 5.2774 8.45515 5.52354C7.79461 5.7814 7.23569 6.12131 6.68067 6.68002C6.12175 7.23481 5.78171 7.79351 5.52374 8.44989C5.27751 9.08674 5.10553 9.81344 5.05863 10.8761C5.01173 11.9467 5 12.2866 5 15.002C5 17.7173 5.01173 18.0572 5.05863 19.1239C5.10553 20.1866 5.27751 20.9172 5.52374 21.5501C5.78171 22.2104 6.12175 22.7691 6.68067 23.3239C7.23569 23.8787 7.79461 24.2225 8.45124 24.4765C9.08833 24.7226 9.81532 24.8945 10.8784 24.9414C11.9455 24.9883 12.2855 25 15.002 25C17.7184 25 18.0584 24.9883 19.1255 24.9414C20.1886 24.8945 20.9195 24.7226 21.5527 24.4765C22.2093 24.2225 22.7682 23.8787 23.3232 23.3239C23.8782 22.7691 24.2222 22.2104 24.4763 21.554C24.7225 20.9172 24.8945 20.1905 24.9414 19.1278C24.9883 18.0611 25 17.7212 25 15.0059C25 12.2905 24.9883 11.9506 24.9414 10.884C24.8945 9.82125 24.7225 9.09064 24.4763 8.45771C24.23 7.79351 23.89 7.23481 23.3311 6.68002C22.776 6.12522 22.2171 5.7814 21.5605 5.52745C20.9234 5.2813 20.1964 5.1094 19.1333 5.06251C18.0623 5.01172 17.7223 5 15.0059 5Z"
+                                fill="currentColor"
+                            ></path>
+                            <path
+                                d="M15.0056 9.86469C12.168 9.86469 9.86591 12.1659 9.86591 15.0024C9.86591 17.8389 12.168 20.1401 15.0056 20.1401C17.8432 20.1401 20.1454 17.8389 20.1454 15.0024C20.1454 12.1659 17.8432 9.86469 15.0056 9.86469ZM15.0056 18.3351C13.1647 18.3351 11.6717 16.8426 11.6717 15.0024C11.6717 13.1622 13.1647 11.6697 15.0056 11.6697C16.8466 11.6697 18.3396 13.1622 18.3396 15.0024C18.3396 16.8426 16.8466 18.3351 15.0056 18.3351Z"
+                                fill="currentColor"
+                            ></path>
+                            <path
+                                d="M21.5476 9.66067C21.5476 10.3249 21.0084 10.8601 20.3481 10.8601C19.6839 10.8601 19.1487 10.321 19.1487 9.66067C19.1487 8.99647 19.6878 8.46121 20.3481 8.46121C21.0084 8.46121 21.5476 9.00038 21.5476 9.66067Z"
+                                fill="currentColor"
+                            ></path>
+                        </svg>
+                    </a>
+                </div>
+
+                <hr class="border-t border-brand-blue/20" />
+
+                <div class="space-y-4pb-4">
+                    <div class="flex justify-center space-x-6 tip-jar-icons">
+                        <button id="open-zelle-popup" class="link-button text-[#0505af]">
+                            <svg
+                                role="img"
+                                viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg"
+                                class="h-8 w-8"
+                            >
+                                <path
+                                    d="M13.559 24h-2.841a0.483 0.483 0 0 1 -0.483 -0.483v-2.765H5.638a0.667 0.667 0 0 1 -0.666 -0.666v-2.234a0.67 0.67 0 0 1 0.142 -0.412l8.139 -10.382h-7.25a0.667 0.667 0 0 1 -0.667 -0.667V3.914c0 -0.367 0.299 -0.666 0.666 -0.666h4.23V0.483c0 -0.266 0.217 -0.483 0.483 -0.483h2.841c0.266 0 0.483 0.217 0.483 0.483v2.765h4.323c0.367 0 0.666 0.299 0.666 0.666v2.137a0.67 0.67 0 0 1 -0.141 0.41l-8.19 10.481h7.665c0.367 0 0.666 0.299 0.666 0.666v2.477a0.667 0.667 0 0 1 -0.666 0.667h-4.32v2.765a0.483 0.483 0 0 1 -0.483 0.483Z"
+                                    fill="currentColor"
+                                ></path>
+                            </svg>
+                        </button>
+                        <button id="open-venmo-popup" class="link-button text-[#0505af]">
+                            <svg
+                                viewBox="0 0 48 48"
+                                xmlns="http://www.w3.org/2000/svg"
+                                class="h-8 w-8"
+                            >
+                                <defs>
+                                    <style>
+                                        .cls-1 {
+                                            fill: currentColor;
+                                        }
+                                    </style>
+                                </defs>
+                                <path
+                                    class="cls-1"
+                                    d="M40.25,4.45a14.26,14.26,0,0,1,2.06,7.8c0,9.72-8.3,22.34-15,31.2H11.91L5.74,6.58,19.21,5.3l3.27,26.24c3.05-5,6.81-12.76,6.81-18.08A14.51,14.51,0,0,0,28,6.94Z"
+                                ></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <a
+                    href="../"
+                    target="_blank"
+                    class="link-button image-overlay-button bg-[#eae4da]/60 border-2 border-[#002366]/30 text-[#002366] w-full flex items-center justify-center p-4 rounded-lg font-semibold text-lg"
+                >
+                    <span>Official Website</span>
                 </a>
-                <a href="https://www.instagram.com/sinensthesia/" target="_blank" class="link-button text-[#0505af]" rel="noopener noreferrer">
-                    <svg viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8"><path d="M15.0059 6.80113C17.6793 6.80113 17.9959 6.81285 19.0473 6.85974C20.0244 6.90272 20.5521 7.06681 20.9038 7.20356C21.369 7.38328 21.7051 7.60207 22.053 7.9498C22.4047 8.30143 22.6197 8.63352 22.7995 9.09846C22.9363 9.45009 23.1004 9.98144 23.1434 10.9543C23.1903 12.0092 23.2021 12.3257 23.2021 14.9941C23.2021 17.6665 23.1903 17.983 23.1434 19.034C23.1004 20.0107 22.9363 20.5382 22.7995 20.8898C22.6197 21.3548 22.4008 21.6908 22.053 22.0385C21.7012 22.3901 21.369 22.605 20.9038 22.7847C20.5521 22.9215 20.0205 23.0856 19.0473 23.1285C17.992 23.1754 17.6754 23.1871 15.0059 23.1871C12.3324 23.1871 12.0158 23.1754 10.9644 23.1285C9.9873 23.0856 9.45964 22.9215 9.10788 22.7847C8.64276 22.605 8.30662 22.3862 7.95876 22.0385C7.607 21.6869 7.39203 21.3548 7.21223 20.8898C7.07543 20.5382 6.91128 20.0068 6.86828 19.034C6.82138 17.9791 6.80965 17.6626 6.80965 14.9941C6.80965 12.3217 6.82138 12.0053 6.86828 10.9543C6.91128 9.97753 7.07543 9.45009 7.21223 9.09846C7.39203 8.63352 7.6109 8.29752 7.95876 7.9498C8.31053 7.59816 8.64276 7.38328 9.10788 7.20356C9.45964 7.06681 9.99121 6.90272 10.9644 6.85974C12.0158 6.81285 12.3324 6.80113 15.0059 6.80113ZM15.0059 5C12.2894 5 11.9494 5.01172 10.8824 5.05861C9.81923 5.10549 9.08833 5.2774 8.45515 5.52354C7.79461 5.7814 7.23569 6.12131 6.68067 6.68002C6.12175 7.23481 5.78171 7.79351 5.52374 8.44989C5.27751 9.08674 5.10553 9.81344 5.05863 10.8761C5.01173 11.9467 5 12.2866 5 15.002C5 17.7173 5.01173 18.0572 5.05863 19.1239C5.10553 20.1866 5.27751 20.9172 5.52374 21.5501C5.78171 22.2104 6.12175 22.7691 6.68067 23.3239C7.23569 23.8787 7.79461 24.2225 8.45124 24.4765C9.08833 24.7226 9.81532 24.8945 10.8784 24.9414C11.9455 24.9883 12.2855 25 15.002 25C17.7184 25 18.0584 24.9883 19.1255 24.9414C20.1886 24.8945 20.9195 24.7226 21.5527 24.4765C22.2093 24.2225 22.7682 23.8787 23.3232 23.3239C23.8782 22.7691 24.2222 22.2104 24.4763 21.554C24.7225 20.9172 24.8945 20.1905 24.9414 19.1278C24.9883 18.0611 25 17.7212 25 15.0059C25 12.2905 24.9883 11.9506 24.9414 10.884C24.8945 9.82125 24.7225 9.09064 24.4763 8.45771C24.23 7.79351 23.89 7.23481 23.3311 6.68002C22.776 6.12522 22.2171 5.7814 21.5605 5.52745C20.9234 5.2813 20.1964 5.1094 19.1333 5.06251C18.0623 5.01172 17.7223 5 15.0059 5Z" fill="currentColor"></path><path d="M15.0056 9.86469C12.168 9.86469 9.86591 12.1659 9.86591 15.0024C9.86591 17.8389 12.168 20.1401 15.0056 20.1401C17.8432 20.1401 20.1454 17.8389 20.1454 15.0024C20.1454 12.1659 17.8432 9.86469 15.0056 9.86469ZM15.0056 18.3351C13.1647 18.3351 11.6717 16.8426 11.6717 15.0024C11.6717 13.1622 13.1647 11.6697 15.0056 11.6697C16.8466 11.6697 18.3396 13.1622 18.3396 15.0024C18.3396 16.8426 16.8466 18.3351 15.0056 18.3351Z" fill="currentColor"></path><path d="M21.5476 9.66067C21.5476 10.3249 21.0084 10.8601 20.3481 10.8601C19.6839 10.8601 19.1487 10.321 19.1487 9.66067C19.1487 8.99647 19.6878 8.46121 20.3481 8.46121C21.0084 8.46121 21.5476 9.00038 21.5476 9.66067Z" fill="currentColor"></path></svg>
-                </a>
+
+                <button
+                    id="open-calendar-popup"
+                    class="link-button image-overlay-button bg-[#eae4da]/60 border-2 border-[#002366]/30 text-[#002366] w-full flex items-center justify-center p-4 rounded-lg font-semibold text-lg"
+                >
+                    <span>Calendar</span>
+                </button>
+
+                <button
+                    id="open-menu-popup"
+                    class="link-button image-overlay-button bg-[#eae4da]/60 border-2 border-[#002366]/30 text-[#002366] w-full flex items-center justify-center p-4 rounded-lg font-semibold text-lg"
+                >
+                    <span>View Menu</span>
+                </button>
+
+                <button
+                    id="open-catering-popup"
+                    class="link-button image-overlay-button bg-[#eae4da]/60 border-2 border-[#002366]/30 text-[#002366] w-full flex items-center justify-center p-4 rounded-lg font-semibold text-lg"
+                >
+                    <span>Catering</span>
+                </button>
+                <button
+                    id="open-gratuity-popup"
+                    class="link-button image-overlay-button bg-[#eae4da]/60 border-2 border-[#002366]/30 text-[#002366] w-full flex items-center justify-center p-4 rounded-lg font-semibold text-lg"
+                >
+                    <span>Gratuity Policy</span>
+                </button>
             </div>
-
-            <hr class="border-t border-brand-blue/20">
-
-            <div class="space-y-4pb-4">
-                <div class="flex justify-center space-x-6 tip-jar-icons">
-                    <button id="open-zelle-popup" class="link-button text-[#0505af]"><svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8"><path d="M13.559 24h-2.841a0.483 0.483 0 0 1 -0.483 -0.483v-2.765H5.638a0.667 0.667 0 0 1 -0.666 -0.666v-2.234a0.67 0.67 0 0 1 0.142 -0.412l8.139 -10.382h-7.25a0.667 0.667 0 0 1 -0.667 -0.667V3.914c0 -0.367 0.299 -0.666 0.666 -0.666h4.23V0.483c0 -0.266 0.217 -0.483 0.483 -0.483h2.841c0.266 0 0.483 0.217 0.483 0.483v2.765h4.323c0.367 0 0.666 0.299 0.666 0.666v2.137a0.67 0.67 0 0 1 -0.141 0.41l-8.19 10.481h7.665c0.367 0 0.666 0.299 0.666 0.666v2.477a0.667 0.667 0 0 1 -0.666 0.667h-4.32v2.765a0.483 0.483 0 0 1 -0.483 0.483Z" fill="currentColor"></path></svg></button>
-                    <button id="open-venmo-popup" class="link-button text-[#0505af]"><svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8"><defs><style>.cls-1{fill:currentColor;}</style></defs><path class="cls-1" d="M40.25,4.45a14.26,14.26,0,0,1,2.06,7.8c0,9.72-8.3,22.34-15,31.2H11.91L5.74,6.58,19.21,5.3l3.27,26.24c3.05-5,6.81-12.76,6.81-18.08A14.51,14.51,0,0,0,28,6.94Z"></path></svg></button>
-                </div>
-            </div>
-
-            <a href="../" target="_blank" class="link-button image-overlay-button bg-[#eae4da]/60 border-2 border-[#002366]/30 text-[#002366] w-full flex items-center justify-center p-4 rounded-lg font-semibold text-lg">
-                <span>Official Website</span>
-            </a>
-
-            <button id="open-calendar-popup" class="link-button image-overlay-button bg-[#eae4da]/60 border-2 border-[#002366]/30 text-[#002366] w-full flex items-center justify-center p-4 rounded-lg font-semibold text-lg">
-                <span>Calendar</span>
-            </button>
-
-            <button id="open-menu-popup" class="link-button image-overlay-button bg-[#eae4da]/60 border-2 border-[#002366]/30 text-[#002366] w-full flex items-center justify-center p-4 rounded-lg font-semibold text-lg">
-                <span>View Menu</span>
-            </button>
-
-            <button id="open-catering-popup" class="link-button image-overlay-button bg-[#eae4da]/60 border-2 border-[#002366]/30 text-[#002366] w-full flex items-center justify-center p-4 rounded-lg font-semibold text-lg">
-                <span>Catering</span>
-            </button>
-            <button id="open-gratuity-popup" class="link-button image-overlay-button bg-[#eae4da]/60 border-2 border-[#002366]/30 text-[#002366] w-full flex items-center justify-center p-4 rounded-lg font-semibold text-lg">
-                <span>Gratuity Policy</span>
-            </button>
         </div>
-    </div>
 
-    <div id="calendar-popup" class="modal fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
-    <div class="menu-popup-body bg-[#FDFBF5] text-[#1E2A4A] rounded-lg shadow-xl relative w-full max-w-5xl p-0 flex flex-col max-h-[85vh] overflow-y-auto">
-       <iframe
-            src="../app/calendar/index.html"
-            style="width: 100%; min-height: 1200px; border: none; background-color: #FDFBF5;"
-            title="Sinensthesia Event Calendar">
-        </iframe>
-    </div>
-</div>
-
-    <div id="menu-popup" class="modal fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
-        <div id="menu-content-container" class="menu-popup-body bg-[#FDFBF5] text-[#1E2A4A] p-6 sm:p-8 rounded-lg shadow-xl relative max-w-4xl w-full text-left overflow-y-auto max-h-[90vh]"></div>
-    </div>
-
-    <div id="catering-popup" class="modal fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
-        <div class="menu-popup-body bg-[#FDFBF5] text-[#1E2A4A] p-8 rounded-lg shadow-xl relative max-w-md w-full text-center overflow-y-auto max-h-[90vh]">
-
-            <h2 class="text-3xl font-bold mb-4 brand-font text-[#002366]">Catering & Events</h2>
-            <p class="mb-6 text-sm leading-relaxed">
-                Bring the Sinensthesia experience to your next event. We specialize in crafting high-quality, tea-forward beverages for any occasion.
-            </p>
-
-            <div class="w-16 h-px bg-[#002366]/20 mx-auto mb-6"></div>
-
-            <div class="space-y-4 mb-8 text-left px-4">
-                <div>
-                    <h3 class="font-bold text-lg text-[#002366]">Full Service Bar</h3>
-                    <p class="text-sm opacity-80">Live boba tea preparation for weddings, corporate events, and parties.</p>
-                </div>
-                <div>
-                    <h3 class="font-bold text-lg text-[#002366]">Premade</h3>
-                    <p class="text-sm opacity-80">Premade specialty drinks delivered to you.</p>
-                </div>
-                <div>
-                    <h3 class="font-bold text-lg text-[#002366]">DIY Kits</h3>
-                    <p class="text-sm opacity-80">Includes tea, toppings, and drinkware for you to host your own boba session!</p>
-                </div>
+        <div
+            id="calendar-popup"
+            class="modal fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50"
+        >
+            <div
+                class="menu-popup-body bg-[#FDFBF5] text-[#1E2A4A] rounded-lg shadow-xl relative w-full max-w-5xl p-0 flex flex-col max-h-[85vh] overflow-y-auto"
+            >
+                <iframe
+                    src="../app/calendar/index.html"
+                    style="width: 100%; min-height: 1200px; border: none; background-color: #fdfbf5"
+                    title="Sinensthesia Event Calendar"
+                >
+                </iframe>
             </div>
-
-            <div class="w-16 h-px bg-[#002366]/20 mx-auto mb-6"></div>
-
-            <div class="mb-6">
-                <p class="font-semibold mb-2">Get in touch:</p>
-                <p class="font-semibold mb-2">908-627-2743</p>
-                <a href="mailto:hello@sinensthesia.com" class="block text-[#0505af] underline hover:opacity-80 mb-1">hello@sinensthesia.com</a>
-                <a href="https://www.instagram.com/sinensthesia/" target="_blank" class="block text-[#0505af] underline hover:opacity-80">DM on Instagram</a>
-            </div>
-    </div>
-</div>
-
-    <div id="gratuity-popup" class="modal fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 hidden z-50">
-        <div class="max-w-sm w-full text-center">
-            <h1 class="text-6xl font-semibold text-white mb-3 brand-font py-6 mt-6">Gratuity Policy</h1>
-            <div class="text-xl text-white/90 space-y-3 text-center leading-relaxed">
-                <p>Tipping is entirely optional.</p>
-                <p>Instead, please show your continued support for Sinensthesia.</p>
-            </div>
-            <span class="block text-xs text-white/70 mt-8">But hey, if you insist, I won't say no.</span>
-            <span class="block text-xs text-white/70 mt-8">Thank you.<br>(Click to dismiss)</span>
         </div>
-    </div>
 
-    <script async src="//www.instagram.com/embed.js"></script>
+        <div
+            id="menu-popup"
+            class="modal fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50"
+        >
+            <div
+                id="menu-content-container"
+                class="menu-popup-body bg-[#FDFBF5] text-[#1E2A4A] p-6 sm:p-8 rounded-lg shadow-xl relative max-w-4xl w-full text-left overflow-y-auto max-h-[90vh]"
+            ></div>
+        </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const particleContainer = document.getElementById('particle-container');
-            const openZelleButton = document.getElementById('open-zelle-popup');
-            const openVenmoButton = document.getElementById('open-venmo-popup');
-            const openMenuButton = document.getElementById('open-menu-popup');
-            const menuPopup = document.getElementById('menu-popup');
-            const menuContentContainer = document.getElementById('menu-content-container');
-            const openGratuityButton = document.getElementById('open-gratuity-popup');
-            const gratuityPopup = document.getElementById('gratuity-popup');
-            const openCalendarButton = document.getElementById('open-calendar-popup');
-            const calendarPopup = document.getElementById('calendar-popup');
-            const openCateringButton = document.getElementById('open-catering-popup');
-            const cateringPopup = document.getElementById('catering-popup');
+        <div
+            id="catering-popup"
+            class="modal fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50"
+        >
+            <div
+                class="menu-popup-body bg-[#FDFBF5] text-[#1E2A4A] p-8 rounded-lg shadow-xl relative max-w-md w-full text-center overflow-y-auto max-h-[90vh]"
+            >
+                <h2 class="text-3xl font-bold mb-4 brand-font text-[#002366]">Catering & Events</h2>
+                <p class="mb-6 text-sm leading-relaxed">
+                    Bring the Sinensthesia experience to your next event. We specialize in crafting
+                    high-quality, tea-forward beverages for any occasion.
+                </p>
 
-            // --- Logo Flip Logic ---
-            const flipper = document.getElementById('logo-flipper');
-            const qrText = document.getElementById('qr-text');
-            const qrImage = document.getElementById('qr-image');
-            let isFlipped = false;
-            let rotation = 0;
-            let isAnimating = false; // Animation lock
-            let currentQR = 'none'; // 'none', 'default', 'zelle', 'venmo'
+                <div class="w-16 h-px bg-[#002366]/20 mx-auto mb-6"></div>
 
-            // Reusable function to update QR content
-            function updateQRContent(qrType) {
-                currentQR = qrType;
-                switch (qrType) {
-                    case 'default':
-                        qrText.innerHTML = '';
-                        qrImage.src = '../Resources/qr-code.png';
-                        qrImage.classList.add('p-10'); // Add padding to shrink default QR
-                        break;
-                    case 'zelle':
-                        qrText.innerHTML = 'Zelle<br> 908-627-2743';
-                        qrImage.src = '../Resources/Zelle.png';
-                        qrImage.classList.remove('p-10');
-                        break;
-                    case 'venmo':
-                        qrText.innerHTML = 'Venmo<br>@sinensthesia';
-                        qrImage.src = '../Resources/Venmo.png';
-                        qrImage.classList.add('p-2'); //
-                        break;
-                    case 'none':
-                        // When flipping back to front, no content update needed
-                        // but we reset the state.
-                        break;
-                }
-            }
+                <div class="space-y-4 mb-8 text-left px-4">
+                    <div>
+                        <h3 class="font-bold text-lg text-[#002366]">Full Service Bar</h3>
+                        <p class="text-sm opacity-80">
+                            Live boba tea preparation for weddings, corporate events, and parties.
+                        </p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-[#002366]">Premade</h3>
+                        <p class="text-sm opacity-80">Premade specialty drinks delivered to you.</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-[#002366]">DIY Kits</h3>
+                        <p class="text-sm opacity-80">
+                            Includes tea, toppings, and drinkware for you to host your own boba
+                            session!
+                        </p>
+                    </div>
+                </div>
 
-            // Reusable function to flip the card
-            function flipCard(targetRotation, onComplete) {
-                if (isAnimating) return;
-                isAnimating = true;
-                rotation = targetRotation;
-                flipper.querySelector('.flipper').style.transform = `rotateY(${rotation}deg)`;
-                isFlipped = (rotation % 360) !== 0;
+                <div class="w-16 h-px bg-[#002366]/20 mx-auto mb-6"></div>
 
-                setTimeout(() => {
-                    isAnimating = false;
-                    if (onComplete) {
-                        onComplete();
+                <div class="mb-6">
+                    <p class="font-semibold mb-2">Get in touch:</p>
+                    <p class="font-semibold mb-2">908-627-2743</p>
+                    <a
+                        href="mailto:hello@sinensthesia.com"
+                        class="block text-[#0505af] underline hover:opacity-80 mb-1"
+                        >hello@sinensthesia.com</a
+                    >
+                    <a
+                        href="https://www.instagram.com/sinensthesia/"
+                        target="_blank"
+                        class="block text-[#0505af] underline hover:opacity-80"
+                        >DM on Instagram</a
+                    >
+                </div>
+            </div>
+        </div>
+
+        <div
+            id="gratuity-popup"
+            class="modal fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 hidden z-50"
+        >
+            <div class="max-w-sm w-full text-center">
+                <h1 class="text-6xl font-semibold text-white mb-3 brand-font py-6 mt-6">
+                    Gratuity Policy
+                </h1>
+                <div class="text-xl text-white/90 space-y-3 text-center leading-relaxed">
+                    <p>Tipping is entirely optional.</p>
+                    <p>Instead, please show your continued support for Sinensthesia.</p>
+                </div>
+                <span class="block text-xs text-white/70 mt-8"
+                    >But hey, if you insist, I won't say no.</span
+                >
+                <span class="block text-xs text-white/70 mt-8"
+                    >Thank you.<br />(Click to dismiss)</span
+                >
+            </div>
+        </div>
+
+        <script async src="//www.instagram.com/embed.js"></script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const particleContainer = document.getElementById('particle-container');
+                const openZelleButton = document.getElementById('open-zelle-popup');
+                const openVenmoButton = document.getElementById('open-venmo-popup');
+                const openMenuButton = document.getElementById('open-menu-popup');
+                const menuPopup = document.getElementById('menu-popup');
+                const menuContentContainer = document.getElementById('menu-content-container');
+                const openGratuityButton = document.getElementById('open-gratuity-popup');
+                const gratuityPopup = document.getElementById('gratuity-popup');
+                const openCalendarButton = document.getElementById('open-calendar-popup');
+                const calendarPopup = document.getElementById('calendar-popup');
+                const openCateringButton = document.getElementById('open-catering-popup');
+                const cateringPopup = document.getElementById('catering-popup');
+
+                // --- Logo Flip Logic ---
+                const flipper = document.getElementById('logo-flipper');
+                const qrText = document.getElementById('qr-text');
+                const qrImage = document.getElementById('qr-image');
+                let isFlipped = false;
+                let rotation = 0;
+                let isAnimating = false; // Animation lock
+                let currentQR = 'none'; // 'none', 'default', 'zelle', 'venmo'
+
+                // Reusable function to update QR content
+                function updateQRContent(qrType) {
+                    currentQR = qrType;
+                    switch (qrType) {
+                        case 'default':
+                            qrText.innerHTML = '';
+                            qrImage.src = '../Resources/qr-code.png';
+                            qrImage.classList.add('p-10'); // Add padding to shrink default QR
+                            break;
+                        case 'zelle':
+                            qrText.innerHTML = 'Zelle<br> 908-627-2743';
+                            qrImage.src = '../Resources/Zelle.png';
+                            qrImage.classList.remove('p-10');
+                            break;
+                        case 'venmo':
+                            qrText.innerHTML = 'Venmo<br>@sinensthesia';
+                            qrImage.src = '../Resources/Venmo.png';
+                            qrImage.classList.add('p-2'); //
+                            break;
+                        case 'none':
+                            // When flipping back to front, no content update needed
+                            // but we reset the state.
+                            break;
                     }
-                }, 800); // 800ms matches CSS transition
-            }
+                }
 
-
-            if (flipper) {
-                flipper.addEventListener('click', () => {
+                // Reusable function to flip the card
+                function flipCard(targetRotation, onComplete) {
                     if (isAnimating) return;
+                    isAnimating = true;
+                    rotation = targetRotation;
+                    flipper.querySelector('.flipper').style.transform = `rotateY(${rotation}deg)`;
+                    isFlipped = rotation % 360 !== 0;
+
+                    setTimeout(() => {
+                        isAnimating = false;
+                        if (onComplete) {
+                            onComplete();
+                        }
+                    }, 800); // 800ms matches CSS transition
+                }
+
+                if (flipper) {
+                    flipper.addEventListener('click', () => {
+                        if (isAnimating) return;
+
+                        if (isFlipped) {
+                            // Card is on the back, flip to front
+                            flipCard(rotation + 180, () => {
+                                currentQR = 'none';
+                            });
+                        } else {
+                            // Card is on the front, flip to default QR
+                            updateQRContent('default');
+                            flipCard(rotation + 180);
+                        }
+                    });
+                }
+
+                openZelleButton.addEventListener('click', () => {
+                    if (isAnimating || currentQR === 'zelle') return; // Do nothing if busy or already on zelle
+
+                    const showZelle = () => {
+                        updateQRContent('zelle');
+                        flipCard(rotation + 180);
+                    };
 
                     if (isFlipped) {
-                        // Card is on the back, flip to front
+                        // It's on the back. Flip to front first.
                         flipCard(rotation + 180, () => {
                             currentQR = 'none';
+                            setTimeout(showZelle, 50); // Flip to Zelle after a short delay
                         });
                     } else {
-                        // Card is on the front, flip to default QR
-                        updateQRContent('default');
-                        flipCard(rotation + 180);
+                        // It's on the front. Just show Zelle.
+                        showZelle();
                     }
                 });
-            }
 
-            openZelleButton.addEventListener('click', () => {
-                if (isAnimating || currentQR === 'zelle') return; // Do nothing if busy or already on zelle
+                openVenmoButton.addEventListener('click', () => {
+                    if (isAnimating || currentQR === 'venmo') return; // Do nothing if busy or already on venmo
 
-                const showZelle = () => {
-                    updateQRContent('zelle');
-                    flipCard(rotation + 180);
-                };
+                    const showVenmo = () => {
+                        updateQRContent('venmo');
+                        flipCard(rotation + 180);
+                    };
 
-                if (isFlipped) {
-                    // It's on the back. Flip to front first.
-                    flipCard(rotation + 180, () => {
-                        currentQR = 'none';
-                        setTimeout(showZelle, 50); // Flip to Zelle after a short delay
-                    });
-                } else {
-                    // It's on the front. Just show Zelle.
-                    showZelle();
-                }
-            });
-
-            openVenmoButton.addEventListener('click', () => {
-                if (isAnimating || currentQR === 'venmo') return; // Do nothing if busy or already on venmo
-
-                const showVenmo = () => {
-                    updateQRContent('venmo');
-                    flipCard(rotation + 180);
-                };
-
-                if (isFlipped) {
-                    // It's on the back. Flip to front first.
-                    flipCard(rotation + 180, () => {
-                        currentQR = 'none';
-                        setTimeout(showVenmo, 50); // Flip to Venmo after a short delay
-                    });
-                } else {
-                    // It's on the front. Just show Venmo.
-                    showVenmo();
-                }
-            });
-            // --- End Logo Flip Logic ---
-            const openModal = (modal) => modal.classList.remove('hidden');
-            const closeModal = (modal) => modal.classList.add('hidden');
-
-            openCalendarButton.addEventListener('click', () => {
-                document.body.classList.add('modal-open');
-                openModal(calendarPopup);
-
-                // Optional: If you want the calendar to refresh every time it's opened
-                const iframe = calendarPopup.querySelector('iframe');
-                iframe.src = iframe.src;
-            });
-
-            // Close when clicking the background
-            calendarPopup.addEventListener('click', (e) => {
-                if (e.target === calendarPopup) {
-                    document.body.classList.remove('modal-open');
-                    closeModal(calendarPopup);
-                }
-            });
-            openCateringButton.addEventListener('click', () => openModal(cateringPopup));
-            cateringPopup.addEventListener('click', () => closeModal(cateringPopup));
-
-            openGratuityButton.addEventListener('click', () => openModal(gratuityPopup));
-            gratuityPopup.addEventListener('click', () => closeModal(gratuityPopup));
-
-            openMenuButton.addEventListener('click', async () => {
-                try {
-                    const response = await fetch('../index.html');
-                    const text = await response.text();
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(text, 'text/html');
-                    const menuSection = doc.querySelector('#menu');
-
-                    if (menuSection) {
-                        // Inject the menu's HTML content
-                        menuContentContainer.innerHTML = menuSection.innerHTML;
-
-                        // Find all the newly added menu/toppings cards within the popup
-                        const allCards = menuContentContainer.querySelectorAll('.menu-card, .toppings-card');
-
-                        // Manually trigger their visibility since the scroll animation isn't needed here
-                        allCards.forEach(card => {
-                            card.classList.add('is-visible');
+                    if (isFlipped) {
+                        // It's on the back. Flip to front first.
+                        flipCard(rotation + 180, () => {
+                            currentQR = 'none';
+                            setTimeout(showVenmo, 50); // Flip to Venmo after a short delay
                         });
-
-                        // Now, open the modal
-                        openModal(menuPopup);
+                    } else {
+                        // It's on the front. Just show Venmo.
+                        showVenmo();
                     }
-                } catch (error) {
-                    console.error('Error fetching menu:', error);
-                    alert('Could not load the menu at this time.');
-                }
-            });
-            menuPopup.addEventListener('click', (event) => closeModal(menuPopup));
+                });
+                // --- End Logo Flip Logic ---
+                const openModal = (modal) => modal.classList.remove('hidden');
+                const closeModal = (modal) => modal.classList.add('hidden');
 
-            // --- Re-added adjustSocialIconsMargin function ---
-            const adjustSocialIconsMargin = () => {
-                const socialIcons = document.getElementById('social-icons-container');
-                if (socialIcons) {
-                    const overlapValue = window.innerHeight * -0.05;
-                    socialIcons.style.marginTop = `${overlapValue}px`;
-                }
-            };
+                // 1. Select the iframe specifically
+                const calendarIframe = calendarPopup.querySelector('iframe');
 
-            if (particleContainer) {
-                const generateParticles = () => {
-                    particleContainer.innerHTML = '';
-                    const fragment = document.createDocumentFragment();
-                    const particleCount = 30;
-                    const accentColors = ['#34D399', '#FB7185', '#f9c74f'];
-                    const colorChance = 0.1;
-                    const defaultColor = '#002366';
-                    const starburstSVG = `<svg class="particle" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L9.5 9.5 2 12l7.5 2.5L12 22l2.5-7.5L22 12l-7.5-2.5z"/></svg>`;
-                    const specialImagePaths = ['../Resources/KrikosInner.png', '../Resources/StellaInner.png'];
-                    for (let i = 0; i < particleCount; i++) {
-                        let particle;
-                        if (i < 2 && specialImagePaths[i]) {
-                             particle = document.createElement('img');
-                             particle.src = specialImagePaths[i];
-                             particle.classList.add('particle');
-                        } else {
-                            const particleWrapper = document.createElement('div');
-                            particleWrapper.innerHTML = starburstSVG;
-                            particle = particleWrapper.firstChild;
-                            if (Math.random() < colorChance) {
-                                particle.style.color = accentColors[Math.floor(Math.random() * accentColors.length)];
-                            } else {
-                                particle.style.color = defaultColor;
+                // 2. Open Modal Logic (Keep this)
+                openCalendarButton.addEventListener('click', () => openModal(calendarPopup));
+
+                // 3. Close Modal Logic
+                calendarPopup.addEventListener('click', (e) => {
+                    // Check if the clicked element is a link (<a>) or inside a link
+                    const isLink = e.target.closest('a');
+
+                    // If it's NOT a link, close the modal
+                    if (!isLink) {
+                        closeModal(calendarPopup);
+                    }
+                });
+
+                // 4. Handle clicks inside the iframe itself (Same-Origin handling)
+                calendarIframe.addEventListener('load', () => {
+                    try {
+                        calendarIframe.contentWindow.document.addEventListener('click', (e) => {
+                            // Re-check for link clicks inside the iframe
+                            const isLink = e.target.closest('a');
+                            if (!isLink) {
+                                closeModal(calendarPopup);
                             }
-                        }
-                        const size = Math.random() * 15 + 5;
-                        particle.style.width = `${size}px`;
-                        particle.style.height = `${size}px`;
-                        particle.style.opacity = `0.7`;
-                        particle.style.top = `${Math.random() * 100}%`;
-                        particle.style.left = `${Math.random() * 100}%`;
-                        particle.style.animationDuration = `${Math.random() * 10 + 8}s`;
-                        particle.style.animationDelay = `${Math.random() * 5}s`;
-                        fragment.appendChild(particle);
+                        });
+                    } catch (err) {
+                        console.warn('Could not attach click listener to iframe.', err);
                     }
-                    particleContainer.appendChild(fragment);
-                    particleContainer.classList.add('particles-visible');
+                });
+
+                openCateringButton.addEventListener('click', () => openModal(cateringPopup));
+                cateringPopup.addEventListener('click', () => closeModal(cateringPopup));
+
+                openGratuityButton.addEventListener('click', () => openModal(gratuityPopup));
+                gratuityPopup.addEventListener('click', () => closeModal(gratuityPopup));
+
+                openMenuButton.addEventListener('click', async () => {
+                    try {
+                        const response = await fetch('../index.html');
+                        const text = await response.text();
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(text, 'text/html');
+                        const menuSection = doc.querySelector('#menu');
+
+                        if (menuSection) {
+                            // Inject the menu's HTML content
+                            menuContentContainer.innerHTML = menuSection.innerHTML;
+
+                            // Find all the newly added menu/toppings cards within the popup
+                            const allCards = menuContentContainer.querySelectorAll(
+                                '.menu-card, .toppings-card'
+                            );
+
+                            // Manually trigger their visibility since the scroll animation isn't needed here
+                            allCards.forEach((card) => {
+                                card.classList.add('is-visible');
+                            });
+
+                            // Now, open the modal
+                            openModal(menuPopup);
+                        }
+                    } catch (error) {
+                        console.error('Error fetching menu:', error);
+                        alert('Could not load the menu at this time.');
+                    }
+                });
+                menuPopup.addEventListener('click', (event) => closeModal(menuPopup));
+
+                // --- Re-added adjustSocialIconsMargin function ---
+                const adjustSocialIconsMargin = () => {
+                    const socialIcons = document.getElementById('social-icons-container');
+                    if (socialIcons) {
+                        const overlapValue = window.innerHeight * -0.05;
+                        socialIcons.style.marginTop = `${overlapValue}px`;
+                    }
                 };
 
-                generateParticles();
-                adjustSocialIconsMargin(); // --- Re-added function call ---
-            }
-        });
-    </script>
+                if (particleContainer) {
+                    const generateParticles = () => {
+                        particleContainer.innerHTML = '';
+                        const fragment = document.createDocumentFragment();
+                        const particleCount = 30;
+                        const accentColors = ['#34D399', '#FB7185', '#f9c74f'];
+                        const colorChance = 0.1;
+                        const defaultColor = '#002366';
+                        const starburstSVG = `<svg class="particle" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L9.5 9.5 2 12l7.5 2.5L12 22l2.5-7.5L22 12l-7.5-2.5z"/></svg>`;
+                        const specialImagePaths = [
+                            '../Resources/KrikosInner.png',
+                            '../Resources/StellaInner.png',
+                        ];
+                        for (let i = 0; i < particleCount; i++) {
+                            let particle;
+                            if (i < 2 && specialImagePaths[i]) {
+                                particle = document.createElement('img');
+                                particle.src = specialImagePaths[i];
+                                particle.classList.add('particle');
+                            } else {
+                                const particleWrapper = document.createElement('div');
+                                particleWrapper.innerHTML = starburstSVG;
+                                particle = particleWrapper.firstChild;
+                                if (Math.random() < colorChance) {
+                                    particle.style.color =
+                                        accentColors[
+                                            Math.floor(Math.random() * accentColors.length)
+                                        ];
+                                } else {
+                                    particle.style.color = defaultColor;
+                                }
+                            }
+                            const size = Math.random() * 15 + 5;
+                            particle.style.width = `${size}px`;
+                            particle.style.height = `${size}px`;
+                            particle.style.opacity = `0.7`;
+                            particle.style.top = `${Math.random() * 100}%`;
+                            particle.style.left = `${Math.random() * 100}%`;
+                            particle.style.animationDuration = `${Math.random() * 10 + 8}s`;
+                            particle.style.animationDelay = `${Math.random() * 5}s`;
+                            fragment.appendChild(particle);
+                        }
+                        particleContainer.appendChild(fragment);
+                        particleContainer.classList.add('particles-visible');
+                    };
 
-</body>
+                    generateParticles();
+                    adjustSocialIconsMargin(); // --- Re-added function call ---
+                }
+            });
+        </script>
+    </body>
 </html>
