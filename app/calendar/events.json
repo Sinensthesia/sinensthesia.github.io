@@ -6,7 +6,7 @@
     "daysOfWeek": [5],
     "url": "https://www.mainstreethp.org/",
     "location": "212 Raritan Avenue Highland Park, NJ 08904",
-    "image": "../Resources/Calendar/h.png"
+    "image": "../../Resources/Calendar/h.png"
   },
   {
     "title": "Madison Farm & Artisan Market",
@@ -15,7 +15,7 @@
     "end": "2026-12-12",
     "url": "https://www.rosenet.org/380/Madison-Farm-Artisan-Market",
     "location": "28 Prospect St Lot, Madison, NJ 07940",
-    "image": "../Resources/Calendar/mad.png"
+    "image": "../../Resources/Calendar/mad.png"
   },
   {
     "title": "Riverview Farmers Market",
@@ -24,7 +24,7 @@
     "daysOfWeek": [0],
     "url": "https://riverviewfarmersmarket.org/",
     "location": "Riverview-Fisk Park 498 Palisade Ave Jersey City, NJ",
-    "image": "../Resources/Calendar/rv.png"
+    "image": "../../Resources/Calendar/rv.png"
    },
    {
     "title": "CHP Handmade & Handcrafted Showcase",

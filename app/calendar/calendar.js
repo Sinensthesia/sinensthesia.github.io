@@ -14,7 +14,8 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     const calendarEl = document.getElementById('calendar');
-    const BRAND_DEFAULT_LOGO = '../Resources/Web/Icon/Blue/Sinensthesia-Logo-Teacup-Icon-RGB.png';
+    const BRAND_DEFAULT_LOGO =
+        '../../Resources/Web/Icon/Blue/Sinensthesia-Logo-Teacup-Icon-RGB.png';
     function buildLegend() {
         fetch('./events.json')
             .then((response) => response.json())
@@ -104,7 +105,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
         // Set a taller height to accommodate 6 rows of large logos
-        height: 800,
+        height: 'auto',
         fixedWeekCount: true, // Crucial for uniformity
         aspectRatio: 1.35,
         expandRows: true,
@@ -212,8 +213,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 const accentColors = ['#34D399', '#FB7185', '#f9c74f'],
                     starburstSVG = `<svg class="particle" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L9.5 9.5 2 12l7.5 2.5L12 22l2.5-7.5L22 12l-7.5-2.5z"/></svg>`;
                 const specialImagePaths = [
-                    '../Resources/KrikosInner.png',
-                    '../Resources/StellaInner.png',
+                    '../../Resources/KrikosInner.png',
+                    '../../Resources/StellaInner.png',
                 ];
 
                 for (let i = 0; i < brightCount; i++) {

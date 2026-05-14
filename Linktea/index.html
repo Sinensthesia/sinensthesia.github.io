@@ -206,21 +206,14 @@
     </div>
 
     <div id="calendar-popup" class="modal fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
-        <div class="menu-popup-body bg-[#FDFBF5] text-[#1E2A4A] rounded-lg shadow-xl relative w-full max-w-5xl p-0 overflow-hidden flex flex-col h-[85vh]">
-
-            <button id="close-calendar" class="absolute top-4 right-4 z-[60] text-[#002366] hover:opacity-70">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
-
-           <iframe
-                src="../Calendar/index.html"
-                style="width: 100%; height: 100%; border: none; background-color: #FDFBF5;"
-                title="Sinensthesia Event Calendar">
-            </iframe>
-        </div>
+    <div class="menu-popup-body bg-[#FDFBF5] text-[#1E2A4A] rounded-lg shadow-xl relative w-full max-w-5xl p-0 flex flex-col max-h-[85vh] overflow-y-auto">
+       <iframe
+            src="../app/calendar/index.html"
+            style="width: 100%; min-height: 1200px; border: none; background-color: #FDFBF5;"
+            title="Sinensthesia Event Calendar">
+        </iframe>
     </div>
+</div>
 
     <div id="menu-popup" class="modal fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
         <div id="menu-content-container" class="menu-popup-body bg-[#FDFBF5] text-[#1E2A4A] p-6 sm:p-8 rounded-lg shadow-xl relative max-w-4xl w-full text-left overflow-y-auto max-h-[90vh]"></div>
@@ -403,8 +396,6 @@
             const openModal = (modal) => modal.classList.remove('hidden');
             const closeModal = (modal) => modal.classList.add('hidden');
 
-            const closeCalendarButton = document.getElementById('close-calendar');
-
             openCalendarButton.addEventListener('click', () => {
                 document.body.classList.add('modal-open');
                 openModal(calendarPopup);
@@ -412,12 +403,6 @@
                 // Optional: If you want the calendar to refresh every time it's opened
                 const iframe = calendarPopup.querySelector('iframe');
                 iframe.src = iframe.src;
-            });
-
-            // Close with the dedicated X button
-            closeCalendarButton.addEventListener('click', () => {
-                document.body.classList.remove('modal-open');
-                closeModal(calendarPopup);
             });
 
             // Close when clicking the background

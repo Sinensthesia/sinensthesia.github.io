@@ -1,0 +1,699 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+        />
+        <title>Sales Report App</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script>
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        colors: {
+                            'brand-blue': '#1e3a8a',
+                            'contrast-blue': '#172554',
+                            cream: '#FDFBF5',
+                        },
+                    },
+                },
+            };
+        </script>
+        <style>
+            /* Base Pill Styles */
+            .pill-btn {
+                transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+                white-space: nowrap;
+                border: 1px solid transparent;
+                font-weight: 600;
+            }
+            .pill-btn.active {
+                transform: translateY(-1px);
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+            }
+            .multi-pill-btn.active {
+                background-color: #dbeafe;
+                color: #1e3a8a;
+                border-color: #1e3a8a;
+                font-weight: bold;
+            }
+
+            /* Scrollbars */
+            .scroller::-webkit-scrollbar {
+                width: 6px;
+                height: 6px;
+            }
+            .scroller::-webkit-scrollbar-track {
+                background: transparent;
+            }
+            .scroller::-webkit-scrollbar-thumb {
+                background: #cbd5e1;
+                border-radius: 10px;
+            }
+            .scroller::-webkit-scrollbar-thumb:hover {
+                background: #94a3b8;
+            }
+
+            /* Layout Fixes */
+            input[type='number']::-webkit-inner-spin-button {
+                -webkit-appearance: none;
+            }
+            .cart-item {
+                animation: slideIn 0.2s ease-out;
+            }
+            @keyframes slideIn {
+                from {
+                    opacity: 0;
+                    transform: translateX(-10px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateX(0);
+                }
+            }
+
+            /* Tooltips: Desktop ONLY */
+            .tooltip-container {
+                position: relative;
+                cursor: help;
+                z-index: 50;
+            }
+            .tooltip-box {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 50%;
+                transform: translateX(-50%);
+                margin-top: 8px;
+                background-color: #1e293b;
+                color: white;
+                padding: 8px 12px;
+                border-radius: 6px;
+                font-size: 0.75rem;
+                white-space: nowrap;
+                z-index: 100;
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+                text-align: left;
+                font-weight: normal;
+                pointer-events: none;
+            }
+            .tooltip-box::before {
+                content: '';
+                position: absolute;
+                bottom: 100%;
+                left: 50%;
+                margin-left: -5px;
+                border-width: 5px;
+                border-style: solid;
+                border-color: transparent transparent #1e293b transparent;
+            }
+
+            @media (min-width: 1024px) {
+                .tooltip-container:hover .tooltip-box {
+                    display: block;
+                }
+            }
+        </style>
+    </head>
+    <body
+        class="bg-gray-100 p-2 sm:p-4 lg:p-6 font-sans text-gray-800 flex flex-col min-h-screen lg:h-screen lg:overflow-hidden overflow-x-hidden w-full"
+    >
+        <div class="max-w-[1800px] mx-auto w-full flex flex-col flex-1 min-h-0">
+            <div
+                class="flex flex-col xl:flex-row justify-between items-start xl:items-end mb-4 lg:mb-6 gap-4 lg:gap-6 flex-shrink-0 relative z-20 w-full"
+            >
+                <div class="w-full xl:w-auto">
+                    <input
+                        type="text"
+                        id="reportTitle"
+                        class="text-2xl lg:text-3xl font-bold text-contrast-blue bg-transparent border-b-2 border-transparent hover:border-gray-300 focus:border-brand-blue focus:outline-none w-full md:w-96 transition"
+                        value="Daily Sales"
+                    />
+
+                    <button
+                        onclick="App.openSettings()"
+                        class="p-2 text-gray-400 hover:text-brand-blue transition rounded-full hover:bg-white shadow-sm border border-transparent hover:border-gray-200"
+                    >
+                        <svg
+                            class="w-5 h-5 lg:w-6 lg:h-6"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                            ></path>
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                            ></path>
+                        </svg>
+                    </button>
+
+                    <div class="flex items-center gap-3 lg:gap-4 mt-2">
+                        <div
+                            class="flex items-center gap-2 bg-white px-2 py-1 rounded shadow-sm border border-gray-200"
+                        >
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    id="retroToggle"
+                                    class="sr-only peer"
+                                    onchange="App.toggleRetroMode()"
+                                />
+                                <div
+                                    class="w-6 h-3.5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-2.5 after:w-2.5 after:transition-all peer-checked:bg-brand-blue"
+                                ></div>
+                            </label>
+                            <span
+                                class="text-[9px] lg:text-[10px] font-bold text-gray-500 uppercase tracking-wide"
+                                >Retro Mode</span
+                            >
+                        </div>
+
+                        <p class="text-xs lg:text-sm text-gray-500 font-mono" id="sessionClock"></p>
+                        <input
+                            type="date"
+                            id="retroDateInput"
+                            class="hidden text-base lg:text-sm bg-white border border-gray-300 rounded px-2 py-1 outline-none focus:border-brand-blue text-gray-600 font-mono shadow-sm"
+                        />
+                    </div>
+                </div>
+
+                <div
+                    class="bg-white rounded-xl shadow-sm border border-gray-200 w-full xl:w-auto overflow-visible"
+                >
+                    <div class="flex text-center w-full divide-x divide-gray-100">
+                        <div
+                            class="p-1 sm:p-2 lg:px-5 lg:py-3 tooltip-container flex-1 min-w-0 hover:bg-green-50 transition relative rounded-l-xl"
+                        >
+                            <span
+                                class="block text-[8px] sm:text-[9px] lg:text-[10px] font-bold text-green-600 uppercase truncate"
+                                >Cash+</span
+                            >
+                            <span
+                                id="cashTotalDisplay"
+                                class="block text-xs sm:text-sm lg:text-xl font-black text-green-600"
+                                >$0.00</span
+                            >
+                            <div class="tooltip-box">
+                                <div id="cashBreakdown">Cash: $0.00</div>
+                                <div id="mbBreakdown">MarketBucks: $0.00</div>
+                            </div>
+                        </div>
+                        <div
+                            class="p-1 sm:p-2 lg:px-5 lg:py-3 tooltip-container flex-1 min-w-0 hover:bg-blue-50 transition relative"
+                        >
+                            <span
+                                class="block text-[8px] sm:text-[9px] lg:text-[10px] font-bold text-blue-600 uppercase truncate"
+                                >Venmo+</span
+                            >
+                            <span
+                                id="venmoTotalDisplay"
+                                class="block text-xs sm:text-sm lg:text-xl font-black text-blue-600"
+                                >$0.00</span
+                            >
+                            <div class="tooltip-box">
+                                <div id="venmoBreakdown">Venmo: $0.00</div>
+                                <div
+                                    id="venmoFeeBreakdown"
+                                    class="text-red-400 text-[10px] pl-2 border-l border-gray-600 mb-1.5"
+                                >
+                                    Fee: $0.00
+                                </div>
+                                <div id="ccBreakdown">Credit Card: $0.00</div>
+                                <div
+                                    id="ccFeeBreakdown"
+                                    class="text-red-400 text-[10px] pl-2 border-l border-gray-600"
+                                >
+                                    Fee: $0.00
+                                </div>
+                            </div>
+                        </div>
+                        <div
+                            class="p-1 sm:p-2 lg:px-5 lg:py-3 tooltip-container flex-1 min-w-0 hover:bg-purple-50 transition relative"
+                        >
+                            <span
+                                class="block text-[8px] sm:text-[9px] lg:text-[10px] font-bold text-purple-600 uppercase truncate"
+                                >Zelle</span
+                            >
+                            <span
+                                id="zelleTotalDisplay"
+                                class="block text-xs sm:text-sm lg:text-xl font-black text-purple-600"
+                                >$0.00</span
+                            >
+                        </div>
+                        <div
+                            class="p-1 sm:p-2 lg:px-5 lg:py-3 tooltip-container flex-1 min-w-0 hover:bg-gray-50 transition relative"
+                        >
+                            <span
+                                class="block text-[8px] sm:text-[9px] lg:text-[10px] font-bold text-gray-400 uppercase truncate"
+                                >Gross</span
+                            >
+                            <span
+                                id="grandTotalDisplay"
+                                class="block text-xs sm:text-sm lg:text-xl font-black text-gray-800"
+                                >$0.00</span
+                            >
+                        </div>
+                        <div
+                            class="p-1 sm:p-2 lg:px-5 lg:py-3 bg-gray-50 tooltip-container flex-1 min-w-0 hover:bg-gray-100 transition relative rounded-r-xl"
+                        >
+                            <span
+                                class="block text-[8px] sm:text-[9px] lg:text-[10px] font-bold text-gray-500 uppercase truncate"
+                                >Net</span
+                            >
+                            <span
+                                id="netTotalDisplay"
+                                class="block text-xs sm:text-sm lg:text-xl font-black text-brand-blue"
+                                >$0.00</span
+                            >
+                            <div class="tooltip-box">
+                                <div
+                                    class="text-gray-300 text-[10px] mb-1 uppercase tracking-wider"
+                                >
+                                    Net Income
+                                </div>
+                                <div id="taxBreakdown" class="text-yellow-400">Tax: $0.00</div>
+                                <div id="feeBreakdown" class="text-red-400 mt-1">Fees: $0.00</div>
+                                <div
+                                    id="netVenmoFee"
+                                    class="text-red-400/80 text-[10px] pl-2 border-l border-gray-600"
+                                >
+                                    - Venmo: $0.00
+                                </div>
+                                <div
+                                    id="netCcFee"
+                                    class="text-red-400/80 text-[10px] pl-2 border-l border-gray-600"
+                                >
+                                    - CC: $0.00
+                                </div>
+                                <div id="expenseBreakdown" class="text-orange-400 mb-1">
+                                    Expenses: $0.00
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 flex-1 min-h-0 w-full">
+                <div class="lg:col-span-4 flex flex-col min-h-0 h-full">
+                    <div
+                        class="bg-cream rounded-xl shadow-lg border border-gray-200 flex flex-col flex-1 overflow-hidden"
+                    >
+                        <div class="p-3 lg:p-4 border-b bg-white/50 flex-shrink-0">
+                            <h2 class="text-sm font-bold text-brand-blue uppercase tracking-widest">
+                                Add Item
+                            </h2>
+                        </div>
+
+                        <div
+                            class="p-3 lg:p-4 overflow-y-auto scroller flex-1 space-y-4 lg:space-y-6"
+                        >
+                            <div>
+                                <span
+                                    class="text-[10px] font-bold text-gray-400 uppercase mb-2 block"
+                                    >Category</span
+                                >
+                                <div
+                                    id="categoryContainer"
+                                    class="flex flex-wrap gap-1.5 lg:gap-2"
+                                ></div>
+                            </div>
+
+                            <div id="subCatWrapper" class="hidden">
+                                <span
+                                    class="text-[10px] font-bold text-gray-400 uppercase mb-2 block"
+                                    >Item Type</span
+                                >
+                                <div
+                                    id="subCategoryContainer"
+                                    class="flex flex-wrap gap-1.5 lg:gap-2"
+                                ></div>
+                            </div>
+
+                            <div
+                                id="beverageModifiersWrapper"
+                                class="hidden bg-white border border-gray-200 rounded-lg p-3 space-y-4 shadow-sm"
+                            >
+                                <div id="teaTypeWrapper">
+                                    <span
+                                        class="text-[10px] font-bold text-gray-400 uppercase mb-2 block"
+                                        >Tea Base</span
+                                    >
+                                    <div id="teaTypeContainer" class="flex flex-wrap gap-1.5"></div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-3 lg:gap-4">
+                                    <div>
+                                        <span
+                                            class="text-[10px] font-bold text-gray-400 uppercase mb-2 block"
+                                            >Additions (+$1)</span
+                                        >
+                                        <div
+                                            id="additionsContainer"
+                                            class="flex flex-col gap-1.5"
+                                        ></div>
+                                    </div>
+                                    <div>
+                                        <span
+                                            class="text-[10px] font-bold text-gray-400 uppercase mb-2 block"
+                                            >Toppings (+$1)</span
+                                        >
+                                        <div
+                                            id="toppingsContainer"
+                                            class="flex flex-col gap-1.5"
+                                        ></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="space-y-4">
+                                <div>
+                                    <span
+                                        class="text-[10px] font-bold text-gray-400 uppercase mb-1 block"
+                                        >Display Name</span
+                                    >
+                                    <input
+                                        type="text"
+                                        id="itemInput"
+                                        class="w-full px-3 py-2 bg-white border border-gray-300 rounded text-base lg:text-sm focus:border-brand-blue outline-none transition"
+                                    />
+                                </div>
+                                <div class="grid grid-cols-2 gap-3 lg:gap-4">
+                                    <div>
+                                        <span class="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Value / Price</span>
+                                        <div class="flex items-center bg-white border border-gray-300 rounded overflow-hidden">
+                                            <button onclick="App.adjPrice(-1)" class="px-3 py-2 bg-gray-50 hover:bg-gray-100 border-r text-lg font-bold text-gray-500 transition-colors">-</button>
+                                            <input
+                                                type="number"
+                                                id="unitPriceInput"
+                                                class="w-full text-center py-2 bg-white font-bold text-brand-blue text-base lg:text-lg outline-none"
+                                                step="0.25"
+                                            />
+                                            <button onclick="App.adjPrice(1)" class="px-3 py-2 bg-gray-50 hover:bg-gray-100 border-l text-lg font-bold text-gray-500 transition-colors">+</button>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <span class="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Quantity</span>
+                                        <div class="flex items-center bg-white border border-gray-300 rounded overflow-hidden">
+                                            <button onclick="App.adjQty(-1)" class="px-3 py-2 bg-gray-50 hover:bg-gray-100 border-r text-lg">-</button>
+                                            <input
+                                                type="number"
+                                                id="qtyInput"
+                                                value="1"
+                                                min="1"
+                                                class="w-full text-center font-bold text-base lg:text-sm outline-none"
+                                            />
+                                            <button onclick="App.adjQty(1)" class="px-3 py-2 bg-gray-50 hover:bg-gray-100 border-l text-lg">+</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div
+                                    id="globalModifiersWrapper"
+                                    class="hidden bg-white border border-gray-200 rounded-lg p-3 shadow-sm"
+                                >
+                                    <div
+                                        id="globalContainer"
+                                        class="flex flex-wrap gap-1.5 lg:gap-2"
+                                    ></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-3 lg:p-4 bg-gray-50 border-t flex-shrink-0">
+                            <button
+                                onclick="App.addToCart()"
+                                id="addBtn"
+                                class="w-full py-3 lg:py-4 bg-brand-blue text-white rounded-lg font-bold hover:bg-blue-900 transition flex items-center justify-center gap-2 shadow-md"
+                            >
+                                <svg
+                                    class="w-5 h-5"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        d="M12 4v16m8-8H4"
+                                        stroke-width="2"
+                                        stroke-linecap="round"
+                                    ></path>
+                                </svg>
+                                Add to Order
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-3 flex flex-col min-h-0 h-full">
+                    <div
+                        class="bg-white rounded-xl shadow-lg border-2 border-brand-blue flex flex-col flex-1 overflow-hidden"
+                    >
+                        <div
+                            class="p-3 lg:p-4 border-b flex justify-between items-center bg-blue-50 flex-shrink-0"
+                        >
+                            <h2
+                                class="font-black text-brand-blue uppercase text-xs tracking-widest"
+                            >
+                                Active Cart
+                            </h2>
+                            <span
+                                id="cartCount"
+                                class="bg-brand-blue text-white text-[10px] px-2 py-0.5 rounded-full font-bold"
+                                >0</span
+                            >
+                        </div>
+
+                        <div
+                            id="cartList"
+                            class="flex-1 overflow-y-auto p-3 lg:p-4 space-y-2 lg:space-y-3 scroller bg-gray-50/30 min-h-[200px] lg:min-h-0"
+                        >
+                            <div
+                                id="cartEmpty"
+                                class="text-center py-10 lg:py-20 text-gray-400 text-sm italic"
+                            >
+                                The cart is currently empty...
+                            </div>
+                        </div>
+
+                        <div class="p-3 lg:p-4 bg-white border-t space-y-3 flex-shrink-0 w-full">
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="font-bold text-gray-400 uppercase">Subtotal</span>
+                                <span id="cartSubtotalText" class="font-bold text-gray-600"
+                                    >$0.00</span
+                                >
+                            </div>
+
+                            <div
+                                class="flex justify-between items-center text-sm pb-2 border-b border-gray-100"
+                            >
+                                <span class="font-bold text-gray-400 uppercase">Discount</span>
+                                <div class="flex items-center">
+                                    <span class="text-gray-400 mr-1 font-bold">-$</span>
+                                    <input
+                                        type="number"
+                                        id="discountInput"
+                                        value="0"
+                                        step="0.50"
+                                        min="0"
+                                        class="w-16 text-right bg-red-50 border border-red-200 rounded px-1.5 py-0.5 font-bold text-red-600 text-base lg:text-sm outline-none focus:border-red-400 transition"
+                                        onfocus="this.select()"
+                                        oninput="App.renderCart()"
+                                    />
+                                </div>
+                            </div>
+
+                            <div
+                                class="flex justify-between items-center text-sm pb-2 border-b border-gray-100 mt-2"
+                            >
+                                <span class="font-bold text-gray-400 uppercase">Tip</span>
+                                <div class="flex items-center">
+                                    <span class="text-green-600 mr-1 font-bold">+$</span>
+                                    <input
+                                        type="number"
+                                        id="tipInput"
+                                        value="0"
+                                        step="1.00"
+                                        min="0"
+                                        class="w-16 text-right bg-green-50 border border-green-200 rounded px-1.5 py-0.5 font-bold text-green-600 text-base lg:text-sm outline-none focus:border-green-400 transition"
+                                        onfocus="this.select()"
+                                        oninput="App.renderCart()"
+                                    />
+                                </div>
+                            </div>
+                            <div
+                                class="flex justify-between items-center text-sm pb-2 border-b border-gray-100 mt-2"
+                            >
+                                <span class="font-bold text-gray-400 uppercase">Incl. Tax</span>
+                                <span id="cartTaxText" class="font-bold text-yellow-600"
+                                    >$0.00</span
+                                >
+                            </div>
+                            <div class="flex justify-between items-baseline pt-1">
+                                <span class="text-xs font-bold text-gray-800 uppercase">Total</span>
+                                <span
+                                    id="cartTotalText"
+                                    class="text-xl lg:text-2xl font-black text-gray-800"
+                                    >$0.00</span
+                                >
+                            </div>
+
+                            <div class="pt-2">
+                                <span
+                                    class="text-[10px] font-bold text-gray-400 uppercase mb-2 block"
+                                    >Payment / Fund Source</span
+                                >
+                                <div id="paymentTypeContainer" class="flex flex-wrap gap-1.5"></div>
+                            </div>
+
+                            <button
+                                onclick="App.checkout()"
+                                id="checkoutBtn"
+                                disabled
+                                class="w-full py-3 lg:py-4 mt-2 bg-green-600 text-white rounded-lg font-black uppercase tracking-widest disabled:opacity-30 disabled:grayscale transition-all shadow-lg hover:bg-green-700 active:scale-[0.98]"
+                            >
+                                Complete Transaction
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-5 flex flex-col min-h-0 h-full">
+                    <div
+                        class="bg-white rounded-xl shadow-md border border-gray-200 flex flex-col flex-1 overflow-hidden"
+                    >
+                        <div
+                            class="p-3 lg:p-4 border-b bg-gray-50 flex justify-between items-center flex-shrink-0"
+                        >
+                            <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest">
+                                Transaction History
+                            </h2>
+                            <div class="flex gap-4">
+                                <button
+                                    onclick="App.clearData()"
+                                    class="text-red-400 text-[10px] font-bold uppercase hover:text-red-600"
+                                >
+                                    Reset
+                                </button>
+                                <label
+                                    class="text-green-600 text-[10px] font-bold uppercase hover:underline cursor-pointer"
+                                >
+                                    Import CSV
+                                    <input
+                                        type="file"
+                                        id="csvImport"
+                                        class="hidden"
+                                        accept=".csv"
+                                        onchange="App.importCSV(event)"
+                                    />
+                                </label>
+                                <button
+                                    onclick="App.exportToCSV()"
+                                    class="text-blue-600 text-[10px] font-bold uppercase hover:underline"
+                                >
+                                    Export CSV
+                                </button>
+                            </div>
+                        </div>
+
+                        <div
+                            class="flex-1 overflow-x-auto overflow-y-auto scroller min-h-[300px] lg:min-h-0 bg-white"
+                        >
+                            <table
+                                class="w-full text-left text-sm border-collapse whitespace-nowrap lg:whitespace-normal"
+                            >
+                                <thead
+                                    class="bg-gray-50 sticky top-0 z-10 text-[9px] lg:text-[10px] text-gray-400 uppercase border-b shadow-sm"
+                                >
+                                    <tr>
+                                        <th class="p-2 lg:p-3">Date/Time</th>
+                                        <th class="p-2 lg:p-3 w-full">Items / Details</th>
+                                        <th class="p-2 lg:p-3 text-center">Qty</th>
+                                        <th class="p-2 lg:p-3 text-right">Unit $</th>
+                                        <th class="p-2 lg:p-3 text-center border-l">Source</th>
+                                        <th class="p-2 lg:p-3 text-right">Disc.</th>
+                                        <th class="p-2 lg:p-3 text-right">Tip</th>
+                                        <th class="p-2 lg:p-3 text-right">Tax</th>
+                                        <th class="p-2 lg:p-3 text-right">Gross</th>
+                                        <th class="p-2 lg:p-3 text-right text-brand-blue">Net</th>
+                                        <th class="p-2 lg:p-3"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="salesTableBody" class="divide-y divide-gray-100"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div
+            id="settingsModal"
+            class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 sm:p-6 backdrop-blur-sm"
+        >
+            <div
+                class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl flex flex-col h-[85vh] max-h-[900px]"
+            >
+                <div
+                    class="p-4 lg:p-6 border-b flex justify-between items-center bg-gray-50 rounded-t-2xl flex-shrink-0"
+                >
+                    <div>
+                        <h2 class="text-lg font-bold text-brand-blue">JSON Configuration</h2>
+                        <p class="text-xs text-gray-500 mt-1">
+                            Edit categories, pricing, and modifiers directly.
+                        </p>
+                    </div>
+                    <button
+                        onclick="App.closeSettings()"
+                        class="text-gray-400 hover:text-red-500 font-bold text-2xl leading-none"
+                    >
+                        &times;
+                    </button>
+                </div>
+
+                <div class="p-4 lg:p-6 flex-1 min-h-0">
+                    <textarea
+                        id="configEditor"
+                        class="w-full h-full p-4 font-mono text-xs sm:text-sm bg-gray-900 text-green-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-blue scroller resize-none"
+                        spellcheck="false"
+                    ></textarea>
+                </div>
+
+                <div
+                    class="p-4 lg:p-6 border-t bg-gray-50 rounded-b-2xl flex flex-col-reverse sm:flex-row gap-3 justify-between flex-shrink-0 items-center"
+                >
+                    <button
+                        onclick="App.resetConfig()"
+                        class="w-full sm:w-auto px-4 py-2 text-xs font-bold text-red-500 hover:bg-red-50 rounded-lg transition"
+                    >
+                        Reset to Default
+                    </button>
+                    <div class="flex gap-3 w-full sm:w-auto">
+                        <button
+                            onclick="App.closeSettings()"
+                            class="flex-1 sm:flex-none px-4 py-2 text-sm font-bold text-gray-600 hover:bg-gray-200 rounded-lg transition"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            onclick="App.saveConfig()"
+                            class="flex-1 sm:flex-none px-6 py-2 text-sm font-bold bg-brand-blue text-white hover:bg-blue-900 rounded-lg shadow-md transition"
+                        >
+                            Save Changes
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="sales.js"></script>
+    </body>
+</html>

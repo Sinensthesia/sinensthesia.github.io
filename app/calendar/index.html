@@ -27,6 +27,8 @@
                 padding: 0 !important;
                 background-color: #fdfbf5 !important;
                 background-image: none !important;
+                overflow: hidden;
+                height: auto;
             }
 
             body.is-embedded #calendar-container,
@@ -216,13 +218,13 @@
             }
 
             .layout-wrapper {
-                display: flex;
-                flex-direction: column;
-                gap: 20px;
-                max-width: 1400px;
-                margin: 0 auto;
-                height: auto;
-            }
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+    height: auto; /* Ensure it grows with content */
+}
 
             /* Sidebar Legend Styles */
             .legend-dates {
@@ -342,30 +344,25 @@
             }
 
             @media (min-width: 1400px) {
-                body.is-embedded .layout-wrapper {
-                    height: 100vh;
-                    gap: 0;
-                }
-
                 body.is-embedded .sidebar-legend {
                     border-left: 1px solid rgba(0, 35, 102, 0.1);
                 }
 
                 #calendar-container {
                     flex: 3.5;
-                    overflow-y: auto;
                 }
 
                 .layout-wrapper {
                     flex-direction: row;
-                    align-items: stretch;
-                    height: 85vh;
+                    align-items: flex-start;
+                    height: auto;
                 }
 
                 .sidebar-legend {
                     flex: 1;
-                    overflow-y: auto;
-                    height: 100%;
+        top: 20px;
+        height: auto;
+        overflow-y: visible !important;
                 }
             }
 
@@ -446,7 +443,9 @@
     </head>
     <body>
         <div id="particle-container"></div>
-        <header id="page-header"><h1 class="brand-title">Sinensthesia</h1></header>
+        <a href="../../">
+            <header id="page-header"><h1 class="brand-title">Sinensthesia</h1></header>
+        </a>
         <div class="layout-wrapper">
             <div id="calendar-container"><div id="calendar"></div></div>
             <aside class="sidebar-legend">
