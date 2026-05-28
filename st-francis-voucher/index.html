@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Sinensthesia - $50 Gift Voucher</title>
+
+        <link
+            href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@700&family=Inter:wght@400;600&display=swap"
+            rel="stylesheet"
+        />
+
+        <script src="https://cdn.tailwindcss.com"></script>
+
+        <style>
+            /* Your Custom Styles */
+            body {
+                font-family: 'Inter', sans-serif;
+                background-color: #fdfbf5; /* Cream background from logo */
+                color: #1e2a4a; /* Darker blue for better contrast */
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                min-height: 100vh;
+                margin: 0;
+                padding: 20px;
+            }
+            h1,
+            h2,
+            h3,
+            h4,
+            h5,
+            h6 {
+                font-family: 'Cormorant Garamond', serif;
+                font-weight: 700;
+            }
+            .text-brand-blue {
+                color: #0505af;
+            }
+            .text-contrast-blue {
+                color: #1e2a4a;
+            }
+            .bg-brand-blue {
+                background-color: #002366;
+            }
+            .bg-brand-cream {
+                background-color: #eae4da;
+            }
+            .border-brand-blue {
+                border-color: #0505af;
+            }
+
+            /* Voucher Specific Styles */
+            .voucher-container {
+                background-color: #ffffff;
+                border: 3px solid #002366;
+                border-radius: 12px;
+                padding: 40px;
+                max-width: 600px;
+                width: 100%;
+                text-align: center;
+                box-shadow:
+                    0 10px 25px -5px rgba(0, 35, 102, 0.1),
+                    0 8px 10px -6px rgba(0, 35, 102, 0.1);
+            }
+
+            .promo-code {
+                display: inline-block;
+                background-color: #eae4da;
+                color: #002366;
+                padding: 12px 30px;
+                font-size: 24px;
+                letter-spacing: 2px;
+                border: 1px dashed #0505af;
+                margin: 20px 0;
+                font-family: 'Inter', sans-serif;
+                font-weight: 600;
+            }
+
+            .link-button {
+                transition: opacity 0.3s ease;
+            }
+            .link-button:hover {
+                opacity: 0.75;
+            }
+
+            /* Print formatting */
+            @media print {
+                body {
+                    background: white;
+                    padding: 0;
+                }
+                .voucher-container {
+                    box-shadow: none;
+                    border: 2px solid #1e2a4a;
+                }
+                .no-print {
+                    display: none !important;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="voucher-container">
+            <img
+                src="../Resources/Web/Icon/Blue/Sinensthesia-Logo-Teacup-Icon-RGB.png"
+                alt="Sinensthesia Logo"
+                class="mx-auto h-24 w-auto mb-4 object-contain"
+            />
+
+            <h1 class="text-3xl text-brand-blue uppercase tracking-widest mb-2">Gift Voucher</h1>
+
+            <h2 class="text-6xl text-brand-blue my-4">$50</h2>
+
+            <p class="text-lg text-contrast-blue mb-4 leading-relaxed">
+                Proudly donated to the <br /><strong
+                    >St. Francis Cathedral School Tricky Tray</strong
+                >
+            </p>
+
+            <p class="text-md text-contrast-blue mb-2">
+                Winner: Present this page or use the code below to redeem.
+            </p>
+
+            <div class="promo-code">STFRANCIS50</div>
+
+            <div class="my-6 no-print">
+                <a
+                    href="/linktea"
+                    class="link-button inline-block bg-brand-blue text-white font-semibold py-3 px-8 rounded-full no-underline"
+                >
+                    Sinesnthesia Links
+                </a>
+            </div>
+
+            <div class="text-xs text-contrast-blue opacity-80 border-t border-brand-blue pt-4 mt-6">
+                Terms: Valid for $50 toward any catering order at Sinensthesia. Subject to schedule
+                availability. Advance booking required. Not redeemable for cash. Expires May 29,
+                2027.
+            </div>
+        </div>
+    </body>
+</html>
