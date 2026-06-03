@@ -1,30 +1,43 @@
 // Native currency formatter
-const fmt = (n) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(n || 0);
+const fmt = (n) =>
+    new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(n || 0);
 
 // Accurate cent rounding
 const roundToCent = (num) => Math.round((num + Number.EPSILON) * 100) / 100;
 
-// Default Configuration
-let CONFIG = {
-};
+// Default Configuration mapped to the new builder logic
+let CONFIG = {};
 
 const App = {
     state: {
         sales: JSON.parse(localStorage.getItem('salesData_v8')) || [],
         cart: [],
-        builder: { cat: null, sub: null, tea: null, adds: new Set(), tops: new Set(), globalAdds: new Set() },
+        builder: {
+            cat: null,
+            sub: null,
+            tea: null,
+            adds: new Set(),
+            tops: new Set(),
+            globalAdds: new Set(),
+        },
         payType: 'Cash',
     },
 
     async init() {
         const savedConfig = localStorage.getItem('appConfig_v1');
         if (savedConfig) {
-            try { CONFIG = JSON.parse(savedConfig); } catch (e) { console.error("Invalid local config"); }
+            try {
+                CONFIG = JSON.parse(savedConfig);
+            } catch (e) {
+                console.error('Invalid local config');
+            }
         } else {
             try {
                 const response = await fetch('./config.json');
                 if (response.ok) CONFIG = await response.json();
-            } catch (e) { console.log("Using default config"); }
+            } catch (e) {
+                console.log('Using default config');
+            }
         }
 
         this.renderCategories();
@@ -33,7 +46,13 @@ const App = {
 
         setInterval(() => {
             if (!document.getElementById('retroToggle').checked) {
-                document.getElementById('sessionClock').innerText = new Date().toLocaleString([], { month: 'numeric', day: 'numeric', year: '2-digit', hour: '2-digit', minute: '2-digit' });
+                document.getElementById('sessionClock').innerText = new Date().toLocaleString([], {
+                    month: 'numeric',
+                    day: 'numeric',
+                    year: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                });
             }
         }, 1000);
     },
@@ -53,7 +72,14 @@ const App = {
             CONFIG = newConfig;
             localStorage.setItem('appConfig_v1', JSON.stringify(CONFIG));
 
-            this.state.builder = { cat: null, sub: null, tea: null, adds: new Set(), tops: new Set(), globalAdds: new Set() };
+            this.state.builder = {
+                cat: null,
+                sub: null,
+                tea: null,
+                adds: new Set(),
+                tops: new Set(),
+                globalAdds: new Set(),
+            };
             this.renderCategories();
             this.renderPayments();
 
@@ -63,12 +89,16 @@ const App = {
 
             this.closeSettings();
         } catch (e) {
-            alert("Invalid JSON format. Please check your syntax and try again.");
+            alert('Invalid JSON format. Please check your syntax and try again.');
         }
     },
 
     resetConfig() {
-        if(confirm("Are you sure you want to reset to the default configuration? This will clear your custom JSON edits.")) {
+        if (
+            confirm(
+                'Are you sure you want to reset to the default configuration? This will clear your custom JSON ssedits.'
+            )
+        ) {
             localStorage.removeItem('appConfig_v1');
             location.reload();
         }
@@ -141,9 +171,15 @@ const App = {
             container.appendChild(btn);
         });
 
-        document.getElementById('beverageModifiersWrapper').classList.toggle('hidden', cat !== 'Beverage');
-        document.getElementById('teaTypeWrapper').classList.toggle('hidden', this.state.builder.sub !== 'Tea');
-        document.getElementById('globalModifiersWrapper').classList.toggle('hidden', !cat || cat === 'Expense');
+        document
+            .getElementById('beverageModifiersWrapper')
+            .classList.toggle('hidden', cat !== 'Beverage');
+        document
+            .getElementById('teaTypeWrapper')
+            .classList.toggle('hidden', this.state.builder.sub !== 'Tea');
+        document
+            .getElementById('globalModifiersWrapper')
+            .classList.toggle('hidden', !cat || cat === 'Expense');
 
         this.renderModifiers();
         this.syncBuilderName();
@@ -153,19 +189,22 @@ const App = {
         this.renderPills('teaTypes', 'teaTypeContainer', 'tea', false);
         this.renderPills('additions', 'additionsContainer', 'adds', true);
         this.renderPills('toppings', 'toppingsContainer', 'tops', true);
-        if (CONFIG.modifiers.global) this.renderPills('global', 'globalContainer', 'globalAdds', true);
+        if (CONFIG.modifiers.global)
+            this.renderPills('global', 'globalContainer', 'globalAdds', true);
     },
 
     renderPills(configKey, elementId, stateKey, isSet) {
         const container = document.getElementById(elementId);
         container.innerHTML = '';
         (CONFIG.modifiers[configKey] || []).forEach((item) => {
-            const active = isSet ? this.state.builder[stateKey].has(item) : this.state.builder[stateKey] === item;
+            const active = isSet
+                ? this.state.builder[stateKey].has(item)
+                : this.state.builder[stateKey] === item;
             const btn = document.createElement('button');
             let colorClass = 'bg-gray-100 text-gray-500';
             if (active) {
                 if (configKey === 'teaTypes') {
-                    const teaColor = CONFIG.themes.Tea[item] || 'blue';
+                    const teaColor = CONFIG.themes.Beverage[item] || 'blue'; // Using Beverage theme for teas
                     colorClass = `bg-${teaColor}-600 text-white border-${teaColor}-700 ring-2 ring-${teaColor}-200`;
                 } else {
                     colorClass = 'bg-brand-blue text-white border-brand-blue ring-2 ring-blue-200';
@@ -175,7 +214,9 @@ const App = {
             btn.textContent = item;
             btn.onclick = () => {
                 if (isSet) {
-                    this.state.builder[stateKey].has(item) ? this.state.builder[stateKey].delete(item) : this.state.builder[stateKey].add(item);
+                    this.state.builder[stateKey].has(item)
+                        ? this.state.builder[stateKey].delete(item)
+                        : this.state.builder[stateKey].add(item);
                 } else {
                     this.state.builder[stateKey] = item;
                 }
@@ -194,7 +235,6 @@ const App = {
     adjPrice(v) {
         const input = document.getElementById('unitPriceInput');
         let current = parseFloat(input.value) || 0;
-        // Prevents the price display from going into negative numbers
         input.value = Math.max(0, current + v).toFixed(2);
     },
 
@@ -228,8 +268,8 @@ const App = {
                 price = CONFIG.defaultPrices.categories[b.cat];
             }
 
-            [...b.globalAdds].forEach(addon => {
-                price += (CONFIG.defaultPrices.modifiers.global[addon] || 0);
+            [...b.globalAdds].forEach((addon) => {
+                price += CONFIG.defaultPrices.modifiers.global[addon] || 0;
             });
         }
 
@@ -240,12 +280,17 @@ const App = {
     addToCart() {
         if (!this.state.builder.cat) return;
         let rawPrice = parseFloat(document.getElementById('unitPriceInput').value) || 0;
+
+        // Requirement 1: Expenses subtract from Gross.
+        // Force expense prices to be negative.
         if (this.state.builder.cat === 'Expense') rawPrice = -Math.abs(rawPrice);
 
         let computedSubCategory = this.state.builder.sub || '';
         if (this.state.builder.cat === 'Beverage' && this.state.builder.sub === 'Tea') {
-            if (this.state.builder.adds.size === 0 && this.state.builder.tops.size === 0) computedSubCategory = 'Brewed tea';
-            else if ([...this.state.builder.adds].some((a) => a.toLowerCase().includes('milk'))) computedSubCategory = 'Latte';
+            if (this.state.builder.adds.size === 0 && this.state.builder.tops.size === 0)
+                computedSubCategory = 'Brewed tea';
+            else if ([...this.state.builder.adds].some((a) => a.toLowerCase().includes('milk')))
+                computedSubCategory = 'Latte';
         }
 
         const item = {
@@ -255,7 +300,7 @@ const App = {
             qty: parseInt(document.getElementById('qtyInput').value),
             category: this.state.builder.cat,
             subCategory: computedSubCategory,
-            theme: CONFIG.themes[this.state.builder.cat],
+            theme: CONFIG.themes[this.state.builder.cat] || { bg: 'gray-100', text: 'gray-700' },
         };
 
         this.state.cart.push(item);
@@ -277,7 +322,8 @@ const App = {
             if (item.category !== 'Expense') taxableSubtotal += lineTotal;
 
             const div = document.createElement('div');
-            div.className = 'cart-item bg-white border border-gray-100 p-2 lg:p-3 rounded-xl flex justify-between items-center shadow-sm hover:border-gray-300 transition';
+            div.className =
+                'cart-item bg-white border border-gray-100 p-2 lg:p-3 rounded-xl flex justify-between items-center shadow-sm hover:border-gray-300 transition';
             div.innerHTML = `
             <div class="flex flex-col min-w-0 pr-2">
             <div class="flex items-center gap-1.5 flex-wrap">
@@ -301,14 +347,21 @@ const App = {
 
         // Calculate dynamic tax for active cart panel
         const finalTaxable = taxableSubtotal > 0 ? Math.max(0, taxableSubtotal - disc) : 0;
-        const taxAmount = roundToCent(finalTaxable - (finalTaxable / (1 + CONFIG.taxRate)));
-        const finalTotal = roundToCent(finalSubtotal + tip);
+        const taxAmount = roundToCent(finalTaxable * CONFIG.taxRate);
+        const finalTotal = roundToCent(finalSubtotal + taxAmount + tip);
 
         empty.classList.toggle('hidden', this.state.cart.length > 0);
         document.getElementById('cartSubtotalText').innerText = fmt(subtotal);
-        if (document.getElementById('cartTaxText')) document.getElementById('cartTaxText').innerText = fmt(taxAmount);
-        document.getElementById('cartTotalText').innerText = fmt(finalTotal);
-        document.getElementById('cartTotalText').className = finalTotal < 0 ? 'text-xl lg:text-2xl font-black text-red-600' : 'text-xl lg:text-2xl font-black text-gray-800';
+        if (document.getElementById('cartTaxText'))
+            document.getElementById('cartTaxText').innerText = fmt(taxAmount);
+
+        const totalElem = document.getElementById('cartTotalText');
+        totalElem.innerText = fmt(finalTotal);
+        totalElem.className =
+            finalTotal < 0
+                ? 'text-xl lg:text-2xl font-black text-red-600'
+                : 'text-xl lg:text-2xl font-black text-gray-800';
+
         document.getElementById('cartCount').innerText = this.state.cart.length;
         document.getElementById('checkoutBtn').disabled = this.state.cart.length === 0;
     },
@@ -347,29 +400,42 @@ const App = {
             if (item.category !== 'Expense') taxableSubtotal += lineTotal;
         });
 
-            const discount = parseFloat(document.getElementById('discountInput').value) || 0;
-            const tip = parseFloat(document.getElementById('tipInput').value) || 0;
+        const discount = parseFloat(document.getElementById('discountInput').value) || 0;
+        const tip = parseFloat(document.getElementById('tipInput').value) || 0;
 
-            let finalSubtotal = subtotal;
-            if (subtotal > 0) finalSubtotal = Math.max(0, subtotal - discount);
+        let finalSubtotal = subtotal;
+        if (subtotal > 0) finalSubtotal = Math.max(0, subtotal - discount);
 
-            const orderTotal = roundToCent(finalSubtotal + tip);
         const finalTaxable = taxableSubtotal > 0 ? Math.max(0, taxableSubtotal - discount) : 0;
-        const tax = roundToCent(finalTaxable - (finalTaxable / (1 + CONFIG.taxRate)));
+        const tax = roundToCent(finalTaxable * CONFIG.taxRate);
+        const orderTotal = roundToCent(finalSubtotal + tax + tip);
 
         let fee = 0;
         const feeConfig = CONFIG.fees[this.state.payType];
         if (orderTotal > 0 && feeConfig) {
-            fee = roundToCent((orderTotal * feeConfig.percent) + feeConfig.fixed);
+            fee = roundToCent(orderTotal * feeConfig.percent + feeConfig.fixed);
         }
 
         const isRetro = document.getElementById('retroToggle').checked;
         let ts = '';
         if (isRetro) {
             const val = document.getElementById('retroDateInput').value;
-            ts = new Date(val + 'T12:00:00').toLocaleDateString([], { month: 'numeric', day: 'numeric', year: '2-digit' });
+            // Create timestamp with generic time to maintain Date parsability
+            ts = new Date(val + 'T12:00:00').toLocaleString([], {
+                month: 'numeric',
+                day: 'numeric',
+                year: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+            });
         } else {
-            ts = new Date().toLocaleString([], { month: 'numeric', day: 'numeric', year: '2-digit', hour: '2-digit', minute: '2-digit' });
+            ts = new Date().toLocaleString([], {
+                month: 'numeric',
+                day: 'numeric',
+                year: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+            });
         }
 
         const order = {
@@ -396,7 +462,8 @@ const App = {
 
     editOrder(id) {
         if (this.state.cart.length > 0) {
-            if (!confirm("Editing this order will replace your current active cart. Continue?")) return;
+            if (!confirm('Editing this order will replace your current active cart. Continue?'))
+                return;
         }
 
         const orderIndex = this.state.sales.findIndex((o) => o.id === id);
@@ -427,21 +494,86 @@ const App = {
         const body = document.getElementById('salesTableBody');
         body.innerHTML = '';
 
-        let s = { gross: 0, cashGroup: 0, venmoGroup: 0, zelle: 0, fees: 0, venmoFees: 0, ccFees: 0, tax: 0, exactCash: 0, mb: 0, exactVenmo: 0, cc: 0, expenses: 0, tips: 0 };
-        const payColors = { Cash: 'green', Venmo: 'blue', Zelle: 'purple', CC: 'yellow', MB: 'gray' };
+        // Added expense tracking variables per payment category
+        let s = {
+            gross: 0,
+            cashGroup: 0,
+            venmoGroup: 0,
+            zelle: 0,
+            fees: 0,
+            venmoFees: 0,
+            ccFees: 0,
+            tax: 0,
+            exactCash: 0,
+            mb: 0,
+            exactVenmo: 0,
+            cc: 0,
+            expenses: 0,
+            tips: 0,
+            cashTips: 0,
+            venmoTips: 0,
+            zelleTips: 0,
+            ccTips: 0,
+            cashExpenses: 0,
+            venmoExpenses: 0,
+            zelleExpenses: 0,
+            ccExpenses: 0,
+            mbExpenses: 0,
+        };
+        const payColors = {
+            Cash: 'green',
+            Venmo: 'blue',
+            Zelle: 'purple',
+            CC: 'yellow',
+            MB: 'gray',
+        };
 
         [...this.state.sales].reverse().forEach((order, orderIndex) => {
-            s.gross += order.total;
+            // Calculate expenses for this specific order
+            const orderExpense = Math.abs(
+                order.items
+                    .filter((i) => i.category === 'Expense')
+                    .reduce((sum, i) => sum + i.unitPrice * i.qty, 0)
+            );
+
+            // Add the expense back to order.total so it does not reduce Gross Revenue
+            s.gross += order.total + orderExpense;
+            s.expenses += orderExpense;
+
             s.tax += order.tax;
             s.fees += order.fee;
-            s.tips += order.tip || 0;
-            if (order.payment === 'Cash') { s.cashGroup += order.total; s.exactCash += order.total; }
-            else if (order.payment === 'MB') { s.cashGroup += order.total; s.mb += order.total; }
-            else if (order.payment === 'Venmo') { s.venmoGroup += order.total; s.exactVenmo += order.total; s.venmoFees += order.fee; }
-            else if (order.payment === 'CC') { s.venmoGroup += order.total; s.cc += order.total; s.ccFees += order.fee; }
-            else if (order.payment === 'Zelle') { s.zelle += order.total; }
 
-            s.expenses += Math.abs(order.items.filter((i) => i.category === 'Expense').reduce((sum, i) => sum + i.unitPrice * i.qty, 0));
+            const orderTip = order.tip || 0;
+            s.tips += orderTip;
+
+            // Payment groups still use the raw order.total because expenses represent cash leaving the drawer
+            // Routing tips and expenses into specific buckets
+            if (order.payment === 'Cash') {
+                s.cashGroup += order.total;
+                s.exactCash += order.total;
+                s.cashTips += orderTip;
+                s.cashExpenses += orderExpense;
+            } else if (order.payment === 'MB') {
+                s.cashGroup += order.total;
+                s.mb += order.total;
+                s.mbExpenses += orderExpense;
+            } else if (order.payment === 'Venmo') {
+                s.venmoGroup += order.total;
+                s.exactVenmo += order.total;
+                s.venmoFees += order.fee;
+                s.venmoTips += orderTip;
+                s.venmoExpenses += orderExpense;
+            } else if (order.payment === 'CC') {
+                s.venmoGroup += order.total;
+                s.cc += order.total;
+                s.ccFees += order.fee;
+                s.ccTips += orderTip;
+                s.ccExpenses += orderExpense;
+            } else if (order.payment === 'Zelle') {
+                s.zelle += order.total;
+                s.zelleTips += orderTip;
+                s.zelleExpenses += orderExpense;
+            }
 
             const pColor = payColors[order.payment] || 'gray';
             const netAmt = roundToCent(order.total - order.fee - order.tax);
@@ -453,7 +585,10 @@ const App = {
                 const tr = document.createElement('tr');
                 tr.className = `${rowBg} hover:brightness-95 transition border-b border-gray-100`;
 
-                const catTheme = CONFIG.themes[item.category] || { bg: 'gray-100', text: 'gray-700' };
+                const catTheme = CONFIG.themes[item.category] || {
+                    bg: 'gray-100',
+                    text: 'gray-700',
+                };
                 let html = '';
 
                 if (index === 0) {
@@ -462,11 +597,11 @@ const App = {
 
                 html += `
                 <td class="p-2 lg:p-3 w-full align-top">
-                <div class="text-[11px] lg:text-xs font-bold text-gray-800">${item.name}</div>
+                <div class="text-[11px] lg:text-xs font-bold ${item.category === 'Expense' ? 'text-red-500' : 'text-gray-800'}">${item.name}</div>
                 <div class="mt-1"><span class="text-[8px] uppercase font-bold bg-${catTheme.bg} text-${catTheme.text} px-1.5 py-0.5 rounded">${item.category}</span></div>
                 </td>
                 <td class="p-2 lg:p-3 text-center font-bold text-xs align-top">${item.qty}</td>
-                <td class="p-2 lg:p-3 text-right font-mono text-xs text-gray-500 align-top">${fmt(item.unitPrice)}</td>
+                <td class="p-2 lg:p-3 text-right font-mono text-xs ${item.category === 'Expense' ? 'text-red-500' : 'text-gray-500'} align-top">${fmt(item.unitPrice)}</td>
                 `;
 
                 if (index === 0) {
@@ -479,8 +614,8 @@ const App = {
                     <td class="p-2 lg:p-3 text-right font-mono text-xs text-red-500 align-top" rowspan="${rowspan}">${discountText}</td>
                     <td class="p-2 lg:p-3 text-right font-mono text-xs text-green-600 align-top" rowspan="${rowspan}">${tipText}</td>
                     <td class="p-2 lg:p-3 text-right font-mono text-xs text-yellow-600 align-top" rowspan="${rowspan}">${taxText}</td>
-                    <td class="p-2 lg:p-3 text-right font-mono text-xs font-black align-top" rowspan="${rowspan}">${fmt(order.total)}</td>
-                    <td class="p-2 lg:p-3 text-right font-mono text-xs font-black text-brand-blue align-top" rowspan="${rowspan}">${fmt(netAmt)}</td>
+                    <td class="p-2 lg:p-3 text-right font-mono text-xs font-black align-top ${order.total < 0 ? 'text-red-600' : ''}" rowspan="${rowspan}">${fmt(order.total)}</td>
+                    <td class="p-2 lg:p-3 text-right font-mono text-xs font-black text-brand-blue align-top ${netAmt < 0 ? 'text-red-600' : ''}" rowspan="${rowspan}">${fmt(netAmt)}</td>
                     <td class="p-2 lg:p-3 align-top" rowspan="${rowspan}">
                     <div class="flex justify-end items-center gap-3">
                     <button onclick="App.editOrder(${order.id})" class="text-blue-400 hover:text-brand-blue transition" title="Edit Order">
@@ -500,13 +635,42 @@ const App = {
         document.getElementById('venmoTotalDisplay').innerText = fmt(s.venmoGroup);
         document.getElementById('zelleTotalDisplay').innerText = fmt(s.zelle);
         document.getElementById('grandTotalDisplay').innerText = fmt(s.gross);
-        document.getElementById('netTotalDisplay').innerText = fmt(roundToCent(s.gross - s.fees - s.tax));
-        document.getElementById('cashBreakdown').innerText = `Cash: ${fmt(s.exactCash)}`;
-        document.getElementById('mbBreakdown').innerText = `MarketBucks: ${fmt(s.mb)}`;
-        document.getElementById('venmoBreakdown').innerText = `Venmo: ${fmt(s.exactVenmo)}`;
+
+        // Net relies on explicitly subtracting expenses now that they aren't naturally baked into the gross
+        document.getElementById('netTotalDisplay').innerText = fmt(
+            roundToCent(s.gross - s.fees - s.tax - s.expenses)
+        );
+
+        // --- TOOLTIP BREAKDOWNS ---
+
+        // Tailwind class for nested lines
+        const nestedTipClass =
+            'text-green-400 text-[10px] pl-2 border-l border-gray-600 mt-1 mb-0.5';
+        const nestedExpClass =
+            'text-orange-400 text-[10px] pl-2 border-l border-gray-600 mt-1 mb-0.5';
+
+        // Payment Buckets (Tips and Expenses dynamically injected)
+        document.getElementById('cashBreakdown').innerHTML =
+            `Cash: ${fmt(s.exactCash)}${s.cashTips > 0 ? `<div class="${nestedTipClass}">Tips: ${fmt(s.cashTips)}</div>` : ''}${s.cashExpenses > 0 ? `<div class="${nestedExpClass}">Expenses: -${fmt(s.cashExpenses)}</div>` : ''}`;
+        document.getElementById('mbBreakdown').innerHTML =
+            `MarketBucks: ${fmt(s.mb)}${s.mbExpenses > 0 ? `<div class="${nestedExpClass}">Expenses: -${fmt(s.mbExpenses)}</div>` : ''}`;
+        document.getElementById('venmoBreakdown').innerHTML =
+            `Venmo: ${fmt(s.exactVenmo)}${s.venmoTips > 0 ? `<div class="${nestedTipClass}">Tips: ${fmt(s.venmoTips)}</div>` : ''}${s.venmoExpenses > 0 ? `<div class="${nestedExpClass}">Expenses: -${fmt(s.venmoExpenses)}</div>` : ''}`;
         document.getElementById('venmoFeeBreakdown').innerText = `Fee: ${fmt(s.venmoFees)}`;
-        document.getElementById('ccBreakdown').innerText = `Credit Card: ${fmt(s.cc)}`;
+        document.getElementById('ccBreakdown').innerHTML =
+            `Credit Card: ${fmt(s.cc)}${s.ccTips > 0 ? `<div class="${nestedTipClass}">Tips: ${fmt(s.ccTips)}</div>` : ''}${s.ccExpenses > 0 ? `<div class="${nestedExpClass}">Expenses: -${fmt(s.ccExpenses)}</div>` : ''}`;
         document.getElementById('ccFeeBreakdown').innerText = `Fee: ${fmt(s.ccFees)}`;
+        document.getElementById('zelleBreakdown').innerHTML =
+            `Zelle: ${fmt(s.zelle)}${s.zelleTips > 0 ? `<div class="${nestedTipClass}">Tips: ${fmt(s.zelleTips)}</div>` : ''}${s.zelleExpenses > 0 ? `<div class="${nestedExpClass}">Expenses: -${fmt(s.zelleExpenses)}</div>` : ''}`;
+
+        // Gross Breakdown
+        document.getElementById('grossSalesBreakdown').innerText =
+            `Sales: ${fmt(s.gross - s.tips - s.tax)}`;
+        document.getElementById('grossTaxBreakdown').innerText = `Tax: ${fmt(s.tax)}`;
+        document.getElementById('grossTipBreakdown').innerText = `Tips: ${fmt(s.tips)}`;
+
+        // Net Breakdown
+        document.getElementById('netTipBreakdown').innerText = `Tips: ${fmt(s.tips)}`;
         document.getElementById('taxBreakdown').innerText = `Tax: ${fmt(s.tax)}`;
         document.getElementById('feeBreakdown').innerText = `Total Fees: ${fmt(s.fees)}`;
         document.getElementById('netVenmoFee').innerText = `- Venmo: ${fmt(s.venmoFees)}`;
@@ -514,7 +678,9 @@ const App = {
         document.getElementById('expenseBreakdown').innerText = `Expenses: -${fmt(s.expenses)}`;
     },
 
-    save() { localStorage.setItem('salesData_v8', JSON.stringify(this.state.sales)); },
+    save() {
+        localStorage.setItem('salesData_v8', JSON.stringify(this.state.sales));
+    },
 
     clearData() {
         if (confirm('Clear all session data?')) {
@@ -525,7 +691,10 @@ const App = {
     },
 
     exportToCSV() {
-        let csv = 'Order ID,Date/Time,Category,Subcategory,Item Name,Item Gross Price,Item Qty,Item Line Total,Order Subtotal,Order Discount,Order Tip,Order Gross Total,Order Net Total,Order Tax,Order Fees,Payment Method\n';
+        if (this.state.sales.length === 0) return alert('No data to export.');
+
+        let csv =
+            'Order ID,Date/Time,Category,Subcategory,Item Name,Item Gross Price,Item Qty,Item Line Total,Order Subtotal,Order Discount,Order Tip,Order Gross Total,Order Net Total,Order Tax,Order Fees,Payment Method\n';
 
         this.state.sales.forEach((o) => {
             const ts = o.timestamp.replace(/,/g, '');
@@ -537,12 +706,27 @@ const App = {
             });
         });
 
+        // Requirement 2: Earliest Date for Retro Mode
+        let exportDateString = new Date().toISOString().split('T')[0];
+        const isRetro = document.getElementById('retroToggle').checked;
+
+        if (isRetro && this.state.sales.length > 0) {
+            // Find earliest timestamp securely from the sales array
+            const earliest = this.state.sales.reduce((minTime, order) => {
+                const orderTime = new Date(order.timestamp).getTime();
+                return orderTime < minTime ? orderTime : minTime;
+            }, new Date(this.state.sales[0].timestamp).getTime());
+
+            exportDateString = new Date(earliest).toISOString().split('T')[0];
+        }
+
         const blob = new Blob([csv], { type: 'text/csv' });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         const rawTitle = document.getElementById('reportTitle').value.trim() || 'sales_report';
+
         a.href = url;
-        a.download = `${rawTitle.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_${new Date().toISOString().split('T')[0]}.csv`;
+        a.download = `${rawTitle.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_${exportDateString}.csv`;
         a.click();
     },
 
@@ -561,12 +745,17 @@ const App = {
                 let current = '';
                 for (let i = 0; i < str.length; i++) {
                     const c = str[i];
-                    if (c === '"') { inQuotes = !inQuotes; }
-                    else if (c === ',' && !inQuotes) { result.push(current.trim()); current = ''; }
-                    else { current += c; }
+                    if (c === '"') {
+                        inQuotes = !inQuotes;
+                    } else if (c === ',' && !inQuotes) {
+                        result.push(current.trim());
+                        current = '';
+                    } else {
+                        current += c;
+                    }
                 }
                 result.push(current.trim());
-                return result.map(v => v.replace(/^"|"$/g, ''));
+                return result.map((v) => v.replace(/^"|"$/g, ''));
             };
 
             for (let i = 1; i < lines.length; i++) {
@@ -581,13 +770,13 @@ const App = {
                         id: orderId,
                         timestamp: row[1],
                         subtotal: parseFloat(row[8]) || 0,
-                                  discount: parseFloat(row[9]) || 0,
-                                  tip: parseFloat(row[10]) || 0,
-                                  total: parseFloat(row[11]) || 0,
-                                  payment: row[15] || 'Unknown',
-                                  fee: parseFloat(row[14]) || 0,
-                                  tax: parseFloat(row[13]) || 0,
-                                  items: [],
+                        discount: parseFloat(row[9]) || 0,
+                        tip: parseFloat(row[10]) || 0,
+                        total: parseFloat(row[11]) || 0,
+                        payment: row[15] || 'Unknown',
+                        fee: parseFloat(row[14]) || 0,
+                        tax: parseFloat(row[13]) || 0,
+                        items: [],
                     });
                 } else {
                     const existing = ordersMap.get(orderId);
@@ -605,10 +794,10 @@ const App = {
                 ordersMap.get(orderId).items.push({
                     name: row[4],
                     unitPrice: parseFloat(row[5]) || 0,
-                                                  qty: parseInt(row[6]) || 1,
-                                                  category: row[2],
-                                                  subCategory: row[3] === 'Unknown' ? '' : row[3],
-                                                  theme: CONFIG.themes[row[2]] || { bg: 'gray-100', text: 'gray-700' },
+                    qty: parseInt(row[6]) || 1,
+                    category: row[2],
+                    subCategory: row[3] === 'Unknown' ? '' : row[3],
+                    theme: CONFIG.themes[row[2]] || { bg: 'gray-100', text: 'gray-700' },
                 });
             }
 
@@ -625,7 +814,7 @@ const App = {
             }
         };
         reader.readAsText(file);
-    }
+    },
 };
 
 window.App = App;

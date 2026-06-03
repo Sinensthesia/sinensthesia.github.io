@@ -209,6 +209,7 @@
                                 <div id="mbBreakdown">MarketBucks: $0.00</div>
                             </div>
                         </div>
+
                         <div
                             class="p-1 sm:p-2 lg:px-5 lg:py-3 tooltip-container flex-1 min-w-0 hover:bg-blue-50 transition relative"
                         >
@@ -238,6 +239,7 @@
                                 </div>
                             </div>
                         </div>
+
                         <div
                             class="p-1 sm:p-2 lg:px-5 lg:py-3 tooltip-container flex-1 min-w-0 hover:bg-purple-50 transition relative"
                         >
@@ -250,7 +252,11 @@
                                 class="block text-xs sm:text-sm lg:text-xl font-black text-purple-600"
                                 >$0.00</span
                             >
+                            <div class="tooltip-box">
+                                <div id="zelleBreakdown">Zelle: $0.00</div>
+                            </div>
                         </div>
+
                         <div
                             class="p-1 sm:p-2 lg:px-5 lg:py-3 tooltip-container flex-1 min-w-0 hover:bg-gray-50 transition relative"
                         >
@@ -263,7 +269,20 @@
                                 class="block text-xs sm:text-sm lg:text-xl font-black text-gray-800"
                                 >$0.00</span
                             >
+                            <div class="tooltip-box">
+                                <div
+                                    class="text-gray-300 text-[10px] mb-1 uppercase tracking-wider"
+                                >
+                                    Gross Revenue
+                                </div>
+                                <div id="grossSalesBreakdown" class="mb-1">Sales: $0.00</div>
+                                <div id="grossTaxBreakdown" class="text-yellow-400 mb-1">
+                                    Tax: $0.00
+                                </div>
+                                <div id="grossTipBreakdown" class="text-green-400">Tips: $0.00</div>
+                            </div>
                         </div>
+
                         <div
                             class="p-1 sm:p-2 lg:px-5 lg:py-3 bg-gray-50 tooltip-container flex-1 min-w-0 hover:bg-gray-100 transition relative rounded-r-xl"
                         >
@@ -282,6 +301,9 @@
                                 >
                                     Net Income
                                 </div>
+                                <div id="netTipBreakdown" class="text-green-400 mb-1">
+                                    Tips: $0.00
+                                </div>
                                 <div id="taxBreakdown" class="text-yellow-400">Tax: $0.00</div>
                                 <div id="feeBreakdown" class="text-red-400 mt-1">Fees: $0.00</div>
                                 <div
@@ -296,7 +318,7 @@
                                 >
                                     - CC: $0.00
                                 </div>
-                                <div id="expenseBreakdown" class="text-orange-400 mb-1">
+                                <div id="expenseBreakdown" class="text-orange-400 mb-1 mt-1">
                                     Expenses: $0.00
                                 </div>
                             </div>
@@ -390,23 +412,48 @@
                                 </div>
                                 <div class="grid grid-cols-2 gap-3 lg:gap-4">
                                     <div>
-                                        <span class="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Value / Price</span>
-                                        <div class="flex items-center bg-white border border-gray-300 rounded overflow-hidden">
-                                            <button onclick="App.adjPrice(-1)" class="px-3 py-2 bg-gray-50 hover:bg-gray-100 border-r text-lg font-bold text-gray-500 transition-colors">-</button>
+                                        <span
+                                            class="text-[10px] font-bold text-gray-400 uppercase mb-1 block"
+                                            >Value / Price</span
+                                        >
+                                        <div
+                                            class="flex items-center bg-white border border-gray-300 rounded overflow-hidden"
+                                        >
+                                            <button
+                                                onclick="App.adjPrice(-1)"
+                                                class="px-3 py-2 bg-gray-50 hover:bg-gray-100 border-r text-lg font-bold text-gray-500 transition-colors"
+                                            >
+                                                -
+                                            </button>
                                             <input
                                                 type="number"
                                                 id="unitPriceInput"
                                                 class="w-full text-center py-2 bg-white font-bold text-brand-blue text-base lg:text-lg outline-none"
                                                 step="0.25"
                                             />
-                                            <button onclick="App.adjPrice(1)" class="px-3 py-2 bg-gray-50 hover:bg-gray-100 border-l text-lg font-bold text-gray-500 transition-colors">+</button>
+                                            <button
+                                                onclick="App.adjPrice(1)"
+                                                class="px-3 py-2 bg-gray-50 hover:bg-gray-100 border-l text-lg font-bold text-gray-500 transition-colors"
+                                            >
+                                                +
+                                            </button>
                                         </div>
                                     </div>
 
                                     <div>
-                                        <span class="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Quantity</span>
-                                        <div class="flex items-center bg-white border border-gray-300 rounded overflow-hidden">
-                                            <button onclick="App.adjQty(-1)" class="px-3 py-2 bg-gray-50 hover:bg-gray-100 border-r text-lg">-</button>
+                                        <span
+                                            class="text-[10px] font-bold text-gray-400 uppercase mb-1 block"
+                                            >Quantity</span
+                                        >
+                                        <div
+                                            class="flex items-center bg-white border border-gray-300 rounded overflow-hidden"
+                                        >
+                                            <button
+                                                onclick="App.adjQty(-1)"
+                                                class="px-3 py-2 bg-gray-50 hover:bg-gray-100 border-r text-lg"
+                                            >
+                                                -
+                                            </button>
                                             <input
                                                 type="number"
                                                 id="qtyInput"
@@ -414,7 +461,12 @@
                                                 min="1"
                                                 class="w-full text-center font-bold text-base lg:text-sm outline-none"
                                             />
-                                            <button onclick="App.adjQty(1)" class="px-3 py-2 bg-gray-50 hover:bg-gray-100 border-l text-lg">+</button>
+                                            <button
+                                                onclick="App.adjQty(1)"
+                                                class="px-3 py-2 bg-gray-50 hover:bg-gray-100 border-l text-lg"
+                                            >
+                                                +
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
