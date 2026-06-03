@@ -3,15 +3,6 @@ document.addEventListener('DOMContentLoaded', function () {
     if (window.self !== window.top) {
         document.body.classList.add('is-embedded');
     }
-    function debounce(func, wait) {
-        let timeout;
-        return function () {
-            const context = this,
-            args = arguments;
-            clearTimeout(timeout);
-            timeout = setTimeout(() => func.apply(context, args), wait);
-        };
-    }
 
     const calendarEl = document.getElementById('calendar');
     const BRAND_DEFAULT_LOGO =
@@ -199,74 +190,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
     calendar.render();
 
-    const particleContainer = document.getElementById('particle-container');
-    const textContent = document.querySelector('.layout-wrapper');
-    if (particleContainer && textContent) {
-        const generateParticles = () => {
-            particleContainer.classList.remove('particles-visible');
-            setTimeout(() => {
-                particleContainer.innerHTML = '';
-                const fragment = document.createDocumentFragment();
-                const currentWidth = Math.max(320, Math.min(window.innerWidth, 1280));
-                const scaleFactor = (currentWidth - 320) / 960;
-                const brightCount = Math.round(1 + 19 * scaleFactor),
-                       subtleCount = Math.round(15 + 15 * scaleFactor);
-                       const textRect = textContent.getBoundingClientRect(),
-                       containerRect = particleContainer.getBoundingClientRect();
-                       const leftBoundary = textRect.left - containerRect.left,
-                       rightBoundary = textRect.right - containerRect.left;
-                       const accentColors = ['#34D399', '#FB7185', '#f9c74f'],
-                       starburstSVG = `<svg class="particle" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L9.5 9.5 2 12l7.5 2.5L12 22l2.5-7.5L22 12l-7.5-2.5z"/></svg>`;
-                       const specialImagePaths = [
-                           '../../Resources/KrikosInner.png',
-                           '../../Resources/StellaInner.png',
-                       ];
-
-                       for (let i = 0; i < brightCount; i++) {
-                           let p = i === 0 ? document.createElement('img') : document.createElement('div');
-                           if (i === 0) p.src = specialImagePaths[Math.floor(Math.random() * 2)];
-                           else {
-                               p.innerHTML = starburstSVG;
-                               p = p.firstChild;
-                               p.style.color =
-                               Math.random() < 0.15
-                               ? accentColors[Math.floor(Math.random() * 3)]
-                               : '#002366';
-                           }
-                           p.classList.add('particle', 'particle-bright');
-                           p.style.width = `${Math.random() * 20 + 5}px`;
-                           p.style.height = p.style.width;
-                           p.style.top = `${Math.random() * 100}%`;
-                           p.style.animationDuration = `${Math.random() * 8 + 4}s`;
-                           if (window.innerWidth < 768) p.style.left = `${Math.random() * 100}%`;
-                           else
-                               p.style.left =
-                               Math.random() > 0.5
-                               ? `${Math.random() * leftBoundary}px`
-                               : `${rightBoundary + Math.random() * (containerRect.width - rightBoundary)}px`;
-                           fragment.appendChild(p);
-                       }
-                       for (let i = 0; i < subtleCount; i++) {
-                           let p = document.createElement('div');
-                           p.innerHTML = starburstSVG;
-                           p = p.firstChild;
-                           p.classList.add('particle-subtle');
-                           p.style.width = `${Math.random() * 12 + 4}px`;
-                           p.style.height = p.style.width;
-                           p.style.top = `${Math.random() * 100}%`;
-                           p.style.left = `${Math.random() * 100}%`;
-                           p.style.animationDuration = `${Math.random() * 10 + 8}s`;
-                           p.style.color =
-                           Math.random() < 0.15
-                           ? accentColors[Math.floor(Math.random() * 3)]
-                           : '#002366';
-                           fragment.appendChild(p);
-                       }
-                       particleContainer.appendChild(fragment);
-                       particleContainer.classList.add('particles-visible');
-            }, 500);
-        };
-        generateParticles();
-        window.addEventListener('resize', debounce(generateParticles, 250));
+    // Call the external particles utility with calendar-specific overrides
+    if (typeof initParticles === 'function') {
+        initParticles({
+            containerId: 'particle-container',
+            textSelector: '#scatter-particles',
+            imagePaths: [
+                '../../Resources/KrikosInner.png',
+                '../../Resources/StellaInner.png'
+            ]
+        });
+    } else {
+        console.warn('initParticles is not defined. Ensure utilities/particles.js is loaded.');
     }
 });

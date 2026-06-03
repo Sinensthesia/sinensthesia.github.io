@@ -41,7 +41,7 @@
     }
     </script>
 </head>
-<body class="antialiased">
+<body class="antialiased overflow-x-hidden">
 
     <header class="bg-[#FDFBF5] bg-opacity-90 backdrop-blur-md sticky top-0 z-50 shadow-sm">
         <div class="container mx-auto px-6 py-2 flex justify-between items-center">
@@ -80,7 +80,7 @@
                 <a href="#menu" class="mt-8 inline-block bg-[#eae4da] text-brand-blue py-2 px-6 text-base sm:py-3 sm:px-8 sm:text-lg rounded-full font-semibold hover:bg-[#dcd5c9] transition-all duration-300 shadow-lg border-2 border-contrast-blue/50">View Menu</a>
             </div>
         </section>
-        <section id="about" class="py-14 md:py-24 relative overflow-hidden ">
+        <section id="about" class="py-14 md:py-24 relative">
             <div id="particle-container" class="absolute inset-0 z-0"></div>
             <div class="container mx-auto px-6 text-center max-w-4xl relative z-10 fade-in-section">
                 <h2 id="about-tite" class="text-4xl md:text-5xl text-contrast-blue mb-6">The Essence and The Alchemy</h2>
@@ -203,7 +203,7 @@
             </a>
         </div>
     </footer>
-
+    <script src="utilities/particles.js" defer></script>
     <script src="script.js" defer></script>
 </body>
 </html>

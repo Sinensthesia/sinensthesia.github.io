@@ -1,415 +1,252 @@
-//includes iPad Mini
+// ==========================================
+// UTILITIES
+// ==========================================
 const isMobile = window.innerWidth < 769;
 
-// Mobile menu toggle
-const mobileMenuButton = document.getElementById('mobile-menu-button');
-const mobileMenu = document.getElementById('mobile-menu');
-mobileMenuButton.addEventListener('click', () => {
-    mobileMenu.classList.toggle('hidden');
-});
-
-// Close mobile menu when a link is clicked
-const mobileMenuLinks = mobileMenu.getElementsByTagName('a');
-for (let i = 0; i < mobileMenuLinks.length; i++) {
-    mobileMenuLinks[i].addEventListener('click', () => {
-        mobileMenu.classList.add('hidden');
-    });
-}
-
-// A reusable debounce utility
 const debounce = (func, wait) => {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-    };
+  let timeout;
+  return (...args) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func(...args), wait);
+  };
 };
 
-// Handle all scroll-based animations
+// ==========================================
+// MAIN INITIALIZATION
+// ==========================================
 document.addEventListener('DOMContentLoaded', () => {
-    // --- Dynamic Top Margin for About Section ---
+
+  // --- 1. Mobile Menu Toggle ---
+  const initMobileMenu = () => {
+    const btn = document.getElementById('mobile-menu-button');
+    const menu = document.getElementById('mobile-menu');
+
+    if (!btn || !menu) return;
+
+    btn.addEventListener('click', () => menu.classList.toggle('hidden'));
+
+    // Close menu on link click
+    menu.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => menu.classList.add('hidden'));
+    });
+  };
+
+  // --- 2. Dynamic About Section Margin ---
+  const adjustAboutSectionMargin = () => {
     const aboutSection = document.getElementById('about');
-    const adjustAboutSectionMargin = () => {
-        if (aboutSection) {
-            const marginPercentage = -0.25;
-            const negativeMargin = window.innerHeight * marginPercentage;
-            aboutSection.style.marginTop = `${negativeMargin}px`;
-        }
-    };
+    const heroSection = document.getElementById('hero');
+    const heroCard = document.querySelector('#hero .relative.z-10');
 
-    // Run once on load
-    adjustAboutSectionMargin();
+    if (!aboutSection || !heroSection || !heroCard) return;
 
-    // --- Washi Pattern Logic ---
+    const spaceBelowCard = heroSection.getBoundingClientRect().bottom - heroCard.getBoundingClientRect().bottom;
+    const desiredPullUp = window.innerHeight * 0.25;
+    const maxSafePullUp = Math.max(0, spaceBelowCard - 40);
+
+    aboutSection.style.marginTop = `-${Math.min(desiredPullUp, maxSafePullUp)}px`;
+  };
+
+  // --- 3. Washi Pattern & Scroll Animations ---
+  const initScrollAnimations = () => {
     const washiContainer = document.getElementById('washi-container');
     const heroSection = document.querySelector('main > section:first-of-type');
+    const aboutSectionContent = document.querySelector('.fade-in-section');
+
+    // Cached variables for scroll performance
+    let washiRows = [];
+
+    const setupWashiRows = () => {
+      if (!washiContainer) return;
+      washiContainer.innerHTML = '';
+
+      // DYNAMIC EVALUATION: Check mobile state exactly when calculating
+      const isCurrentlyMobile = window.innerWidth < 769;
+      const ROW_HEIGHT_VW = isCurrentlyMobile ? 20 : 5.8;
+
+      const rowHeightPx = (window.innerWidth * ROW_HEIGHT_VW) / 100;
+      const numRows = Math.floor((window.innerHeight * 0.9) / rowHeightPx);
+
+      const fragment = document.createDocumentFragment();
+      for (let i = 0; i < numRows; i++) {
+        const row = document.createElement('div');
+        row.className = 'washi-row';
+        fragment.appendChild(row);
+      }
+      washiContainer.appendChild(fragment);
+
+      // Cache the rows AFTER creating them
+      washiRows = Array.from(washiContainer.querySelectorAll('.washi-row'));
+    };
 
     if (washiContainer && heroSection) {
-        const ROW_HEIGHT_VW = isMobile ? 20 : 5.8;
+      setupWashiRows();
 
-        // This function creates (or re-creates) the washi rows based on screen size
-        const setupWashiRows = () => {
-            washiContainer.innerHTML = ''; // Clear any old rows first
-
-            const rowHeightPx = (window.innerWidth * ROW_HEIGHT_VW) / 100;
-            const heroHeight = window.innerHeight * 0.9;
-            const numRows = Math.floor(heroHeight / rowHeightPx);
-
-            for (let i = 0; i < numRows; i++) {
-                const row = document.createElement('div');
-                row.classList.add('washi-row');
-                washiContainer.appendChild(row);
-            }
-        };
-
-        // This single listener handles the scroll animation
-        window.addEventListener(
-            'scroll',
-            () => {
-                const washiRows = document.querySelectorAll('.washi-row');
-                if (washiRows.length === 0) return;
-
-                const scrollPosition = window.scrollY;
-                const staggerAmount = isMobile ? 12 : 30;
-
-                // Dynamically calculate fade duration based on scroll position
-                const minFade = 150; // Quickest duration in ms
-                const maxFade = 500; // Longest duration in ms
-                const scrollRange = 500; // The scroll distance over which the fade duration changes
-
-                // Calculate how far we are into the scroll range (from 0.0 to 1.0)
-                const scrollFactor = Math.min(1, scrollPosition / scrollRange);
-
-                // Linearly interpolate the fade duration
-                const fadeDuration = minFade + (maxFade - minFade) * scrollFactor;
-
-                washiRows.forEach((row, index) => {
-                    const totalRows = washiRows.length;
-                    const reversedIndex = totalRows - 1 - index; // Reverse the index
-
-                    const rowTriggerScroll = (reversedIndex - 4) * staggerAmount; // Use reversed index
-                    const scrollPastTrigger = scrollPosition - rowTriggerScroll;
-
-                    if (scrollPastTrigger > 0) {
-                        let newOpacity = 1 - scrollPastTrigger / fadeDuration;
-                        row.style.opacity = Math.max(0, newOpacity).toFixed(2);
-                    } else {
-                        row.style.opacity = 1;
-                    }
-                });
-            },
-            { passive: true }
-        );
-
-        // Run the setup once on load, and then on every debounced resize
-        setupWashiRows();
-        if (!isMobile) {
-            window.addEventListener('resize', debounce(setupWashiRows, 250));
+      // Always listen for resize (so DevTools tweaking works),
+      // but only trigger if the width actually changed (ignores mobile vertical scroll glitches)
+      let lastWidth = window.innerWidth;
+      window.addEventListener('resize', debounce(() => {
+        if (window.innerWidth !== lastWidth) {
+          lastWidth = window.innerWidth;
+          setupWashiRows();
         }
+      }, 250));
     }
 
-    // --- Intersection Observer Logic ---
-    let menuObserver = null;
-    let aboutObserver = null;
+    // Optimized Scroll Listener
+    window.addEventListener('scroll', () => {
+      const scrollPosition = window.scrollY;
 
-    const reversibleAnimationCallback = (entries) => {
-        entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('is-visible');
-            } else {
-                entry.target.classList.remove('is-visible');
-            }
+      // Washi Fade Logic
+      if (washiRows.length > 0) {
+        // Check width dynamically for stagger timing
+        const staggerAmount = window.innerWidth < 769 ? 12 : 30;
+        const fadeDuration = 150 + (350 * Math.min(1, scrollPosition / 500)); // Min 150, Max 500
+
+        washiRows.forEach((row, index) => {
+          const reversedIndex = washiRows.length - 1 - index;
+          const scrollPastTrigger = scrollPosition - ((reversedIndex - 4) * staggerAmount);
+
+          row.style.opacity = scrollPastTrigger > 0
+          ? Math.max(0, 1 - scrollPastTrigger / fadeDuration).toFixed(2)
+          : 1;
         });
+      }
+
+      // Text Sync Logic (Particles toggle removed!)
+      if (aboutSectionContent) {
+        const isPastThreshold = scrollPosition > (window.innerHeight * 0.15);
+        aboutSectionContent.classList.toggle('is-visible', isPastThreshold);
+      }
+    }, { passive: true });
+  };
+
+  // --- 4. Intersection Observers (Menu Cascading) ---
+  let menuObserver = null;
+
+  const setupIntersectionObservers = () => {
+    if (menuObserver) menuObserver.disconnect();
+
+    const menuItems = document.querySelectorAll('.menu-card, .toppings-card');
+    if (!menuItems.length) return;
+
+    menuObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        const el = entry.target;
+        el.style.transitionDelay = entry.isIntersecting ? (el.dataset.delay || '0ms') : '0ms';
+        el.classList.toggle('is-visible', entry.isIntersecting);
+      });
+    }, { threshold: 0.15 });
+
+    menuItems.forEach((item, index) => {
+      item.dataset.delay = `${(index % 4) * 75}ms`;
+      menuObserver.observe(item);
+    });
+  };
+
+  // --- 5. JSON Menu & Rendering ---
+  const initMenu = () => {
+    const grid = document.getElementById('menu-grid');
+    if (!grid) return; // Exit early if not on a page with a menu
+
+    const els = {
+      title: document.getElementById('menu-title'),
+                          desc: document.getElementById('menu-desc'),
+                          season: document.getElementById('season-text')
     };
-
-    const setupIntersectionObservers = () => {
-        if (menuObserver) menuObserver.disconnect();
-        if (aboutObserver) aboutObserver.disconnect();
-
-        // Observer for menu items
-        const menuItems = document.querySelectorAll('.menu-card, .toppings-card');
-        if (menuItems.length > 0) {
-            menuObserver = new IntersectionObserver(reversibleAnimationCallback, {
-                threshold: 0.1,
-            });
-            menuItems.forEach((item, index) => {
-                item.style.transitionDelay = `${index * 150}ms`;
-                menuObserver.observe(item);
-            });
-        }
-
-        // Unified Observer for "About" Section, triggered by its particle container
-        const aboutSectionContent = document.querySelector('.fade-in-section');
-        const particleContainer = document.getElementById('particle-container'); // The new trigger
-
-        if (aboutSectionContent && particleContainer) {
-            const aboutCallback = (entries) => {
-                entries.forEach((entry) => {
-                    // Check if the trigger (the particle container) is on screen
-                    if (entry.isIntersecting) {
-                        // Animate the text container
-                        aboutSectionContent.classList.add('is-visible');
-                    } else {
-                        aboutSectionContent.classList.remove('is-visible');
-                    }
-                });
-            };
-
-            // Set the trigger threshold based on viewport size
-            let aboutThreshold;
-            const screenWidth = window.innerWidth;
-
-            if (screenWidth < 768) {
-                // Mobile
-                aboutThreshold = 0.25;
-            } else if (screenWidth >= 768 && screenWidth < 1024) {
-                // Tablet
-                aboutThreshold = 0.6;
-            } else {
-                // Desktop
-                aboutThreshold = 0.4;
-            }
-
-            aboutObserver = new IntersectionObserver(aboutCallback, { threshold: aboutThreshold });
-            aboutObserver.observe(particleContainer);
-        }
-    };
-
-    setupIntersectionObservers();
-    window.addEventListener('resize', debounce(setupIntersectionObservers, 250));
-
-    // --- Responsive Particle Effect Logic ---
-    const particleContainer = document.getElementById('particle-container');
-    const textContent = document.querySelector('#about .container');
-
-    if (particleContainer && textContent) {
-        const generateParticles = () => {
-            particleContainer.classList.remove('particles-visible');
-            setTimeout(() => {
-                particleContainer.innerHTML = '';
-                const fragment = document.createDocumentFragment();
-
-                const minWidth = 320;
-                const maxWidth = 1280;
-                const currentWidth = Math.max(minWidth, Math.min(window.innerWidth, maxWidth));
-                const scaleFactor = (currentWidth - minWidth) / (maxWidth - minWidth);
-
-                const brightCount = Math.round(1 + 19 * scaleFactor);
-                const subtleCount = Math.round(15 + 15 * scaleFactor);
-
-                const textRect = textContent.getBoundingClientRect();
-                const containerRect = particleContainer.getBoundingClientRect();
-                const leftBoundary = textRect.left - containerRect.left;
-                const rightBoundary = textRect.right - containerRect.left;
-
-                const accentColors = ['#34D399', '#FB7185', '#f9c74f'];
-                const colorChance = 0.15;
-                const defaultColor = '#002366';
-
-                const starburstSVG = `<svg class="particle" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L9.5 9.5 2 12l7.5 2.5L12 22l2.5-7.5L22 12l-7.5-2.5z"/></svg>`;
-                const specialImagePaths = [
-                    'Resources/KrikosInner.png',
-                    'Resources/StellaInner.png',
-                ];
-
-                for (let i = 0; i < brightCount; i++) {
-                    let particle;
-                    if (i === 0) {
-                        const chosenImage =
-                            specialImagePaths[Math.floor(Math.random() * specialImagePaths.length)];
-                        particle = document.createElement('img');
-                        particle.src = chosenImage;
-                        particle.alt = 'Floating decorative element';
-                    } else {
-                        const particleWrapper = document.createElement('div');
-                        particleWrapper.innerHTML = starburstSVG;
-                        particle = particleWrapper.firstChild;
-                        if (Math.random() < colorChance)
-                            particle.style.color =
-                                accentColors[Math.floor(Math.random() * accentColors.length)];
-                        else particle.style.color = defaultColor;
-                    }
-
-                    particle.classList.add('particle', 'particle-bright');
-                    particle.style.width = `${Math.random() * 20 + 5}px`;
-                    particle.style.height = particle.style.width;
-                    particle.style.opacity = `0.7`;
-                    particle.style.top = `${Math.random() * 100}%`;
-                    particle.style.animationDuration = `${Math.random() * 8 + 4}s`;
-                    particle.style.animationDelay = `${Math.random() * 2}s`;
-
-                    if (window.innerWidth < 768) {
-                        particle.style.left = `${Math.random() * 100}%`;
-                    } else {
-                        if (Math.random() > 0.5)
-                            particle.style.left = `${Math.random() * leftBoundary}px`;
-                        else
-                            particle.style.left = `${rightBoundary + Math.random() * (containerRect.width - rightBoundary)}px`;
-                    }
-                    fragment.appendChild(particle);
-                }
-
-                for (let i = 0; i < subtleCount; i++) {
-                    const particleWrapper = document.createElement('div');
-                    particleWrapper.innerHTML = starburstSVG;
-                    const particle = particleWrapper.firstChild;
-                    particle.classList.add('particle-subtle');
-                    particle.style.width = `${Math.random() * 12 + 4}px`;
-                    particle.style.height = particle.style.width;
-                    particle.style.opacity = `0.3`;
-                    particle.style.top = `${Math.random() * 100}%`;
-                    particle.style.left = `${Math.random() * 100}%`;
-                    particle.style.animationDuration = `${Math.random() * 10 + 8}s`;
-                    particle.style.animationDelay = `${Math.random() * 3}s`;
-                    if (Math.random() < colorChance)
-                        particle.style.color =
-                            accentColors[Math.floor(Math.random() * accentColors.length)];
-                    else particle.style.color = defaultColor;
-                    fragment.appendChild(particle);
-                }
-                particleContainer.appendChild(fragment);
-
-                particleContainer.classList.add('particles-visible');
-            }, 500);
-        };
-
-        generateParticles();
-        window.addEventListener('resize', debounce(generateParticles, 250));
-    }
-
-    // --- Dynamic JSON Menu Logic ---
-    const menuTitle = document.getElementById('menu-title');
-    const menuDesc = document.getElementById('menu-desc');
-    const menuGrid = document.getElementById('menu-grid');
-
-    const firstBtn = document.getElementById('first-menu-btn');
-    const prevBtn = document.getElementById('prev-menu-btn');
-    const nextBtn = document.getElementById('next-menu-btn');
-    const lastBtn = document.getElementById('last-menu-btn');
-    const seasonText = document.getElementById('season-text');
 
     let menuData = [];
-    let currentMenuIndex = 0;
+    let currentIndex = 0;
 
-    // Fetch the JSON data
-    fetch('menu.json')
-        .then((response) => response.json())
-        .then((data) => {
-            menuData = data;
+    const renderMenu = (index) => {
+      if (!menuData.length) return;
+      const menu = menuData[index];
 
-            // Find the index of the "active" menu to show by default
-            const activeIndex = menuData.findIndex((menu) => menu.isActive);
-            currentMenuIndex = activeIndex !== -1 ? activeIndex : 0;
+      if (els.title) els.title.textContent = menu.title;
+      if (els.desc) els.desc.textContent = menu.description;
+      if (els.season) els.season.textContent = menu.season || 'Seasonal Offering';
 
-            renderMenu(currentMenuIndex);
-        })
-        .catch((error) => {
-            console.error('Error loading menu data:', error);
-            menuTitle.textContent = 'Menu Unavailable';
-            menuDesc.textContent = 'Please check back later.';
-            seasonText.classList.add('hidden');
-        });
+      grid.innerHTML = '';
+      const fragment = document.createDocumentFragment();
 
-    // Render function
-    function renderMenu(index) {
-        if (!menuData || menuData.length === 0) return;
-
-        const menu = menuData[index];
-
-        // Update text content
-        menuTitle.textContent = menu.title;
-        menuDesc.textContent = menu.description;
-        seasonText.textContent = menu.season || 'Seasonal Offering';
-
-        // Clear current grid
-        menuGrid.innerHTML = '';
-
-        // Generate Drink Cards
-        menu.drinks.forEach((drink) => {
-            const card = document.createElement('div');
-            card.className = 'bg-[#FDFBF5] rounded-lg shadow-md p-6 menu-card flex flex-col';
-
-            // Only render the pairing span if it exists
-            const pairingHTML = drink.pairing
-                ? `<span class="mt-2 opacity-70">${drink.pairing}</span>`
-                : '';
-
-            card.innerHTML = `
+      // Render Drinks
+      menu.drinks.forEach(drink => {
+        const card = document.createElement('div');
+        card.className = 'bg-[#FDFBF5] rounded-lg shadow-md p-6 menu-card flex flex-col';
+        card.innerHTML = `
         <h3 class="text-2xl text-contrast-blue mb-2">${drink.name}</h3>
         <p class="opacity-70 flex-grow">${drink.ingredients}</p>
-        ${pairingHTML}
+        ${drink.pairing ? `<span class="mt-2 opacity-70">${drink.pairing}</span>` : ''}
         `;
-            menuGrid.appendChild(card);
-        });
+        fragment.appendChild(card);
+      });
 
-        // Generate Add-on/Topping Cards
-        menu.addons.forEach(addon => {
-          const card = document.createElement('div');
-          card.className = 'md:col-span-2 lg:col-span-4 bg-white/50 rounded-lg border-2 border-dashed border-brand-blue/20 p-6 text-center toppings-card';
+      // Render Add-ons
+      menu.addons.forEach(addon => {
+        const card = document.createElement('div');
+        card.className = 'md:col-span-2 lg:col-span-4 bg-white/50 rounded-lg border-2 border-dashed border-brand-blue/20 p-6 text-center toppings-card';
+        card.innerHTML = `
+        <h4 class="text-3xl text-contrast-blue ${addon.subtitle ? 'mb-1' : 'mb-3'}">${addon.title}</h4>
+        ${addon.subtitle ? `<p class="text-sm italic text-brand-blue opacity-70 mb-3">${addon.subtitle}</p>` : ''}
+        <p class="opacity-70">${Array.isArray(addon.items) ? addon.items.join(' &bull; ') : addon.items}</p>
+        `;
+        fragment.appendChild(card);
+      });
 
-          // Format items array into a bulleted string
-          const itemsFormatted = Array.isArray(addon.items)
-          ? addon.items.join(' &bull; ')
-          : addon.items;
+      grid.appendChild(fragment);
 
-          // Only render the subtitle HTML if the field exists in the JSON
-          const subtitleHTML = addon.subtitle
-          ? `<p class="text-sm italic text-brand-blue opacity-70 mb-3">${addon.subtitle}</p>`
-          : '';
+      // Update Navigation Buttons
+      const updateBtn = (id, disabledState) => {
+        const btn = document.getElementById(id);
+        if (btn) btn.disabled = disabledState;
+      };
+        updateBtn('first-menu-btn', index === 0);
+        updateBtn('prev-menu-btn', index === 0);
+        updateBtn('next-menu-btn', index === menuData.length - 1);
+        updateBtn('last-menu-btn', index === menuData.length - 1);
 
-          // We remove mb-3 from the h4 and conditionally handle the spacing
-          const titleMargin = addon.subtitle ? 'mb-1' : 'mb-3';
+        setupIntersectionObservers();
+    };
 
-          card.innerHTML = `
-          <h4 class="text-3xl text-contrast-blue ${titleMargin}">${addon.title}</h4>
-          ${subtitleHTML}
-          <p class="opacity-70">${itemsFormatted}</p>
-          `;
-          menuGrid.appendChild(card);
-        });
-
-        // Update button states
-        const isFirst = index === 0;
-        const isLast = index === menuData.length - 1;
-
-        firstBtn.disabled = isFirst;
-        prevBtn.disabled = isFirst;
-        nextBtn.disabled = isLast;
-        lastBtn.disabled = isLast;
-
-        // Re-run the Intersection Observer from your existing script
-        // so the new cards get their slide-up animations
-        if (typeof setupIntersectionObservers === 'function') {
-            setupIntersectionObservers();
-        }
-    }
-
-    // Button Listeners
-    firstBtn.addEventListener('click', () => {
-        currentMenuIndex = 0;
-        renderMenu(currentMenuIndex);
+    // Fetch Data
+    fetch('menu.json')
+    .then(res => res.json())
+    .then(data => {
+      menuData = data;
+      currentIndex = Math.max(0, menuData.findIndex(m => m.isActive));
+      renderMenu(currentIndex);
+    })
+    .catch(err => {
+      console.error('Menu Error:', err);
+      if (els.title) els.title.textContent = 'Menu Unavailable';
+      if (els.desc) els.desc.textContent = 'Please check back later.';
+      if (els.season) els.season.classList.add('hidden');
     });
 
-    prevBtn.addEventListener('click', () => {
-        if (currentMenuIndex > 0) {
-            currentMenuIndex--;
-            renderMenu(currentMenuIndex);
-        }
-    });
+      // Setup Button Listeners
+      const bindNavButton = (id, action) => {
+        const btn = document.getElementById(id);
+        if (btn) btn.addEventListener('click', action);
+      };
 
-    nextBtn.addEventListener('click', () => {
-        if (currentMenuIndex < menuData.length - 1) {
-            currentMenuIndex++;
-            renderMenu(currentMenuIndex);
-        }
-    });
+        bindNavButton('first-menu-btn', () => renderMenu(currentIndex = 0));
+        bindNavButton('prev-menu-btn', () => { if (currentIndex > 0) renderMenu(--currentIndex); });
+        bindNavButton('next-menu-btn', () => { if (currentIndex < menuData.length - 1) renderMenu(++currentIndex); });
+        bindNavButton('last-menu-btn', () => renderMenu(currentIndex = menuData.length - 1));
+  };
 
-    lastBtn.addEventListener('click', () => {
-        currentMenuIndex = menuData.length - 1;
-        renderMenu(currentMenuIndex);
-    });
+  // ==========================================
+  // EXECUTE ALL MODULES
+  // ==========================================
+  initMobileMenu();
+  adjustAboutSectionMargin();
+  window.addEventListener('resize', debounce(adjustAboutSectionMargin, 250));
+  initScrollAnimations();
+  setupIntersectionObservers();
+  window.addEventListener('resize', debounce(setupIntersectionObservers, 250));
+  initMenu();
+
+  // Check if the particles utility has been loaded, then trigger it
+  if (typeof initParticles === 'function') {
+    initParticles();
+  }
 });

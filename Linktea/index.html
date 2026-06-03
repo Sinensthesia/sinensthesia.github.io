@@ -3,11 +3,6 @@ redirect_from:
     - /Linktea/
     - /Linktea
 ---
-<!--
-
-Cut the redirect_from into here for local testing
-
--->
 <!doctype html>
 <html lang="en">
     <head>
@@ -76,34 +71,14 @@ Cut the redirect_from into here for local testing
                 overflow: hidden;
             }
 
+            /* Particle container baseline style for fixed layout */
             #particle-container {
                 position: fixed;
                 inset: 0;
                 z-index: 0;
-                opacity: 0;
-                transition: opacity 2s ease-in-out;
+                pointer-events: none; /* Prevents clicks from being blocked */
             }
-            #particle-container.particles-visible {
-                opacity: 1;
-            }
-            @keyframes float-subtle {
-                0% {
-                    transform: translateY(0px) rotate(0deg);
-                    opacity: 0.7;
-                }
-                50% {
-                    transform: translateY(-20px) rotate(180deg);
-                    opacity: 0.3;
-                }
-                100% {
-                    transform: translateY(0px) rotate(360deg);
-                    opacity: 0.7;
-                }
-            }
-            .particle {
-                position: absolute;
-                animation: float-subtle ease-in-out infinite;
-            }
+
             .modal {
                 transition: opacity 0.3s ease-in-out;
             }
@@ -457,9 +432,10 @@ Cut the redirect_from into here for local testing
 
         <script async src="//www.instagram.com/embed.js"></script>
 
+        <script src="../utilities/particles.js"></script>
+
         <script>
             document.addEventListener('DOMContentLoaded', () => {
-                const particleContainer = document.getElementById('particle-container');
                 const openZelleButton = document.getElementById('open-zelle-popup');
                 const openVenmoButton = document.getElementById('open-venmo-popup');
                 const openMenuButton = document.getElementById('open-menu-popup');
@@ -589,164 +565,172 @@ Cut the redirect_from into here for local testing
                 // 2. Open Modal Logic (Keep this)
                 openCalendarButton.addEventListener('click', () => openModal(calendarPopup));
 
-                // 3. Close Modal Logic
-                calendarPopup.addEventListener('click', (e) => {
-                    // Check if the clicked element is a link (<a>) or inside a link
-                    const isLink = e.target.closest('a');
+               // 3. Close Modal Logic - Close if clicking the dark background overlay directly
+calendarPopup.addEventListener('click', (e) => {
+    if (e.target === calendarPopup) {
+        closeModal(calendarPopup);
+    }
+});
 
-                    // If it's NOT a link, close the modal
-                    if (!isLink) {
-                        closeModal(calendarPopup);
+// 4. Handle clicks inside the iframe itself (Same-Origin handling)
+calendarIframe.addEventListener('load', () => {
+    try {
+        calendarIframe.contentWindow.document.addEventListener('click', (e) => {
+            // Check if the clicked element is a link, a button, or inside one
+            const isLink = e.target.closest('a');
+            const isButton = e.target.closest('button');
+
+            // Check if they clicked an active day grid cell or event element
+            const isCalendarInteractiveCell = e.target.closest('.fc-daygrid-day-number') ||
+                                              e.target.closest('.fc-event') ||
+                                              e.target.closest('.fc-daygrid-event');
+
+            // IF it's an interactive calendar element, do nothing (keep modal open)
+            if (isLink || isButton || isCalendarInteractiveCell) {
+                return;
+            }
+
+            // OTHERWISE: If they click anything else (blank spaces, empty borders), close it!
+            closeModal(calendarPopup);
+        });
+    } catch (err) {
+        console.warn('Could not attach click listener to iframe.', err);
+    }
+});
+
+                // Global state for the menu modal
+                let menuData = [];
+                let currentMenuIndex = 0;
+
+                // Render function (moved outside so the click listener can use it)
+                const renderModalMenu = (index) => {
+                    if (!menuData || menuData.length === 0) return;
+                    const menu = menuData[index];
+
+                    document.getElementById('modal-menu-title').textContent = menu.title;
+                    document.getElementById('modal-season-text').textContent = menu.season || 'Seasonal Offering';
+                    document.getElementById('modal-menu-desc').textContent = menu.description;
+
+                    const gridEl = document.getElementById('modal-menu-grid');
+                    gridEl.innerHTML = '';
+
+                    // Generate Drink Cards
+                    menu.drinks.forEach(drink => {
+                        const card = document.createElement('div');
+                        card.className = 'bg-white rounded-lg shadow-sm border border-[#002366]/10 p-5 flex flex-col is-visible';
+                        const pairingHTML = drink.pairing ? `<span class="mt-2 text-sm opacity-70">${drink.pairing}</span>` : '';
+                        card.innerHTML = `
+                            <h3 class="text-xl text-[#1E2A4A] mb-2 brand-font font-bold">${drink.name}</h3>
+                            <p class="opacity-70 flex-grow text-sm">${drink.ingredients}</p>
+                            ${pairingHTML}
+                        `;
+                        gridEl.appendChild(card);
+                    });
+
+                    // Generate Add-on Cards
+                    menu.addons.forEach(addon => {
+                        const card = document.createElement('div');
+                        card.className = 'md:col-span-2 bg-white/50 rounded-lg border-2 border-dashed border-[#002366]/20 p-5 text-center is-visible';
+                        const itemsFormatted = Array.isArray(addon.items) ? addon.items.join(' &bull; ') : addon.items;
+                        const subtitleHTML = addon.subtitle ? `<p class="text-sm italic text-[#002366] opacity-70 mb-2">${addon.subtitle}</p>` : '';
+                        const titleMargin = addon.subtitle ? 'mb-1' : 'mb-3';
+                        card.innerHTML = `
+                            <h4 class="text-xl text-[#1E2A4A] ${titleMargin} brand-font font-bold">${addon.title}</h4>
+                            ${subtitleHTML}
+                            <p class="opacity-70 text-sm">${itemsFormatted}</p>
+                        `;
+                        gridEl.appendChild(card);
+                    });
+
+                    // Update button states
+                    document.getElementById('modal-first-btn').disabled = (index === 0);
+                    document.getElementById('modal-prev-btn').disabled = (index === 0);
+                    document.getElementById('modal-next-btn').disabled = (index === menuData.length - 1);
+                    document.getElementById('modal-last-btn').disabled = (index === menuData.length - 1);
+                };
+
+                // Open Menu Button logic
+                openMenuButton.addEventListener('click', async () => {
+                    // 1. Inject the HTML shell
+                    menuContentContainer.innerHTML = `
+                        <div class="mb-12 max-w-4xl mx-auto">
+                            <div class="relative flex items-center justify-between">
+                                <div class="flex space-x-1 md:space-x-2">
+                                    <button id="modal-first-btn" class="p-2 text-brand-blue hover:bg-brand-blue/10 rounded-full transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed">
+                                        <svg class="w-6 h-6 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7M19 19l-7-7 7-7"></path></svg>
+                                    </button>
+                                    <button id="modal-prev-btn" class="p-2 text-brand-blue hover:bg-brand-blue/10 rounded-full transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed">
+                                        <svg class="w-6 h-6 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                                    </button>
+                                </div>
+                                <div class="text-center px-2">
+                                    <h2 id="modal-menu-title" class="text-3xl md:text-5xl text-[#1E2A4A] mb-2 brand-font font-bold transition-opacity duration-300">Loading Menu...</h2>
+                                    <div id="modal-season-text" class="text-xs md:text-sm font-medium uppercase tracking-[0.15em] text-[#002366] opacity-70 transition-opacity duration-300">Loading Season...</div>
+                                </div>
+                                <div class="flex space-x-1 md:space-x-2">
+                                    <button id="modal-next-btn" class="p-2 text-brand-blue hover:bg-brand-blue/10 rounded-full transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed">
+                                        <svg class="w-6 h-6 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                    </button>
+                                    <button id="modal-last-btn" class="p-2 text-brand-blue hover:bg-brand-blue/10 rounded-full transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed">
+                                        <svg class="w-6 h-6 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path></svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <p id="modal-menu-desc" class="text-sm md:text-base opacity-70 max-w-2xl mx-auto text-center mt-4 transition-opacity duration-300"></p>
+                        </div>
+                        <div id="modal-menu-grid" class="grid md:grid-cols-2 gap-4"></div>
+                    `;
+
+                    // 2. Fetch data if we don't have it yet
+                    if (menuData.length === 0) {
+                        try {
+                            const response = await fetch('../menu.json');
+                            menuData = await response.json();
+                            const activeIndex = menuData.findIndex(menu => menu.isActive);
+                            currentMenuIndex = activeIndex !== -1 ? activeIndex : 0;
+                        } catch (error) {
+                            console.error('Error fetching menu.json:', error);
+                            document.getElementById('modal-menu-title').textContent = "Menu Unavailable";
+                            document.getElementById('modal-season-text').classList.add('hidden');
+                            document.getElementById('modal-menu-desc').textContent = "Please check back later.";
+                            openModal(menuPopup);
+                            return;
+                        }
+                    }
+
+                    // 3. Render the correct menu
+                    renderModalMenu(currentMenuIndex);
+                    openModal(menuPopup);
+                });
+
+                // Master Event Listener for the whole popup
+                menuPopup.addEventListener('click', (event) => {
+                    const clickedButton = event.target.closest('button');
+
+                    // Close modal if a button WAS NOT clicked
+                    if (!clickedButton) {
+                        closeModal(menuPopup);
+                        return;
+                    }
+
+                    // If a button WAS clicked, figure out which one and change the menu
+                    const btnId = clickedButton.id;
+
+                    if (btnId === 'modal-first-btn' && currentMenuIndex > 0) {
+                        currentMenuIndex = 0;
+                        renderModalMenu(currentMenuIndex);
+                    } else if (btnId === 'modal-prev-btn' && currentMenuIndex > 0) {
+                        currentMenuIndex--;
+                        renderModalMenu(currentMenuIndex);
+                    } else if (btnId === 'modal-next-btn' && currentMenuIndex < menuData.length - 1) {
+                        currentMenuIndex++;
+                        renderModalMenu(currentMenuIndex);
+                    } else if (btnId === 'modal-last-btn' && currentMenuIndex < menuData.length - 1) {
+                        currentMenuIndex = menuData.length - 1;
+                        renderModalMenu(currentMenuIndex);
                     }
                 });
 
-                // 4. Handle clicks inside the iframe itself (Same-Origin handling)
-                calendarIframe.addEventListener('load', () => {
-                    try {
-                        calendarIframe.contentWindow.document.addEventListener('click', (e) => {
-                            // Re-check for link clicks inside the iframe
-                            const isLink = e.target.closest('a');
-                            if (!isLink) {
-                                closeModal(calendarPopup);
-                            }
-                        });
-                    } catch (err) {
-                        console.warn('Could not attach click listener to iframe.', err);
-                    }
-                });
-
-// Global state for the menu modal
-let menuData = [];
-let currentMenuIndex = 0;
-
-// Render function (moved outside so the click listener can use it)
-const renderModalMenu = (index) => {
-    if (!menuData || menuData.length === 0) return;
-    const menu = menuData[index];
-
-    document.getElementById('modal-menu-title').textContent = menu.title;
-    document.getElementById('modal-season-text').textContent = menu.season || 'Seasonal Offering';
-    document.getElementById('modal-menu-desc').textContent = menu.description;
-
-    const gridEl = document.getElementById('modal-menu-grid');
-    gridEl.innerHTML = '';
-
-    // Generate Drink Cards
-    menu.drinks.forEach(drink => {
-        const card = document.createElement('div');
-        card.className = 'bg-white rounded-lg shadow-sm border border-[#002366]/10 p-5 flex flex-col is-visible';
-        const pairingHTML = drink.pairing ? `<span class="mt-2 text-sm opacity-70">${drink.pairing}</span>` : '';
-        card.innerHTML = `
-            <h3 class="text-xl text-[#1E2A4A] mb-2 brand-font font-bold">${drink.name}</h3>
-            <p class="opacity-70 flex-grow text-sm">${drink.ingredients}</p>
-            ${pairingHTML}
-        `;
-        gridEl.appendChild(card);
-    });
-
-    // Generate Add-on Cards
-    menu.addons.forEach(addon => {
-        const card = document.createElement('div');
-        card.className = 'md:col-span-2 bg-white/50 rounded-lg border-2 border-dashed border-[#002366]/20 p-5 text-center is-visible';
-        const itemsFormatted = Array.isArray(addon.items) ? addon.items.join(' &bull; ') : addon.items;
-        const subtitleHTML = addon.subtitle ? `<p class="text-sm italic text-[#002366] opacity-70 mb-2">${addon.subtitle}</p>` : '';
-        const titleMargin = addon.subtitle ? 'mb-1' : 'mb-3';
-        card.innerHTML = `
-            <h4 class="text-xl text-[#1E2A4A] ${titleMargin} brand-font font-bold">${addon.title}</h4>
-            ${subtitleHTML}
-            <p class="opacity-70 text-sm">${itemsFormatted}</p>
-        `;
-        gridEl.appendChild(card);
-    });
-
-    // Update button states
-    document.getElementById('modal-first-btn').disabled = (index === 0);
-    document.getElementById('modal-prev-btn').disabled = (index === 0);
-    document.getElementById('modal-next-btn').disabled = (index === menuData.length - 1);
-    document.getElementById('modal-last-btn').disabled = (index === menuData.length - 1);
-};
-
-// Open Menu Button logic
-openMenuButton.addEventListener('click', async () => {
-    // 1. Inject the HTML shell
-    menuContentContainer.innerHTML = `
-        <div class="mb-12 max-w-4xl mx-auto">
-            <div class="relative flex items-center justify-between">
-                <div class="flex space-x-1 md:space-x-2">
-                    <button id="modal-first-btn" class="p-2 text-brand-blue hover:bg-brand-blue/10 rounded-full transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed">
-                        <svg class="w-6 h-6 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7M19 19l-7-7 7-7"></path></svg>
-                    </button>
-                    <button id="modal-prev-btn" class="p-2 text-brand-blue hover:bg-brand-blue/10 rounded-full transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed">
-                        <svg class="w-6 h-6 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-                    </button>
-                </div>
-                <div class="text-center px-2">
-                    <h2 id="modal-menu-title" class="text-3xl md:text-5xl text-[#1E2A4A] mb-2 brand-font font-bold transition-opacity duration-300">Loading Menu...</h2>
-                    <div id="modal-season-text" class="text-xs md:text-sm font-medium uppercase tracking-[0.15em] text-[#002366] opacity-70 transition-opacity duration-300">Loading Season...</div>
-                </div>
-                <div class="flex space-x-1 md:space-x-2">
-                    <button id="modal-next-btn" class="p-2 text-brand-blue hover:bg-brand-blue/10 rounded-full transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed">
-                        <svg class="w-6 h-6 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                    </button>
-                    <button id="modal-last-btn" class="p-2 text-brand-blue hover:bg-brand-blue/10 rounded-full transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed">
-                        <svg class="w-6 h-6 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path></svg>
-                    </button>
-                </div>
-            </div>
-            <p id="modal-menu-desc" class="text-sm md:text-base opacity-70 max-w-2xl mx-auto text-center mt-4 transition-opacity duration-300"></p>
-        </div>
-        <div id="modal-menu-grid" class="grid md:grid-cols-2 gap-4"></div>
-    `;
-
-    // 2. Fetch data if we don't have it yet
-    if (menuData.length === 0) {
-        try {
-            const response = await fetch('../menu.json');
-            menuData = await response.json();
-            const activeIndex = menuData.findIndex(menu => menu.isActive);
-            currentMenuIndex = activeIndex !== -1 ? activeIndex : 0;
-        } catch (error) {
-            console.error('Error fetching menu.json:', error);
-            document.getElementById('modal-menu-title').textContent = "Menu Unavailable";
-            document.getElementById('modal-season-text').classList.add('hidden');
-            document.getElementById('modal-menu-desc').textContent = "Please check back later.";
-            openModal(menuPopup);
-            return;
-        }
-    }
-
-    // 3. Render the correct menu
-    renderModalMenu(currentMenuIndex);
-    openModal(menuPopup);
-});
-
-// Master Event Listener for the whole popup
-menuPopup.addEventListener('click', (event) => {
-    const clickedButton = event.target.closest('button');
-
-    // Close modal if a button WAS NOT clicked
-    if (!clickedButton) {
-        closeModal(menuPopup);
-        return;
-    }
-
-    // If a button WAS clicked, figure out which one and change the menu
-    const btnId = clickedButton.id;
-
-    if (btnId === 'modal-first-btn' && currentMenuIndex > 0) {
-        currentMenuIndex = 0;
-        renderModalMenu(currentMenuIndex);
-    } else if (btnId === 'modal-prev-btn' && currentMenuIndex > 0) {
-        currentMenuIndex--;
-        renderModalMenu(currentMenuIndex);
-    } else if (btnId === 'modal-next-btn' && currentMenuIndex < menuData.length - 1) {
-        currentMenuIndex++;
-        renderModalMenu(currentMenuIndex);
-    } else if (btnId === 'modal-last-btn' && currentMenuIndex < menuData.length - 1) {
-        currentMenuIndex = menuData.length - 1;
-        renderModalMenu(currentMenuIndex);
-    }
-});
                 openCateringButton.addEventListener('click', () => openModal(cateringPopup));
                 cateringPopup.addEventListener('click', () => closeModal(cateringPopup));
 
@@ -762,55 +746,22 @@ menuPopup.addEventListener('click', (event) => {
                     }
                 };
 
-                if (particleContainer) {
-                    const generateParticles = () => {
-                        particleContainer.innerHTML = '';
-                        const fragment = document.createDocumentFragment();
-                        const particleCount = 30;
-                        const accentColors = ['#34D399', '#FB7185', '#f9c74f'];
-                        const colorChance = 0.1;
-                        const defaultColor = '#002366';
-                        const starburstSVG = `<svg class="particle" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L9.5 9.5 2 12l7.5 2.5L12 22l2.5-7.5L22 12l-7.5-2.5z"/></svg>`;
-                        const specialImagePaths = [
+                // --- Initialize Particles via Utility ---
+                if (typeof initParticles === 'function') {
+                    initParticles({
+                        containerId: 'particle-container',
+                        textSelector: '.max-w-md', // Targets the central link card on desktop to avoid overlap!
+                        imagePaths: [
                             '../Resources/KrikosInner.png',
-                            '../Resources/StellaInner.png',
-                        ];
-                        for (let i = 0; i < particleCount; i++) {
-                            let particle;
-                            if (i < 2 && specialImagePaths[i]) {
-                                particle = document.createElement('img');
-                                particle.src = specialImagePaths[i];
-                                particle.classList.add('particle');
-                            } else {
-                                const particleWrapper = document.createElement('div');
-                                particleWrapper.innerHTML = starburstSVG;
-                                particle = particleWrapper.firstChild;
-                                if (Math.random() < colorChance) {
-                                    particle.style.color =
-                                        accentColors[
-                                            Math.floor(Math.random() * accentColors.length)
-                                        ];
-                                } else {
-                                    particle.style.color = defaultColor;
-                                }
-                            }
-                            const size = Math.random() * 15 + 5;
-                            particle.style.width = `${size}px`;
-                            particle.style.height = `${size}px`;
-                            particle.style.opacity = `0.7`;
-                            particle.style.top = `${Math.random() * 100}%`;
-                            particle.style.left = `${Math.random() * 100}%`;
-                            particle.style.animationDuration = `${Math.random() * 10 + 8}s`;
-                            particle.style.animationDelay = `${Math.random() * 5}s`;
-                            fragment.appendChild(particle);
-                        }
-                        particleContainer.appendChild(fragment);
-                        particleContainer.classList.add('particles-visible');
-                    };
-
-                    generateParticles();
-                    adjustSocialIconsMargin(); // --- Re-added function call ---
+                            '../Resources/StellaInner.png'
+                        ]
+                    });
+                } else {
+                    console.warn('initParticles is not defined. Ensure utilities/particles.js is loaded.');
                 }
+
+                // Initial Layout Calls
+                adjustSocialIconsMargin();
             });
         </script>
     </body>

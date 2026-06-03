@@ -15,6 +15,11 @@ h1, h2, h3, h4, h5, h6 {
 .border-brand-blue { border-color: #0505af; }
 .bg-brand-cream { background-color: #eae4da; }
 
+#washi-container {
+-webkit-mask-image: linear-gradient(to bottom, black 90%, transparent 120%);
+mask-image: linear-gradient(to bottom, black 90%, transparent 120%);
+}
+
 .washi-row {
     height: 5.8vw;
     background-image: url('Resources/WashiPattern.png');
@@ -26,17 +31,22 @@ h1, h2, h3, h4, h5, h6 {
     transition: opacity 0.2s linear;
 }
 
-#washi-container {
--webkit-mask-image: linear-gradient(to bottom, black 90%, transparent 120%);
-mask-image: linear-gradient(to bottom, black 90%, transparent 120%);
-}
-
-/* Add this media query for smaller screens */
 @media (max-width: 768px) {
     .washi-row {
-        /* Set a larger, fixed width for the pattern on small screens */
-        background-size: 400px auto;
         height: 20vw;
+    }
+}
+
+
+/* Add this new block to style.css */
+@keyframes hero-entrance {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
     }
 }
 
@@ -58,7 +68,7 @@ mask-image: linear-gradient(to bottom, black 90%, transparent 120%);
 .fade-in-section {
     opacity: 0;
     transform: translateY(20px);
-    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+    transition: opacity 1.3s ease-out, transform 1.3s ease-out;
 }
 .fade-in-section.is-visible {
     opacity: 1;
@@ -75,10 +85,12 @@ mask-image: linear-gradient(to bottom, black 90%, transparent 120%);
 /* SVG Particle Animation */
 #particle-container {
 opacity: 0;
-transition: opacity 0.5s ease-in-out; /* Faster transition for resizing */
+transition: opacity 0.5s ease-in-out;
+top: -15vh;
 }
 #particle-container.particles-visible {
 opacity: 1;
+transition: opacity 2.2s ease-in-out;
 }
 @keyframes float-bright {
     0% { transform: translateY(0px) rotate(0deg); opacity: 0.7; }
