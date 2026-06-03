@@ -53,7 +53,7 @@
                 <a href="#about" class="text-contrast-blue hover:opacity-75 transition-opacity duration-300 text-lg tracking-wide">About</a>
                 <a href="#menu" class="text-contrast-blue hover:opacity-75 transition-opacity duration-300 text-lg tracking-wide">Menu</a>
                 <a href="#contact" class="text-contrast-blue hover:opacity-75 transition-opacity duration-300 text-lg tracking-wide">Visit Us</a>
-                <a href="Linktea" class="text-contrast-blue hover:opacity-75 transition-opacity duration-300 text-lg tracking-wide">Links</a>
+                <a href="linktea" class="text-contrast-blue hover:opacity-75 transition-opacity duration-300 text-lg tracking-wide">Links</a>
             </nav>
             <button id="mobile-menu-button" class="md:hidden text-brand-blue">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
@@ -63,7 +63,7 @@
             <a href="#about" class="block py-2 text-contrast-blue text-center">About</a>
             <a href="#menu" class="block py-2 text-contrast-blue text-center">Menu</a>
             <a href="#contact" class="block py-2 text-contrast-blue text-center">Visit Us</a>
-            <a href="Linktea" class="block py-2 text-contrast-blue text-center">Links</a>
+            <a href="linktea" class="block py-2 text-contrast-blue text-center">Links</a>
         </div>
     </header>
 
@@ -97,109 +97,40 @@
         </section>
 
         <section id="menu" class="py-14 md:py-24 bg-[#F6F4EE]">
-            <div class="container mx-auto px-6">
-                <div class="text-center mb-12">
-                    <h2 class="text-4xl md:text-5xl text-contrast-blue mb-4">Spice & Festivities</h2>
-                    <p class="text-lg opacity-70 max-w-2xl mx-auto">A warming menu of holiday beverages and (of course!) excellent tea</p>
-                </div>
+    <div class="container mx-auto px-6">
 
-                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div class="bg-[#FDFBF5] rounded-lg shadow-md p-6 menu-card flex flex-col">
-                        <h3 class="text-2xl text-contrast-blue mb-2">"Dulce Chai"</h3>
-                        <p class="opacity-70 mb-4 flex-grow">Dulce de Leche, 6% Milk, Toasted 10-spice Masala</p>
-                        <span class="mb-1 opacity-70">Made With: Himalayan Sunrise</span>
-                        <span class="font-semibold text-brand-blue">$7.00</span>
-                    </div>
+        <div class="relative flex items-center justify-between mb-12 max-w-4xl mx-auto">
 
-                    <div class="bg-[#FDFBF5] rounded-lg shadow-md p-6 menu-card flex flex-col">
-                        <h3 class="text-2xl text-contrast-blue mb-2">"Strawberry Bloom"</h3>
-                        <p class="opacity-70 mb-4 flex-grow">Strawberry: Cheong, Puree & Popping Candy</p>
-                        <span class="mb-1 opacity-70">Suggested: Himalayan Sunrise</span>
-                        <span class="font-semibold text-brand-blue">$7.00</span>
-                    </div>
-
-                    <div class="bg-[#FDFBF5] rounded-lg shadow-md p-6 menu-card flex flex-col">
-                        <h3 class="text-2xl text-contrast-blue mb-2">"Orchard Dreams"</h3>
-                        <p class="opacity-70 mb-4 flex-grow">Apple Cheong, Cider Jelly, Caramelized Apple Preserve</p>
-                        <span class="mb-1 opacity-70">Suggested: Himalayan Mist</span>
-                        <span class="font-semibold text-brand-blue">$7.00</span>
-                    </div>
-
-                    <div class="bg-[#FDFBF5] rounded-lg shadow-md p-6 menu-card flex flex-col">
-                        <h3 class="text-2xl text-contrast-blue mb-2">"Purpearl Milk Tea"</h3>
-                        <p class="opacity-70 mb-4 flex-grow">Okinawan Sweet Potato Boba, Burgundy Caramel, 6% Milk</p>
-                        <span class="mb-1 opacity-70">Suggested: Himalayan Sunrise</span>
-                        <span class="font-semibold text-brand-blue">$7.00</span>
-                    </div>
-
-                    <div class="md:col-span-2 lg:col-span-4 bg-white/50 rounded-lg border-2 border-dashed border-brand-blue/20 p-6 text-center toppings-card">
-                        <h4 class="text-2xl text-contrast-blue mb-3">Tea Options</h4>
-                        <p class="opacity-70">
-                            Himalayan Mist &bull; Himalayan Sunrise
-                        </p>
-                    </div>
-                    <div class="md:col-span-2 lg:col-span-4 bg-white/50 rounded-lg border-2 border-dashed border-brand-blue/20 p-6 text-center toppings-card">
-                        <h4 class="text-2xl text-contrast-blue mb-3">Hot Chocolate - $6</h4>
-                        <p class="opacity-70">
-                            Belgian Dark Chocolate &bull; Extra Brute Cocoa &bull; Choco-foam &bull; Oat / Whole Milk
-                        </p>
-                    </div>
-                    <div class="md:col-span-2 lg:col-span-4 bg-white/50 rounded-lg border-2 border-dashed border-brand-blue/20 p-6 text-center toppings-card">
-                        <h4 class="text-2xl text-contrast-blue mb-3">Soda - $4</h4>
-                        <p class="opacity-70">
-                            Watermelon &bull; Golden Kiwi &bull; Apple &bull; Strawberry
-                        </p>
-                    </div>
-
-                </div>
+            <div class="flex space-x-1 md:space-x-2 mb-10">
+                <button id="first-menu-btn" class="p-2 text-brand-blue hover:bg-brand-blue/10 rounded-full transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed" aria-label="First Menu">
+                    <svg class="w-6 h-6 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7M19 19l-7-7 7-7"></path></svg>
+                </button>
+                <button id="prev-menu-btn" class="p-2 text-brand-blue hover:bg-brand-blue/10 rounded-full transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed" aria-label="Previous Menu">
+                    <svg class="w-6 h-6 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                </button>
             </div>
-            <div class="hidden container mx-auto px-6">
-                <div class="text-center mb-12">
-                    <h2 class="text-4xl md:text-5xl text-contrast-blue mb-4">The Autumn Voyage</h2>
-                    <p class="text-lg opacity-70 max-w-2xl mx-auto">A curated selection for our inaugural seasonal offerings.</p>
-                </div>
 
-                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <div class="bg-[#FDFBF5] rounded-lg shadow-md p-6 menu-card flex flex-col">
-                        <h3 class="text-2xl text-contrast-blue mb-2">"Orchard Dreams" - Apple Green Tea</h3>
-                        <p class="opacity-70 mb-4 flex-grow">Cosmic Crisp Cheong, Apple Butter, Hibiscus Infused Apple</p>
-                        <span class="font-semibold text-brand-blue">$7.00</span>
-                    </div>
-
-                    <div class="bg-[#FDFBF5] rounded-lg shadow-md p-6 menu-card flex flex-col">
-                        <h3 class="text-2xl text-contrast-blue mb-2">"Strawberry Bloom" - Strawberry Green Tea</h3>
-                        <p class="opacity-70 mb-4 flex-grow">Strawberry Cheong, Candied Strawberry Puree</p>
-                        <span class="font-semibold text-brand-blue">$7.00</span>
-                    </div>
-
-                    <div class="hidden bg-[#FDFBF5] rounded-lg shadow-md p-6 menu-card flex flex-col">
-                        <h3 class="text-2xl text-contrast-blue mb-2">Thé Noisette</h3>
-                        <p class="opacity-70 mb-4 flex-grow">Ceylon Black Tea, Toasted Milk Powder, Evaporated Milk</p>
-                        <span class="font-semibold text-brand-blue">$7.00</span>
-                    </div>
-
-                    <div class="bg-[#FDFBF5] rounded-lg shadow-md p-6 menu-card flex flex-col">
-                        <h3 class="text-2xl text-contrast-blue mb-2">"Dos Leches" - Milk Tea</h3>
-                        <p class="opacity-70 mb-4 flex-grow">Dulce de Leche, Super Milk Foam</p>
-                        <span class="font-semibold text-brand-blue">$7.00</span>
-                    </div>
-
-                    <div class="md:col-span-2 lg:col-span-4 bg-white/50 rounded-lg border-2 border-dashed border-brand-blue/20 p-6 text-center toppings-card">
-                        <h4 class="text-2xl text-contrast-blue mb-3">Tea Options</h4>
-                        <p class="opacity-70">
-                            Himalayan High Mountain Green Tea &bull; Himalayan High Mountain Black Tea &bull; Jasmine Green Tea
-                        </p>
-                    </div>
-
-                    <div class="hidden md:col-span-2 lg:col-span-4 bg-white/50 rounded-lg border-2 border-dashed border-brand-blue/20 p-6 text-center toppings-card">
-                        <h4 class="text-2xl text-contrast-blue mb-3">Housemade Toppings</h4>
-                        <p class="opacity-70">
-                            Hibiscus Infused Apple &bull; Cantonese Coconut Pudding &bull; Crystal Honey Boba
-                        </p>
-                    </div>
-                </div>
+            <div class="text-center px-2">
+                <h2 id="menu-title" class="text-4xl md:text-5xl text-contrast-blue mb-2 transition-opacity duration-300">Menu Unavailable</h2>
+                <div id="season-text" class="text-sm md:text-base font-medium uppercase tracking-[0.15em] text-brand-blue opacity-70 mb-5 transition-opacity duration-300">Please check back later.</div>
+                <p id="menu-desc" class="text-sm md:text-lg opacity-70 max-w-2xl mx-auto transition-opacity duration-300"></p>
             </div>
-        </section>
+
+            <div class="flex space-x-1 md:space-x-2 mb-10">
+                <button id="next-menu-btn" class="p-2 text-brand-blue hover:bg-brand-blue/10 rounded-full transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed" aria-label="Next Menu">
+                    <svg class="w-6 h-6 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                </button>
+                <button id="last-menu-btn" class="p-2 text-brand-blue hover:bg-brand-blue/10 rounded-full transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed" aria-label="Last Menu">
+                    <svg class="w-6 h-6 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path></svg>
+                </button>
+            </div>
+        </div>
+
+        <div id="menu-grid" class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            </div>
+
+    </div>
+</section>
 
         <section class="py-14 md:py-20">
             <div class="container mx-auto px-6 grid md:grid-cols-3 gap-12 text-center">

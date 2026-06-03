@@ -1,9 +1,13 @@
 ---
 redirect_from:
-    - /linktea/
-    - /linktea
+    - /Linktea/
+    - /Linktea
 ---
+<!--
 
+Cut the redirect_from into here for local testing
+
+-->
 <!doctype html>
 <html lang="en">
     <head>
@@ -611,43 +615,143 @@ redirect_from:
                     }
                 });
 
+// Global state for the menu modal
+let menuData = [];
+let currentMenuIndex = 0;
+
+// Render function (moved outside so the click listener can use it)
+const renderModalMenu = (index) => {
+    if (!menuData || menuData.length === 0) return;
+    const menu = menuData[index];
+
+    document.getElementById('modal-menu-title').textContent = menu.title;
+    document.getElementById('modal-season-text').textContent = menu.season || 'Seasonal Offering';
+    document.getElementById('modal-menu-desc').textContent = menu.description;
+
+    const gridEl = document.getElementById('modal-menu-grid');
+    gridEl.innerHTML = '';
+
+    // Generate Drink Cards
+    menu.drinks.forEach(drink => {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-lg shadow-sm border border-[#002366]/10 p-5 flex flex-col is-visible';
+        const pairingHTML = drink.pairing ? `<span class="mt-2 text-sm opacity-70">${drink.pairing}</span>` : '';
+        card.innerHTML = `
+            <h3 class="text-xl text-[#1E2A4A] mb-2 brand-font font-bold">${drink.name}</h3>
+            <p class="opacity-70 flex-grow text-sm">${drink.ingredients}</p>
+            ${pairingHTML}
+        `;
+        gridEl.appendChild(card);
+    });
+
+    // Generate Add-on Cards
+    menu.addons.forEach(addon => {
+        const card = document.createElement('div');
+        card.className = 'md:col-span-2 bg-white/50 rounded-lg border-2 border-dashed border-[#002366]/20 p-5 text-center is-visible';
+        const itemsFormatted = Array.isArray(addon.items) ? addon.items.join(' &bull; ') : addon.items;
+        const subtitleHTML = addon.subtitle ? `<p class="text-sm italic text-[#002366] opacity-70 mb-2">${addon.subtitle}</p>` : '';
+        const titleMargin = addon.subtitle ? 'mb-1' : 'mb-3';
+        card.innerHTML = `
+            <h4 class="text-xl text-[#1E2A4A] ${titleMargin} brand-font font-bold">${addon.title}</h4>
+            ${subtitleHTML}
+            <p class="opacity-70 text-sm">${itemsFormatted}</p>
+        `;
+        gridEl.appendChild(card);
+    });
+
+    // Update button states
+    document.getElementById('modal-first-btn').disabled = (index === 0);
+    document.getElementById('modal-prev-btn').disabled = (index === 0);
+    document.getElementById('modal-next-btn').disabled = (index === menuData.length - 1);
+    document.getElementById('modal-last-btn').disabled = (index === menuData.length - 1);
+};
+
+// Open Menu Button logic
+openMenuButton.addEventListener('click', async () => {
+    // 1. Inject the HTML shell
+    menuContentContainer.innerHTML = `
+        <div class="mb-12 max-w-4xl mx-auto">
+            <div class="relative flex items-center justify-between">
+                <div class="flex space-x-1 md:space-x-2">
+                    <button id="modal-first-btn" class="p-2 text-brand-blue hover:bg-brand-blue/10 rounded-full transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed">
+                        <svg class="w-6 h-6 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7M19 19l-7-7 7-7"></path></svg>
+                    </button>
+                    <button id="modal-prev-btn" class="p-2 text-brand-blue hover:bg-brand-blue/10 rounded-full transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed">
+                        <svg class="w-6 h-6 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                    </button>
+                </div>
+                <div class="text-center px-2">
+                    <h2 id="modal-menu-title" class="text-3xl md:text-5xl text-[#1E2A4A] mb-2 brand-font font-bold transition-opacity duration-300">Loading Menu...</h2>
+                    <div id="modal-season-text" class="text-xs md:text-sm font-medium uppercase tracking-[0.15em] text-[#002366] opacity-70 transition-opacity duration-300">Loading Season...</div>
+                </div>
+                <div class="flex space-x-1 md:space-x-2">
+                    <button id="modal-next-btn" class="p-2 text-brand-blue hover:bg-brand-blue/10 rounded-full transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed">
+                        <svg class="w-6 h-6 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </button>
+                    <button id="modal-last-btn" class="p-2 text-brand-blue hover:bg-brand-blue/10 rounded-full transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed">
+                        <svg class="w-6 h-6 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path></svg>
+                    </button>
+                </div>
+            </div>
+            <p id="modal-menu-desc" class="text-sm md:text-base opacity-70 max-w-2xl mx-auto text-center mt-4 transition-opacity duration-300"></p>
+        </div>
+        <div id="modal-menu-grid" class="grid md:grid-cols-2 gap-4"></div>
+    `;
+
+    // 2. Fetch data if we don't have it yet
+    if (menuData.length === 0) {
+        try {
+            const response = await fetch('../menu.json');
+            menuData = await response.json();
+            const activeIndex = menuData.findIndex(menu => menu.isActive);
+            currentMenuIndex = activeIndex !== -1 ? activeIndex : 0;
+        } catch (error) {
+            console.error('Error fetching menu.json:', error);
+            document.getElementById('modal-menu-title').textContent = "Menu Unavailable";
+            document.getElementById('modal-season-text').classList.add('hidden');
+            document.getElementById('modal-menu-desc').textContent = "Please check back later.";
+            openModal(menuPopup);
+            return;
+        }
+    }
+
+    // 3. Render the correct menu
+    renderModalMenu(currentMenuIndex);
+    openModal(menuPopup);
+});
+
+// Master Event Listener for the whole popup
+menuPopup.addEventListener('click', (event) => {
+    const clickedButton = event.target.closest('button');
+
+    // Close modal if a button WAS NOT clicked
+    if (!clickedButton) {
+        closeModal(menuPopup);
+        return;
+    }
+
+    // If a button WAS clicked, figure out which one and change the menu
+    const btnId = clickedButton.id;
+
+    if (btnId === 'modal-first-btn' && currentMenuIndex > 0) {
+        currentMenuIndex = 0;
+        renderModalMenu(currentMenuIndex);
+    } else if (btnId === 'modal-prev-btn' && currentMenuIndex > 0) {
+        currentMenuIndex--;
+        renderModalMenu(currentMenuIndex);
+    } else if (btnId === 'modal-next-btn' && currentMenuIndex < menuData.length - 1) {
+        currentMenuIndex++;
+        renderModalMenu(currentMenuIndex);
+    } else if (btnId === 'modal-last-btn' && currentMenuIndex < menuData.length - 1) {
+        currentMenuIndex = menuData.length - 1;
+        renderModalMenu(currentMenuIndex);
+    }
+});
                 openCateringButton.addEventListener('click', () => openModal(cateringPopup));
                 cateringPopup.addEventListener('click', () => closeModal(cateringPopup));
 
                 openGratuityButton.addEventListener('click', () => openModal(gratuityPopup));
                 gratuityPopup.addEventListener('click', () => closeModal(gratuityPopup));
-
-                openMenuButton.addEventListener('click', async () => {
-                    try {
-                        const response = await fetch('../index.html');
-                        const text = await response.text();
-                        const parser = new DOMParser();
-                        const doc = parser.parseFromString(text, 'text/html');
-                        const menuSection = doc.querySelector('#menu');
-
-                        if (menuSection) {
-                            // Inject the menu's HTML content
-                            menuContentContainer.innerHTML = menuSection.innerHTML;
-
-                            // Find all the newly added menu/toppings cards within the popup
-                            const allCards = menuContentContainer.querySelectorAll(
-                                '.menu-card, .toppings-card'
-                            );
-
-                            // Manually trigger their visibility since the scroll animation isn't needed here
-                            allCards.forEach((card) => {
-                                card.classList.add('is-visible');
-                            });
-
-                            // Now, open the modal
-                            openModal(menuPopup);
-                        }
-                    } catch (error) {
-                        console.error('Error fetching menu:', error);
-                        alert('Could not load the menu at this time.');
-                    }
-                });
-                menuPopup.addEventListener('click', (event) => closeModal(menuPopup));
 
                 // --- Re-added adjustSocialIconsMargin function ---
                 const adjustSocialIconsMargin = () => {

@@ -1,0 +1,195 @@
+[
+    {
+    "id": "the-first-flush",
+    "title": "The First Flush",
+    "season": "Current",
+    "description": "Refreshing new drinks to mark Sinensthesia's first full market season.",
+    "isActive": true,
+    "drinks": [
+      {
+        "name": "\"Midsummer Daydream\"",
+        "ingredients": "Fresh Watermelon, Local Honey, White Peony Blend, Ice",
+        "pairing": "Made with: Thé des Songes Blanc"
+      },
+      {
+        "name": "\"Meloncholy Cure\"",
+        "ingredients": "Fresh Watermelon, Local Honey, Ice",
+        "pairing": "Honey. Watermelon. Slush."
+      },
+      {
+        "name": "\"Double Pop\"",
+        "ingredients": "Seltzer, Popping Candy",
+        "pairing": "Select: Cheong Flavor"
+      },
+      {
+        "name": "\"Oorchard Dreams\"",
+        "ingredients": "Granny Smith Cheong, Hibiscus Infused Apple",
+        "pairing": "Suggested: Four Seasons Oolong"
+      }
+    ],
+    "addons": [
+      {
+        "title": "Tea",
+        "subtitle": "All available upon request. Select teas available pre-brewed. Ask for micro-batch, limited availability options.",
+        "items": [
+            "Four Seasons Oolong",
+            "Thé des Songes Blanc",
+            "Himalayan Mist",
+            "Himalayan Sunrise",
+            "Nepali Gold Pearls",
+            "Nepali Green Pearls"
+        ]
+      },
+      {
+        "title": "Alternatives",
+        "subtitle": "Non-tea based beverage options.",
+        "items": [
+            "Soda",
+            "Slush",
+            "Creamline Milk",
+            "Koji Oat Milk"
+        ]
+      },
+      {
+        "title": "Cheong",
+        "subtitle": "House-made, Korean cold-process syrups. Add one to any beverage base. Selection varies by market.",
+        "items": [
+            "Strawberry",
+            "Watermelon",
+            "Apple",
+            "Blueberry",
+            "Yellow Nectarine"
+        ]
+      },
+      {
+        "title": "Flavors",
+        "subtitle": "Creamers and additional sweeteners.",
+        "items": [
+            "Brown Sugar Syrup",
+            "Organic Cane Sugar",
+            "Local Honey",
+            "Creamline Milk",
+            "Koji Oat Milk"
+        ]
+      },
+      {
+        "title": "Toppings",
+        "subtitle": "Boba, jellies & more. Add to any beverage.",
+        "items": [
+            "Handmade Taro Boba",
+            "Candied Strawberry Purée",
+            "Hibiscus Infused Apple",
+            "Jasmine Jelly"
+        ]
+      }
+
+    ]
+  },
+  {
+    "id": "spice-and-festivities",
+    "title": "Spice & Festivities",
+    "season": "Winter 2025",
+    "description": "A warming menu of holiday beverages and (of course!) excellent tea.",
+    "isActive": true,
+    "drinks": [
+      {
+        "name": "\"Dulce Chai\"",
+        "ingredients": "Dulce de Leche, 6% Milk, Toasted 10-spice Masala",
+        "pairing": "Made with: Himalayan Sunrise"
+      },
+      {
+        "name": "\"Kabocha-cha\"",
+        "ingredients": "Brown Sugar Kabocha Purée, 6% Milk, Optionally Spicy",
+        "pairing": "Suggested: Ceylon Black Tea"
+      },
+      {
+        "name": "\"Orchard Dreams\"",
+        "ingredients": "Apple Cheong, Cider Jelly, Caramelized Apple Preserve",
+        "pairing": "Suggested: Himalayan Mist"
+      },
+      {
+        "name": "\"Purpearl Milk Tea\"",
+        "ingredients": "Okinawan Sweet Potato Boba, Burgundy Caramel, 6% Milk",
+        "pairing": "Suggested: Himalayan Sunrise"
+      }
+    ],
+    "addons": [
+      {
+        "title": "Tea Options",
+        "items": [
+          "Himalayan Mist",
+          "Himalayan Sunrise",
+          "Ceylon Black Tea",
+          "Nepali Gold Pearls",
+          "Nepali Green Pearls"
+        ]
+      },
+      {
+        "title": "Hot Chocolate",
+        "items": [
+          "Belgian Dark Chocolate",
+          "Extra Brute Cocoa",
+          "Choco-foam",
+          "Oat / Whole Milk"
+        ]
+      },
+      {
+        "title": "Soda",
+        "items": [
+          "Watermelon",
+          "Golden Kiwi",
+          "Apple",
+          "Strawberry"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "autumn-voyage",
+    "title": "The Autumn Voyage",
+    "season": "Fall 2025",
+    "description": "A curated selection for our inaugural seasonal offerings.",
+    "isActive": false,
+    "drinks": [
+      {
+        "name": "\"Orchard Dreams\"",
+        "ingredients": "Cosmic Crisp Cheong, Apple Butter, Hibiscus Infused Apple",
+        "pairing": "Suggested: Jasmine Green Tea"
+      },
+      {
+        "name": "\"Strawberry Bloom\"",
+        "ingredients": "Strawberry Cheong, Candied Strawberry Purée",
+        "pairing": "Suggested: Jasmine Green Tea"
+      },
+      {
+        "name": "\"Thé Noisette\"",
+        "ingredients": "Toasted Milk Powder, Evaporated Milk",
+        "pairing": "Suggested: Ceylon Black Tea"
+      },
+      {
+        "name": "\"Dos Leches\"",
+        "ingredients": "Dulce de Leche, Super Milk Foam",
+        "pairing": "Made with: Ceylon Milk Tea"
+      }
+    ],
+    "addons": [
+      {
+        "title": "Tea Options",
+        "items": [
+          "Himalayan High Mountain Green Tea",
+          "Himalayan High Mountain Black Tea",
+          "Ceylon Black Tea",
+          "Jasmine Green Tea"
+        ]
+      },
+      {
+        "title": "Housemade Toppings",
+        "items": [
+          "Hibiscus Infused Apple",
+          "Cider Jelly",
+          "Fresh Strawberry"
+        ]
+      }
+    ]
+  }
+]
