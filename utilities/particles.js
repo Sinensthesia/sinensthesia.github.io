@@ -9,16 +9,59 @@ function initParticles(options = {}) {
     // otherwise it falls back to these defaults.
     const {
         containerId = 'particle-container',
-        textSelector = '#about .container',
+        priorityContentId = '#about .container',
         imagePaths = ['Resources/KrikosInner.png', 'Resources/StellaInner.png']
     } = options;
 
     const container = document.getElementById(containerId);
     if (!container) return;
 
-    const textContent = document.querySelector(textSelector);
+    const priorityContent = document.querySelector(priorityContentId);
 
-    // Localized debounce so this utility is 100% standalone
+    // --- 1. Inject CSS Styles Dynamically ---
+    const injectStyles = () => {
+        // Prevent duplicate injections if initialized multiple times
+        if (document.getElementById('particle-styles')) return;
+
+        const styleSheet = document.createElement('style');
+        styleSheet.id = 'particle-styles';
+        styleSheet.innerHTML = `
+        #${containerId} {
+        opacity: 0;
+        transition: opacity 0.5s ease-in-out;
+        top: -15vh;
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        pointer-events: none; /* Prevents particles from blocking clicks */
+        z-index: 0;
+        }
+        #${containerId}.particles-visible {
+        opacity: 1;
+        transition: opacity 2.2s ease-in-out;
+        }
+        @keyframes float-bright {
+            0% { transform: translateY(0px) rotate(0deg); opacity: 0.7; }
+            50% { transform: translateY(-15px) rotate(180deg); opacity: 0.3; }
+            100% { transform: translateY(0px) rotate(360deg); opacity: 0.7; }
+        }
+        @keyframes float-subtle {
+            0% { transform: translateY(0px) rotate(0deg); opacity: 0.3; }
+            50% { transform: translateY(-20px) rotate(180deg); opacity: 0.1; }
+            100% { transform: translateY(0px) rotate(360deg); opacity: 0.3; }
+        }
+        .particle {
+            position: absolute;
+            animation-timing-function: ease-in-out;
+            animation-iteration-count: infinite;
+        }
+        .particle-bright { animation-name: float-bright; }
+        .particle-subtle { animation-name: float-subtle; }
+        `;
+        document.head.appendChild(styleSheet);
+    };
+
+    // --- 2. Localized debounce so this utility is 100% standalone ---
     const debounce = (func, wait) => {
         let timeout;
         return (...args) => {
@@ -27,7 +70,9 @@ function initParticles(options = {}) {
         };
     };
 
+    // --- 3. Particle Generation Logic ---
     const generateParticles = () => {
+        // Fade out
         container.classList.remove('particles-visible');
 
         setTimeout(() => {
@@ -40,12 +85,12 @@ function initParticles(options = {}) {
 
             // Safely calculate boundaries ONLY if the text container exists on this page
             let boundaries = { left: 0, right: 0, width: container.getBoundingClientRect().width };
-            if (textContent) {
-                const textRect = textContent.getBoundingClientRect();
+            if (priorityContent) {
+                const prioRect = priorityContent.getBoundingClientRect();
                 const containerRect = container.getBoundingClientRect();
                 boundaries = {
-                    left: textRect.left - containerRect.left,
-                    right: textRect.right - containerRect.left,
+                    left: prioRect.left - containerRect.left,
+                    right: prioRect.right - containerRect.left,
                     width: containerRect.width
                 };
             }
@@ -85,8 +130,8 @@ function initParticles(options = {}) {
                 });
 
                 // Dynamic Positioning Logic
-                // If on mobile, or subtle, or if there is no text container to avoid, scatter randomly!
-                if ((window.innerWidth < 769) || !isBright || !textContent) {
+                // If on mobile, or subtle, or if there is no container to avoid, scatter randomly!
+                if ((window.innerWidth < 769) || !isBright || !priorityContent) {
                     el.style.left = `${Math.random() * 100}%`;
                 } else {
                     el.style.left = Math.random() > 0.5
@@ -100,11 +145,22 @@ function initParticles(options = {}) {
             for (let i = 0; i < subtleCount; i++) fragment.appendChild(createParticle(false, i));
 
             container.appendChild(fragment);
-        }, 500);
 
-        container.classList.add('particles-visible');
+            // Fade back in AFTER generation is complete
+            container.classList.add('particles-visible');
+        }, 500);
     };
 
+    // --- 4. Initialize & Setup Listeners ---
+    injectStyles();
     generateParticles();
-    window.addEventListener('resize', debounce(generateParticles, 250));
+
+    // Resize listener with mobile vertical scroll protection
+    let particleLastWidth = window.innerWidth;
+    window.addEventListener('resize', debounce(() => {
+        if (window.innerWidth !== particleLastWidth) {
+            particleLastWidth = window.innerWidth;
+            generateParticles();
+        }
+    }, 250));
 }

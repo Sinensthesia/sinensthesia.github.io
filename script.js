@@ -239,14 +239,22 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================
   initMobileMenu();
   adjustAboutSectionMargin();
-  window.addEventListener('resize', debounce(adjustAboutSectionMargin, 250));
   initScrollAnimations();
   setupIntersectionObservers();
-  window.addEventListener('resize', debounce(setupIntersectionObservers, 250));
   initMenu();
 
-  // Check if the particles utility has been loaded, then trigger it
   if (typeof initParticles === 'function') {
     initParticles();
   }
+
+  let globalLastWidth = window.innerWidth;
+  window.addEventListener('resize', debounce(() => {
+    if (window.innerWidth !== globalLastWidth) {
+      globalLastWidth = window.innerWidth;
+
+      // Only recalculate when the phone is rotated or screen width actually changes
+      adjustAboutSectionMargin();
+      setupIntersectionObservers();
+    }
+  }, 250));
 });
