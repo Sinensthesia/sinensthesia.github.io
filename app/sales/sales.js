@@ -322,8 +322,7 @@ const App = {
             if (item.category !== 'Expense') taxableSubtotal += lineTotal;
 
             const div = document.createElement('div');
-            div.className =
-                'cart-item bg-white border border-gray-100 p-2 lg:p-3 rounded-xl flex justify-between items-center shadow-sm hover:border-gray-300 transition';
+            div.className = 'cart-item bg-white border border-gray-100 p-2 lg:p-3 rounded-xl flex justify-between items-center shadow-sm hover:border-gray-300 transition';
             div.innerHTML = `
             <div class="flex flex-col min-w-0 pr-2">
             <div class="flex items-center gap-1.5 flex-wrap">
@@ -345,22 +344,20 @@ const App = {
         let finalSubtotal = subtotal;
         if (subtotal > 0) finalSubtotal = Math.max(0, subtotal - disc);
 
-        // Calculate dynamic tax for active cart panel
+        // TAX INCLUSIVE MATH: Extract tax backwards out of the subtotal
         const finalTaxable = taxableSubtotal > 0 ? Math.max(0, taxableSubtotal - disc) : 0;
-        const taxAmount = roundToCent(finalTaxable * CONFIG.taxRate);
-        const finalTotal = roundToCent(finalSubtotal + taxAmount + tip);
+        const taxAmount = roundToCent(finalTaxable - (finalTaxable / (1 + CONFIG.taxRate)));
+
+        // Final total does NOT add tax again (it's already in the subtotal)
+        const finalTotal = roundToCent(finalSubtotal + tip);
 
         empty.classList.toggle('hidden', this.state.cart.length > 0);
         document.getElementById('cartSubtotalText').innerText = fmt(subtotal);
-        if (document.getElementById('cartTaxText'))
-            document.getElementById('cartTaxText').innerText = fmt(taxAmount);
+        if (document.getElementById('cartTaxText')) document.getElementById('cartTaxText').innerText = fmt(taxAmount);
 
         const totalElem = document.getElementById('cartTotalText');
         totalElem.innerText = fmt(finalTotal);
-        totalElem.className =
-            finalTotal < 0
-                ? 'text-xl lg:text-2xl font-black text-red-600'
-                : 'text-xl lg:text-2xl font-black text-gray-800';
+        totalElem.className = finalTotal < 0 ? 'text-xl lg:text-2xl font-black text-red-600' : 'text-xl lg:text-2xl font-black text-gray-800';
 
         document.getElementById('cartCount').innerText = this.state.cart.length;
         document.getElementById('checkoutBtn').disabled = this.state.cart.length === 0;
@@ -400,42 +397,32 @@ const App = {
             if (item.category !== 'Expense') taxableSubtotal += lineTotal;
         });
 
-        const discount = parseFloat(document.getElementById('discountInput').value) || 0;
-        const tip = parseFloat(document.getElementById('tipInput').value) || 0;
+            const discount = parseFloat(document.getElementById('discountInput').value) || 0;
+            const tip = parseFloat(document.getElementById('tipInput').value) || 0;
 
-        let finalSubtotal = subtotal;
-        if (subtotal > 0) finalSubtotal = Math.max(0, subtotal - discount);
+            let finalSubtotal = subtotal;
+            if (subtotal > 0) finalSubtotal = Math.max(0, subtotal - discount);
 
-        const finalTaxable = taxableSubtotal > 0 ? Math.max(0, taxableSubtotal - discount) : 0;
-        const tax = roundToCent(finalTaxable * CONFIG.taxRate);
-        const orderTotal = roundToCent(finalSubtotal + tax + tip);
+            // TAX INCLUSIVE MATH: Extract tax backwards
+            const finalTaxable = taxableSubtotal > 0 ? Math.max(0, taxableSubtotal - discount) : 0;
+        const tax = roundToCent(finalTaxable - (finalTaxable / (1 + CONFIG.taxRate)));
+
+        // Final total does NOT add tax again
+        const orderTotal = roundToCent(finalSubtotal + tip);
 
         let fee = 0;
         const feeConfig = CONFIG.fees[this.state.payType];
         if (orderTotal > 0 && feeConfig) {
-            fee = roundToCent(orderTotal * feeConfig.percent + feeConfig.fixed);
+            fee = roundToCent((orderTotal * feeConfig.percent) + feeConfig.fixed);
         }
 
         const isRetro = document.getElementById('retroToggle').checked;
         let ts = '';
         if (isRetro) {
             const val = document.getElementById('retroDateInput').value;
-            // Create timestamp with generic time to maintain Date parsability
-            ts = new Date(val + 'T12:00:00').toLocaleString([], {
-                month: 'numeric',
-                day: 'numeric',
-                year: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit',
-            });
+            ts = new Date(val + 'T12:00:00').toLocaleString([], { month: 'numeric', day: 'numeric', year: '2-digit', hour: '2-digit', minute: '2-digit' });
         } else {
-            ts = new Date().toLocaleString([], {
-                month: 'numeric',
-                day: 'numeric',
-                year: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit',
-            });
+            ts = new Date().toLocaleString([], { month: 'numeric', day: 'numeric', year: '2-digit', hour: '2-digit', minute: '2-digit' });
         }
 
         const order = {
@@ -494,106 +481,57 @@ const App = {
         const body = document.getElementById('salesTableBody');
         body.innerHTML = '';
 
-        // Added expense tracking variables per payment category
         let s = {
-            gross: 0,
-            cashGroup: 0,
-            venmoGroup: 0,
-            zelle: 0,
-            fees: 0,
-            venmoFees: 0,
-            ccFees: 0,
-            tax: 0,
-            exactCash: 0,
-            mb: 0,
-            exactVenmo: 0,
-            cc: 0,
-            expenses: 0,
-            tips: 0,
-            cashTips: 0,
-            venmoTips: 0,
-            zelleTips: 0,
-            ccTips: 0,
-            cashExpenses: 0,
-            venmoExpenses: 0,
-            zelleExpenses: 0,
-            ccExpenses: 0,
-            mbExpenses: 0,
+            collected: 0, gross: 0, cashGroup: 0, venmoGroup: 0, zelle: 0,
+            fees: 0, venmoFees: 0, ccFees: 0, tax: 0,
+            exactCash: 0, mb: 0, exactVenmo: 0, cc: 0,
+            expenses: 0, tips: 0,
+            cashTips: 0, venmoTips: 0, zelleTips: 0, ccTips: 0,
+            cashExpenses: 0, venmoExpenses: 0, zelleExpenses: 0, ccExpenses: 0, mbExpenses: 0
         };
-        const payColors = {
-            Cash: 'green',
-            Venmo: 'blue',
-            Zelle: 'purple',
-            CC: 'yellow',
-            MB: 'gray',
-        };
+        const payColors = { Cash: 'green', Venmo: 'blue', Zelle: 'purple', CC: 'yellow', MB: 'gray' };
 
         [...this.state.sales].reverse().forEach((order, orderIndex) => {
-            // Calculate expenses for this specific order
-            const orderExpense = Math.abs(
-                order.items
-                    .filter((i) => i.category === 'Expense')
-                    .reduce((sum, i) => sum + i.unitPrice * i.qty, 0)
-            );
+            const orderExpense = Math.abs(order.items.filter((i) => i.category === 'Expense').reduce((sum, i) => sum + i.unitPrice * i.qty, 0));
+            const orderTip = order.tip || 0;
 
-            // Add the expense back to order.total so it does not reduce Gross Revenue
-            s.gross += order.total + orderExpense;
+            // Raw collected revenue (ignoring internal accounting)
+            s.collected += (order.total + orderExpense);
             s.expenses += orderExpense;
-
             s.tax += order.tax;
             s.fees += order.fee;
-
-            const orderTip = order.tip || 0;
             s.tips += orderTip;
 
-            // Payment groups still use the raw order.total because expenses represent cash leaving the drawer
-            // Routing tips and expenses into specific buckets
+            // Payment buckets
             if (order.payment === 'Cash') {
-                s.cashGroup += order.total;
-                s.exactCash += order.total;
-                s.cashTips += orderTip;
-                s.cashExpenses += orderExpense;
-            } else if (order.payment === 'MB') {
-                s.cashGroup += order.total;
-                s.mb += order.total;
-                s.mbExpenses += orderExpense;
-            } else if (order.payment === 'Venmo') {
-                s.venmoGroup += order.total;
-                s.exactVenmo += order.total;
-                s.venmoFees += order.fee;
-                s.venmoTips += orderTip;
-                s.venmoExpenses += orderExpense;
-            } else if (order.payment === 'CC') {
-                s.venmoGroup += order.total;
-                s.cc += order.total;
-                s.ccFees += order.fee;
-                s.ccTips += orderTip;
-                s.ccExpenses += orderExpense;
-            } else if (order.payment === 'Zelle') {
-                s.zelle += order.total;
-                s.zelleTips += orderTip;
-                s.zelleExpenses += orderExpense;
+                s.cashGroup += order.total; s.exactCash += order.total; s.cashTips += orderTip; s.cashExpenses += orderExpense;
+            }
+            else if (order.payment === 'MB') {
+                s.cashGroup += order.total; s.mb += order.total; s.mbExpenses += orderExpense;
+            }
+            else if (order.payment === 'Venmo') {
+                s.venmoGroup += order.total; s.exactVenmo += order.total; s.venmoFees += order.fee; s.venmoTips += orderTip; s.venmoExpenses += orderExpense;
+            }
+            else if (order.payment === 'CC') {
+                s.venmoGroup += order.total; s.cc += order.total; s.ccFees += order.fee; s.ccTips += orderTip; s.ccExpenses += orderExpense;
+            }
+            else if (order.payment === 'Zelle') {
+                s.zelle += order.total; s.zelleTips += orderTip; s.zelleExpenses += orderExpense;
             }
 
             const pColor = payColors[order.payment] || 'gray';
-            const netAmt = roundToCent(order.total - order.fee - order.tax);
+            // True net per order deducts tax, fees, AND tips (since tips belong to staff, not business)
+            const netAmt = roundToCent(order.total - order.fee - order.tax - orderTip);
             const rowspan = order.items.length;
-
             const rowBg = orderIndex % 2 === 0 ? 'bg-white' : 'bg-cream';
 
             order.items.forEach((item, index) => {
                 const tr = document.createElement('tr');
                 tr.className = `${rowBg} hover:brightness-95 transition border-b border-gray-100`;
-
-                const catTheme = CONFIG.themes[item.category] || {
-                    bg: 'gray-100',
-                    text: 'gray-700',
-                };
+                const catTheme = CONFIG.themes[item.category] || { bg: 'gray-100', text: 'gray-700' };
                 let html = '';
 
-                if (index === 0) {
-                    html += `<td class="p-2 lg:p-3 text-[9px] lg:text-[10px] text-gray-500 font-mono align-top border-r border-gray-100" rowspan="${rowspan}">${order.timestamp}</td>`;
-                }
+                if (index === 0) html += `<td class="p-2 lg:p-3 text-[9px] lg:text-[10px] text-gray-500 font-mono align-top border-r border-gray-100" rowspan="${rowspan}">${order.timestamp}</td>`;
 
                 html += `
                 <td class="p-2 lg:p-3 w-full align-top">
@@ -625,51 +563,37 @@ const App = {
                     </div>
                     </td>`;
                 }
-
                 tr.innerHTML = html;
                 body.appendChild(tr);
             });
         });
 
+        // TAX INCLUSIVE MATH: True Gross is total collected MINUS tips and tax
+        s.gross = s.collected - s.tips - s.tax;
+        s.net = s.gross - s.fees - s.expenses;
+
         document.getElementById('cashTotalDisplay').innerText = fmt(s.cashGroup);
         document.getElementById('venmoTotalDisplay').innerText = fmt(s.venmoGroup);
         document.getElementById('zelleTotalDisplay').innerText = fmt(s.zelle);
         document.getElementById('grandTotalDisplay').innerText = fmt(s.gross);
-
-        // Net relies on explicitly subtracting expenses now that they aren't naturally baked into the gross
-        document.getElementById('netTotalDisplay').innerText = fmt(
-            roundToCent(s.gross - s.fees - s.tax - s.expenses)
-        );
+        document.getElementById('netTotalDisplay').innerText = fmt(s.net);
 
         // --- TOOLTIP BREAKDOWNS ---
+        const nestedTipClass = "text-green-400 text-[10px] pl-2 border-l border-gray-600 mt-1 mb-0.5";
+        const nestedExpClass = "text-orange-400 text-[10px] pl-2 border-l border-gray-600 mt-1 mb-0.5";
 
-        // Tailwind class for nested lines
-        const nestedTipClass =
-            'text-green-400 text-[10px] pl-2 border-l border-gray-600 mt-1 mb-0.5';
-        const nestedExpClass =
-            'text-orange-400 text-[10px] pl-2 border-l border-gray-600 mt-1 mb-0.5';
-
-        // Payment Buckets (Tips and Expenses dynamically injected)
-        document.getElementById('cashBreakdown').innerHTML =
-            `Cash: ${fmt(s.exactCash)}${s.cashTips > 0 ? `<div class="${nestedTipClass}">Tips: ${fmt(s.cashTips)}</div>` : ''}${s.cashExpenses > 0 ? `<div class="${nestedExpClass}">Expenses: -${fmt(s.cashExpenses)}</div>` : ''}`;
-        document.getElementById('mbBreakdown').innerHTML =
-            `MarketBucks: ${fmt(s.mb)}${s.mbExpenses > 0 ? `<div class="${nestedExpClass}">Expenses: -${fmt(s.mbExpenses)}</div>` : ''}`;
-        document.getElementById('venmoBreakdown').innerHTML =
-            `Venmo: ${fmt(s.exactVenmo)}${s.venmoTips > 0 ? `<div class="${nestedTipClass}">Tips: ${fmt(s.venmoTips)}</div>` : ''}${s.venmoExpenses > 0 ? `<div class="${nestedExpClass}">Expenses: -${fmt(s.venmoExpenses)}</div>` : ''}`;
+        document.getElementById('cashBreakdown').innerHTML = `Cash: ${fmt(s.exactCash)}${s.cashTips > 0 ? `<div class="${nestedTipClass}">Tips: ${fmt(s.cashTips)}</div>` : ''}${s.cashExpenses > 0 ? `<div class="${nestedExpClass}">Expenses: -${fmt(s.cashExpenses)}</div>` : ''}`;
+        document.getElementById('mbBreakdown').innerHTML = `MarketBucks: ${fmt(s.mb)}${s.mbExpenses > 0 ? `<div class="${nestedExpClass}">Expenses: -${fmt(s.mbExpenses)}</div>` : ''}`;
+        document.getElementById('venmoBreakdown').innerHTML = `Venmo: ${fmt(s.exactVenmo)}${s.venmoTips > 0 ? `<div class="${nestedTipClass}">Tips: ${fmt(s.venmoTips)}</div>` : ''}${s.venmoExpenses > 0 ? `<div class="${nestedExpClass}">Expenses: -${fmt(s.venmoExpenses)}</div>` : ''}`;
         document.getElementById('venmoFeeBreakdown').innerText = `Fee: ${fmt(s.venmoFees)}`;
-        document.getElementById('ccBreakdown').innerHTML =
-            `Credit Card: ${fmt(s.cc)}${s.ccTips > 0 ? `<div class="${nestedTipClass}">Tips: ${fmt(s.ccTips)}</div>` : ''}${s.ccExpenses > 0 ? `<div class="${nestedExpClass}">Expenses: -${fmt(s.ccExpenses)}</div>` : ''}`;
+        document.getElementById('ccBreakdown').innerHTML = `Credit Card: ${fmt(s.cc)}${s.ccTips > 0 ? `<div class="${nestedTipClass}">Tips: ${fmt(s.ccTips)}</div>` : ''}${s.ccExpenses > 0 ? `<div class="${nestedExpClass}">Expenses: -${fmt(s.ccExpenses)}</div>` : ''}`;
         document.getElementById('ccFeeBreakdown').innerText = `Fee: ${fmt(s.ccFees)}`;
-        document.getElementById('zelleBreakdown').innerHTML =
-            `Zelle: ${fmt(s.zelle)}${s.zelleTips > 0 ? `<div class="${nestedTipClass}">Tips: ${fmt(s.zelleTips)}</div>` : ''}${s.zelleExpenses > 0 ? `<div class="${nestedExpClass}">Expenses: -${fmt(s.zelleExpenses)}</div>` : ''}`;
+        document.getElementById('zelleBreakdown').innerHTML = `Zelle: ${fmt(s.zelle)}${s.zelleTips > 0 ? `<div class="${nestedTipClass}">Tips: ${fmt(s.zelleTips)}</div>` : ''}${s.zelleExpenses > 0 ? `<div class="${nestedExpClass}">Expenses: -${fmt(s.zelleExpenses)}</div>` : ''}`;
 
-        // Gross Breakdown
-        document.getElementById('grossSalesBreakdown').innerText =
-            `Sales: ${fmt(s.gross - s.tips - s.tax)}`;
-        document.getElementById('grossTaxBreakdown').innerText = `Tax: ${fmt(s.tax)}`;
-        document.getElementById('grossTipBreakdown').innerText = `Tips: ${fmt(s.tips)}`;
+        document.getElementById('grossSalesBreakdown').innerText = `Sales: ${fmt(s.gross)}`;
+        document.getElementById('grossTaxBreakdown').innerText = `Tax Collected: ${fmt(s.tax)}`;
+        document.getElementById('grossTipBreakdown').innerText = `Tips Collected: ${fmt(s.tips)}`;
 
-        // Net Breakdown
         document.getElementById('netTipBreakdown').innerText = `Tips: ${fmt(s.tips)}`;
         document.getElementById('taxBreakdown').innerText = `Tax: ${fmt(s.tax)}`;
         document.getElementById('feeBreakdown').innerText = `Total Fees: ${fmt(s.fees)}`;
@@ -677,7 +601,6 @@ const App = {
         document.getElementById('netCcFee').innerText = `- CC: ${fmt(s.ccFees)}`;
         document.getElementById('expenseBreakdown').innerText = `Expenses: -${fmt(s.expenses)}`;
     },
-
     save() {
         localStorage.setItem('salesData_v8', JSON.stringify(this.state.sales));
     },
@@ -693,25 +616,29 @@ const App = {
     exportToCSV() {
         if (this.state.sales.length === 0) return alert('No data to export.');
 
-        let csv =
-            'Order ID,Date/Time,Category,Subcategory,Item Name,Item Gross Price,Item Qty,Item Line Total,Order Subtotal,Order Discount,Order Tip,Order Gross Total,Order Net Total,Order Tax,Order Fees,Payment Method\n';
+        let csv = 'Order ID,Date/Time,Category,Subcategory,Item Name,Item Gross Price,Item Qty,Item Line Total,Order Subtotal,Order Discount,Order Tip,Order Gross Total,Order Net Total,Order Tax,Order Fees,Payment Method\n';
 
         this.state.sales.forEach((o) => {
             const ts = o.timestamp.replace(/,/g, '');
-            const net = o.total - o.tax - o.fee;
+
+            const orderExpense = Math.abs(o.items.filter((i) => i.category === 'Expense').reduce((sum, i) => sum + i.unitPrice * i.qty, 0));
+            const orderTip = o.tip || 0;
+
+            // Order Gross isolates pure item sales (backs out tip and tax)
+            const orderGross = (o.total + orderExpense) - o.tax - orderTip;
+            // Order Net additionally backs out fees
+            const net = orderGross - o.fee;
 
             o.items.forEach((item, index) => {
                 const isFirst = index === 0;
-                csv += `${o.id},${ts},${item.category},${item.subCategory || 'Unknown'},"${item.name}",${item.unitPrice.toFixed(2)},${item.qty},${(item.unitPrice * item.qty).toFixed(2)},${isFirst ? o.subtotal.toFixed(2) : ''},${isFirst ? o.discount.toFixed(2) : ''},${isFirst ? (o.tip || 0).toFixed(2) : ''},${isFirst ? o.total.toFixed(2) : ''},${isFirst ? net.toFixed(2) : ''},${isFirst ? o.tax.toFixed(2) : ''},${isFirst ? o.fee.toFixed(2) : ''},${isFirst ? o.payment : ''}\n`;
+                csv += `${o.id},${ts},${item.category},${item.subCategory || 'Unknown'},"${item.name}",${item.unitPrice.toFixed(2)},${item.qty},${(item.unitPrice * item.qty).toFixed(2)},${isFirst ? o.subtotal.toFixed(2) : ''},${isFirst ? o.discount.toFixed(2) : ''},${isFirst ? orderTip.toFixed(2) : ''},${isFirst ? orderGross.toFixed(2) : ''},${isFirst ? net.toFixed(2) : ''},${isFirst ? o.tax.toFixed(2) : ''},${isFirst ? o.fee.toFixed(2) : ''},${isFirst ? o.payment : ''}\n`;
             });
         });
 
-        // Requirement 2: Earliest Date for Retro Mode
         let exportDateString = new Date().toISOString().split('T')[0];
         const isRetro = document.getElementById('retroToggle').checked;
 
         if (isRetro && this.state.sales.length > 0) {
-            // Find earliest timestamp securely from the sales array
             const earliest = this.state.sales.reduce((minTime, order) => {
                 const orderTime = new Date(order.timestamp).getTime();
                 return orderTime < minTime ? orderTime : minTime;
