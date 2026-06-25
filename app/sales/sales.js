@@ -580,7 +580,8 @@ const App = {
             cashExpenses: 0, venmoExpenses: 0, zelleExpenses: 0, ccExpenses: 0, mbExpenses: 0,
             cashNet: 0, venmoNet: 0, zelleNet: 0, ccNet: 0, mbNet: 0,
             cashTax: 0, venmoTax: 0, zelleTax: 0, ccTax: 0, mbTax: 0,
-            cashCount: 0, venmoCount: 0, zelleCount: 0, ccCount: 0, mbCount: 0
+            cashCount: 0, venmoCount: 0, zelleCount: 0, ccCount: 0, mbCount: 0,
+            cashGross: 0, mbGross: 0, venmoGross: 0, ccGross: 0, zelleGross: 0
         };
 
         const payColors = {
@@ -605,51 +606,35 @@ const App = {
             s.tax += order.tax;
             s.fees += order.fee;
             s.tips += orderTip;
+
             // Category Net: order.total implicitly accounts for tips (added) and expenses (subtracted)
             const orderNet = roundToCent(order.total - order.tax - order.fee);
 
-            // Payment buckets
+            // Category Gross: back out the tips and add back the absolute value of the expenses
+            const orderGross = roundToCent(order.total + orderExpense - orderTip);
+
+            // prettier-ignore
+            // Payment Buckets
             if (order.payment === 'Cash') {
-                s.cashGroup += order.total;
-                s.exactCash += order.total;
-                s.cashTips += orderTip;
-                s.cashExpenses += orderExpense;
-                s.cashNet += orderNet;
-                s.cashTax += order.tax;
-                s.cashCount++;
+                s.cashGroup += order.total; s.exactCash += order.total; s.cashTips += orderTip; s.cashExpenses += orderExpense;
+                s.cashNet += orderNet; s.cashTax += order.tax; s.cashCount++;
+                s.cashGross += orderGross;
             } else if (order.payment === 'MB') {
-                s.cashGroup += order.total;
-                s.mb += order.total;
-                s.mbTips += orderTip;
-                s.mbExpenses += orderExpense;
-                s.mbNet += orderNet;
-                s.mbTax += order.tax;
-                s.mbCount++;
+                s.cashGroup += order.total; s.mb += order.total; s.mbTips += orderTip; s.mbExpenses += orderExpense;
+                s.mbNet += orderNet; s.mbTax += order.tax; s.mbCount++;
+                s.mbGross += orderGross;
             } else if (order.payment === 'Venmo') {
-                s.venmoGroup += order.total;
-                s.exactVenmo += order.total;
-                s.venmoFees += order.fee;
-                s.venmoTips += orderTip;
-                s.venmoExpenses += orderExpense;
-                s.venmoNet += orderNet;
-                s.venmoTax += order.tax;
-                s.venmoCount++;
+                s.venmoGroup += order.total; s.exactVenmo += order.total; s.venmoFees += order.fee; s.venmoTips += orderTip; s.venmoExpenses += orderExpense;
+                s.venmoNet += orderNet; s.venmoTax += order.tax; s.venmoCount++;
+                s.venmoGross += orderGross;
             } else if (order.payment === 'CC') {
-                s.venmoGroup += order.total;
-                s.cc += order.total;
-                s.ccFees += order.fee;
-                s.ccTips += orderTip;
-                s.ccExpenses += orderExpense;
-                s.ccNet += orderNet;
-                s.ccTax += order.tax;
-                s.ccCount++;
+                s.venmoGroup += order.total; s.cc += order.total; s.ccFees += order.fee; s.ccTips += orderTip; s.ccExpenses += orderExpense;
+                s.ccNet += orderNet; s.ccTax += order.tax; s.ccCount++;
+                s.ccGross += orderGross;
             } else if (order.payment === 'Zelle') {
-                s.zelle += order.total;
-                s.zelleTips += orderTip;
-                s.zelleExpenses += orderExpense;
-                s.zelleNet += orderNet;
-                s.zelleTax += order.tax;
-                s.zelleCount++;
+                s.zelle += order.total; s.zelleTips += orderTip; s.zelleExpenses += orderExpense;
+                s.zelleNet += orderNet; s.zelleTax += order.tax; s.zelleCount++;
+                s.zelleGross += orderGross;
             }
 
             const pColor = payColors[order.payment];
@@ -728,7 +713,7 @@ const App = {
 
         // --- TOOLTIP BREAKDOWNS ---
         const nestedCountClass =
-            'text-gray-400 text-[10px] pl-2 border-l border-gray-600 mt-1 mb-0.5'; // Added Count Class
+            'text-gray-400 text-[10px] pl-2 border-l border-gray-600 mt-1 mb-0.5';
         const nestedTipClass =
             'text-green-400 text-[10px] pl-2 border-l border-gray-600 mt-1 mb-0.5';
         const nestedTaxClass =
@@ -737,48 +722,104 @@ const App = {
             'text-orange-400 text-[10px] pl-2 border-l border-gray-600 mt-1 mb-0.5';
         const nestedFeeClass = 'text-red-400 text-[10px] pl-2 border-l border-gray-600 mt-1 mb-0.5';
 
-        document.getElementById('cashTooltip').innerHTML = `
-        <div>Cash: ${fmt(s.cashNet)}
-        <div class="${nestedCountClass}">Orders: ${s.cashCount}</div>
-        <div class="${nestedTipClass}">Tips: ${fmt(s.cashTips)}</div>
-        <div class="${nestedTaxClass}">Tax: ${fmt(s.cashTax)}</div>
-        ${s.cashExpenses > 0 ? `<div class="${nestedExpClass}">Expenses: -${fmt(s.cashExpenses)}</div>` : ''}
-        </div>
-        <div class="border-t border-gray-600 my-1"></div>
-        <div>MarketBucks: ${fmt(s.mbNet)}
-        <div class="${nestedCountClass}">Orders: ${s.mbCount}</div>
-        <div class="${nestedTipClass}">Tips: ${fmt(s.mbTips)}</div>
-        <div class="${nestedTaxClass}">Tax: ${fmt(s.mbTax)}</div>
-        ${s.mbExpenses > 0 ? `<div class="${nestedExpClass}">Expenses: -${fmt(s.mbExpenses)}</div>` : ''}
-        </div>
-        `;
+        // Clean text classes for flush text elements inside parent cards
+        const flushTip = nestedTipClass.replace('pl-2 border-l border-gray-600', '');
+        const flushTax = nestedTaxClass.replace('pl-2 border-l border-gray-600', '');
+        const flushFee = nestedFeeClass.replace('pl-2 border-l border-gray-600', '');
+        const flushExp = nestedExpClass.replace('pl-2 border-l border-gray-600', '');
 
-        document.getElementById('venmoTooltip').innerHTML = `
-        <div>Venmo: ${fmt(s.venmoNet)}
-        <div class="${nestedCountClass}">Orders: ${s.venmoCount}</div>
-        <div class="${nestedTipClass}">Tips: ${fmt(s.venmoTips)}</div>
-        <div class="${nestedTaxClass}">Tax: ${fmt(s.venmoTax)}</div>
-        <div class="${nestedFeeClass}">Fees: -${fmt(s.venmoFees)}</div>
-        ${s.venmoExpenses > 0 ? `<div class="${nestedExpClass}">Expenses: -${fmt(s.venmoExpenses)}</div>` : ''}
-        </div>
-        <div class="border-t border-gray-600 my-1"></div>
-        <div>Credit Card: ${fmt(s.ccNet)}
-        <div class="${nestedCountClass}">Orders: ${s.ccCount}</div>
-        <div class="${nestedTipClass}">Tips: ${fmt(s.ccTips)}</div>
-        <div class="${nestedTaxClass}">Tax: ${fmt(s.ccTax)}</div>
-        <div class="${nestedFeeClass}">Fees: -${fmt(s.ccFees)}</div>
-        ${s.ccExpenses > 0 ? `<div class="${nestedExpClass}">Expenses: -${fmt(s.ccExpenses)}</div>` : ''}
-        </div>
-        `;
+        // 1. CASH+ PILL DROPDOWN
+        const cashElem = document.getElementById('cashTooltip');
+        if (cashElem) {
+            cashElem.innerHTML = `
+            <div>Cash Gross: ${fmt(s.cashGross)} / Net: ${fmt(s.cashNet)}
+            <div class="${nestedCountClass}">Orders: ${s.cashCount}</div>
+            <div class="${nestedTipClass}">Tips: ${fmt(s.cashTips)}</div>
+            <div class="${nestedTaxClass}">Tax: ${fmt(s.cashTax)}</div>
+            ${s.cashExpenses > 0 ? `<div class="${nestedExpClass}">Expenses: -${fmt(s.cashExpenses)}</div>` : ''}
+            </div>
+            <div class="border-t border-gray-600 my-1"></div>
+            <div>MarketBucks Gross: ${fmt(s.mbGross)} / Net: ${fmt(s.mbNet)}
+            <div class="${nestedCountClass}">Orders: ${s.mbCount}</div>
+            <div class="${nestedTipClass}">Tips: ${fmt(s.mbTips)}</div>
+            <div class="${nestedTaxClass}">Tax: ${fmt(s.mbTax)}</div>
+            ${s.mbExpenses > 0 ? `<div class="${nestedExpClass}">Expenses: -${fmt(s.mbExpenses)}</div>` : ''}
+            </div>
+            `;
+        }
 
-        document.getElementById('zelleTooltip').innerHTML = `
-        <div>Zelle: ${fmt(s.zelleNet)}
-        <div class="${nestedCountClass}">Orders: ${s.zelleCount}</div>
-        <div class="${nestedTipClass}">Tips: ${fmt(s.zelleTips)}</div>
-        <div class="${nestedTaxClass}">Tax: ${fmt(s.zelleTax)}</div>
-        ${s.zelleExpenses > 0 ? `<div class="${nestedExpClass}">Expenses: -${fmt(s.zelleExpenses)}</div>` : ''}
-        </div>
-        `;
+        // 2. VENMO+ PILL DROPDOWN
+        const venmoElem = document.getElementById('venmoTooltip');
+        if (venmoElem) {
+            venmoElem.innerHTML = `
+            <div>Venmo Gross: ${fmt(s.venmoGross)} / Net: ${fmt(s.venmoNet)}
+            <div class="${nestedCountClass}">Orders: ${s.venmoCount}</div>
+            <div class="${nestedTipClass}">Tips: ${fmt(s.venmoTips)}</div>
+            <div class="${nestedTaxClass}">Tax: ${fmt(s.venmoTax)}</div>
+            <div class="${nestedFeeClass}">Fees: -${fmt(s.venmoFees)}</div>
+            ${s.venmoExpenses > 0 ? `<div class="${nestedExpClass}">Expenses: -${fmt(s.venmoExpenses)}</div>` : ''}
+            </div>
+            <div class="border-t border-gray-600 my-1"></div>
+            <div>Credit Card Gross: ${fmt(s.ccGross)} / Net: ${fmt(s.ccNet)}
+            <div class="${nestedCountClass}">Orders: ${s.ccCount}</div>
+            <div class="${nestedTipClass}">Tips: ${fmt(s.ccTips)}</div>
+            <div class="${nestedTaxClass}">Tax: ${fmt(s.ccTax)}</div>
+            <div class="${nestedFeeClass}">Fees: -${fmt(s.ccFees)}</div>
+            ${s.ccExpenses > 0 ? `<div class="${nestedExpClass}">Expenses: -${fmt(s.ccExpenses)}</div>` : ''}
+            </div>
+            `;
+        }
+
+        // 3. ZELLE PILL DROPDOWN
+        const zelleElem = document.getElementById('zelleTooltip');
+        if (zelleElem) {
+            zelleElem.innerHTML = `
+            <div>Zelle Gross: ${fmt(s.zelleGross)} / Net: ${fmt(s.zelleNet)}
+            <div class="${nestedCountClass}">Orders: ${s.zelleCount}</div>
+            <div class="${nestedTipClass}">Tips: ${fmt(s.zelleTips)}</div>
+            <div class="${nestedTaxClass}">Tax: ${fmt(s.zelleTax)}</div>
+            ${s.zelleExpenses > 0 ? `<div class="${nestedExpClass}">Expenses: -${fmt(s.zelleExpenses)}</div>` : ''}
+            </div>
+            `;
+        }
+
+        // 4. TIPS PILL DROPDOWN
+        const tipElem = document.getElementById('tipTooltip');
+        if (tipElem) {
+            tipElem.innerHTML = `
+            <div class="text-gray-300 text-[10px] mb-1 uppercase tracking-wider">Tips Collected</div>
+            <div>Cash: ${fmt(s.cashTips)}</div>
+            <div>Venmo: ${fmt(s.venmoTips)}</div>
+            <div>Credit Card: ${fmt(s.ccTips)}</div>
+            <div>Zelle: ${fmt(s.zelleTips)}</div>
+            `;
+        }
+
+        // 5. GROSS PILL DROPDOWN
+        const grossElem = document.getElementById('grossTooltip');
+        if (grossElem) {
+            grossElem.innerHTML = `
+            <div class="text-gray-300 text-[10px] mb-1 uppercase tracking-wider">Gross Revenue</div>
+            <div>Sales: ${fmt(s.gross)}</div>
+            <div class="${flushTip}">Tips Collected: ${fmt(s.tips)}</div>
+            <div class="border-t border-gray-600 mt-2 pt-1"></div>
+            <div class="text-green-300 mt-1 font-bold">Total Collected: ${fmt(s.collected)}</div>
+            `;
+        }
+
+        // 6. NET PILL DROPDOWN
+        const netElem = document.getElementById('netTooltip');
+        if (netElem) {
+            netElem.innerHTML = `
+            <div class="text-gray-300 text-[10px] mb-1 uppercase tracking-wider">Net (Take Home)</div>
+            <div class="${flushTip}">Collected (w/ Tips): ${fmt(s.collected)}</div>
+            <div class="${flushTax}">Tax Owed: -${fmt(s.tax)}</div>
+            <div class="${flushFee}">Total Fees: -${fmt(s.fees)}</div>
+            ${s.expenses > 0 ? `<div class="${flushExp}">Expenses: -${fmt(s.expenses)}</div>` : ''}
+            <div class="border-t border-gray-600 mt-2 pt-1"></div>
+            <div class="text-blue-300 mt-1 font-bold">Net Taxable: ${fmt(s.netTaxable)}</div>
+            `;
+        }
     },
     save() {
         localStorage.setItem('salesData_v8', JSON.stringify(this.state.sales));
@@ -808,10 +849,11 @@ const App = {
             );
             const orderTip = o.tip || 0;
 
-            // Order Gross isolates pure item sales (backs out tip)
-            const orderGross = o.total + orderExpense - orderTip;
-            // Order Net additionally backs out fees
-            const net = orderGross - o.fee;
+            // FIX FLAW #3: Align with your live accounting definitions
+            // Gross sales is raw item sales (ignoring tip entirely)
+            const orderGross = roundToCent(o.total + orderExpense - orderTip);
+            // Net income tracks the total cash intake minus business operations friction
+            const net = roundToCent(orderGross - o.fee);
 
             o.items.forEach((item, index) => {
                 const isFirst = index === 0;
@@ -822,13 +864,18 @@ const App = {
         let exportDateString = new Date().toISOString().split('T')[0];
         const isRetro = document.getElementById('retroToggle').checked;
 
+        // FIX FLAW #2: Parse your custom "M/D/YY" or "M/D/YY, HH:MM" strings safely without browser engines breaking
         if (isRetro && this.state.sales.length > 0) {
-            const earliest = this.state.sales.reduce((minTime, order) => {
-                const orderTime = new Date(order.timestamp).getTime();
-                return orderTime < minTime ? orderTime : minTime;
-            }, new Date(this.state.sales[0].timestamp).getTime());
-
-            exportDateString = new Date(earliest).toISOString().split('T')[0];
+            try {
+                // Grab the oldest transaction stamp
+                const rawStamp = this.state.sales[0].timestamp.split(',')[0].trim(); // Extracts "6/25/26"
+                const [m, d, y] = rawStamp.split('/');
+                const fullYear = y.length === 2 ? '20' + y : y;
+                // Pad single digits so it outputs clean standard ISO: YYYY-MM-DD
+                exportDateString = `${fullYear}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+            } catch (e) {
+                console.error('Date fallback triggered', e);
+            }
         }
 
         const blob = new Blob([csv], { type: 'text/csv' });
