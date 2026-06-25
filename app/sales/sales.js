@@ -496,46 +496,6 @@ const App = {
         this.updateHistory();
     },
 
-    launchVenmoLink() {
-        // 1. Ensure there are items in the cart to pay for
-        if (this.state.cart.length === 0) {
-            return alert('Your cart is empty.');
-        }
-
-        // 2. Set your Venmo business/personal handle here (without the '@')
-        const venmoHandle = 'YOUR_VENMO_HANDLE_HERE';
-
-        // 3. Automatically select 'Venmo' as the payment type in the UI
-        this.state.payType = 'Venmo';
-        this.renderPayments();
-
-        // 4. Calculate the total matching your exact checkout math
-        let subtotal = 0;
-        let taxableSubtotal = 0;
-        this.state.cart.forEach((item) => {
-            const lineTotal = item.unitPrice * item.qty;
-            subtotal += lineTotal;
-            if (item.category !== 'Expense') taxableSubtotal += lineTotal;
-        });
-
-        const discount = parseFloat(document.getElementById('discountInput').value) || 0;
-        const tip = parseFloat(document.getElementById('tipInput').value) || 0;
-
-        let finalSubtotal = subtotal;
-        if (subtotal > 0) finalSubtotal = Math.max(0, subtotal - discount);
-        const orderTotal = roundToCent(finalSubtotal + tip);
-
-        // 5. Generate a clean text summary of the items for the Venmo receipt note
-        const itemSummary = this.state.cart.map((item) => `${item.qty}x ${item.name}`).join(', ');
-        const noteText = encodeURIComponent(`Order: ${itemSummary}`);
-
-        // 6. Build the official universal deep link URI
-        const venmoUrl = `venmo://paycharge?txn=pay&recipients=${venmoHandle}&amount=${orderTotal.toFixed(2)}&note=${noteText}`;
-
-        // 7. Fire the link to open the app
-        window.location.href = venmoUrl;
-    },
-
     editOrder(id) {
         if (this.state.cart.length > 0) {
             if (!confirm('Editing this order will replace your current active cart. Continue?'))
