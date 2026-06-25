@@ -1,41 +1,102 @@
 {
   "categories": {
-    "Beverage": ["Tea", "Slush", "Soda", "Milk", "Hot Chocolate"],
-    "Snack": ["Rice Crispy", "Tanghulu", "Other"],
-    "Merchandise": ["Packaged Tea", "Accessories"],
-    "Expense": ["Supplies", "Labor", "Refund", "Misc"]
+    "Beverage": [
+      "Tea",
+      "Slush",
+      "Soda",
+      "Milk",
+      "Hot Chocolate"
+    ],
+    "Snack": [
+      "Rice Crispy",
+      "Tanghulu",
+      "Other"
+    ],
+    "Merchandise": [
+      "Packaged Tea",
+      "Accessories"
+    ],
+    "Expense": [
+      "Supplies",
+      "Labor",
+      "Refund",
+      "Misc"
+    ]
   },
   "modifiers": {
-    "teaTypes": ["Black", "Green", "Oolong", "Herbal", "White", "Hojicha"],
-    "additions": ["Oat Milk", "Whole Milk", "White Tea", "Strawberry", "Apple", "Watermelon"],
-    "toppings": ["Boba", "Jelly", "Fruit", "Puree", "Popping Candy"],
-    "global": ["Jersey City", "Half Portion"]
+    "teaTypes": [
+      "Black",
+      "Green",
+      "Oolong",
+      "Herbal",
+      "White",
+      "Hojicha"
+    ],
+    "additions": [
+      "Flavor",
+      "Oat Milk",
+      "Whole Milk",
+      "White Tea",
+      "Black Tea",
+      "Green Tea",
+      "Hibiscus",
+      "Strawberry",
+      "Apple",
+      "Watermelon",
+      "Peach"
+    ],
+    "toppings": [
+      "Addon",
+      "Boba",
+      "Jelly",
+      "Fruit",
+      "Puree",
+      "Popping Candy"
+    ],
+    "global": [
+      "Jersey City",
+      "Half Portion",
+      "Uncertain"
+    ]
   },
-  "payments": ["Cash", "Venmo", "Zelle", "CC", "MB"],
+  "payments": [
+    "Cash",
+    "Venmo",
+    "Zelle",
+    "CC",
+    "MB"
+  ],
   "taxRate": 0.06625,
   "fees": {
-    "Venmo": { "percent": 0.019, "fixed": 0.1 },
-    "CC": { "percent": 0.0229, "fixed": 0.1 }
+    "Venmo": {
+      "percent": 0.019,
+      "fixed": 0.1
+    },
+    "CC": {
+      "percent": 0.0229,
+      "fixed": 0.1
+    }
   },
   "defaultPrices": {
     "categories": {
-      "Snack": 4.00,
-      "Merchandise": 5.00,
-      "Expense": 0.00
+      "Snack": 4,
+      "Merchandise": 5,
+      "Expense": 0
     },
     "subCategories": {
-      "Tea": 5.00,
-      "Slush": 6.00,
-      "Soda": 4.00,
-      "Milk": 5.00,
-      "Hot Chocolate": 6.00
+      "Tea": 5,
+      "Slush": 6,
+      "Soda": 4,
+      "Milk": 5,
+      "Hot Chocolate": 6
     },
     "modifiers": {
-      "additions": 1.00,
-      "toppings": 1.00,
+      "additions": 1,
+      "toppings": 1,
       "global": {
-        "Jersey City": 1.00,
-        "Half Portion": -2.00
+        "Jersey City": 1,
+        "Half Portion": -2,
+        "Uncertain": 0
       }
     }
   },
@@ -45,28 +106,45 @@
       "bg": "blue-50",
       "text": "blue-700",
       "ring": "blue-300",
-      "shades": ["bg-blue-900", "bg-blue-700", "bg-blue-500", "bg-blue-400"]
+      "shades": [
+        "bg-blue-900",
+        "bg-blue-700",
+        "bg-blue-500",
+        "bg-blue-400"
+      ]
     },
     "Snack": {
       "main": "orange-500",
       "bg": "orange-50",
       "text": "orange-700",
       "ring": "orange-300",
-      "shades": ["bg-orange-800", "bg-orange-600", "bg-orange-400"]
+      "shades": [
+        "bg-orange-800",
+        "bg-orange-600",
+        "bg-orange-400"
+      ]
     },
     "Merchandise": {
       "main": "purple-600",
       "bg": "purple-50",
       "text": "purple-700",
       "ring": "purple-300",
-      "shades": ["bg-purple-800", "bg-purple-600", "bg-purple-400"]
+      "shades": [
+        "bg-purple-800",
+        "bg-purple-600",
+        "bg-purple-400"
+      ]
     },
     "Expense": {
       "main": "red-600",
       "bg": "red-50",
       "text": "red-700",
       "ring": "red-300",
-      "shades": ["bg-red-800", "bg-red-600", "bg-red-400"]
+      "shades": [
+        "bg-red-800",
+        "bg-red-600",
+        "bg-red-400"
+      ]
     },
     "Tea": {
       "Black": "red",

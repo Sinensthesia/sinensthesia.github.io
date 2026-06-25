@@ -185,6 +185,13 @@
                             id="retroDateInput"
                             class="hidden text-base lg:text-sm bg-white border border-gray-300 rounded px-2 py-1 outline-none focus:border-brand-blue text-gray-600 font-mono shadow-sm"
                         />
+                        <button
+                            id="retroOverrideBtn"
+                            onclick="App.overrideOrderDates()"
+                            class="hidden px-2 py-1 bg-red-50 text-red-600 border border-red-200 rounded text-[10px] lg:text-xs font-bold hover:bg-red-100 transition shadow-sm uppercase tracking-wide"
+                        >
+                            Override Dates
+                        </button>
                     </div>
                 </div>
 
@@ -204,10 +211,7 @@
                                 class="block text-xs sm:text-sm lg:text-xl font-black text-green-600"
                                 >$0.00</span
                             >
-                            <div class="tooltip-box">
-                                <div id="cashBreakdown">Cash: $0.00</div>
-                                <div id="mbBreakdown">MarketBucks: $0.00</div>
-                            </div>
+                            <div id="cashTooltip" class="tooltip-box"></div>
                         </div>
 
                         <div
@@ -222,39 +226,37 @@
                                 class="block text-xs sm:text-sm lg:text-xl font-black text-blue-600"
                                 >$0.00</span
                             >
-                            <div class="tooltip-box">
-                                <div id="venmoBreakdown">Venmo: $0.00</div>
-                                <div
-                                    id="venmoFeeBreakdown"
-                                    class="text-red-400 text-[10px] pl-2 border-l border-gray-600 mb-1.5"
-                                >
-                                    Fee: $0.00
-                                </div>
-                                <div id="ccBreakdown">Credit Card: $0.00</div>
-                                <div
-                                    id="ccFeeBreakdown"
-                                    class="text-red-400 text-[10px] pl-2 border-l border-gray-600"
-                                >
-                                    Fee: $0.00
-                                </div>
-                            </div>
+                            <div id="venmoTooltip" class="tooltip-box"></div>
                         </div>
 
                         <div
-                            class="p-1 sm:p-2 lg:px-5 lg:py-3 tooltip-container flex-1 min-w-0 hover:bg-purple-50 transition relative"
+                            class="p-1 sm:p-2 lg:px-5 lg:py-3 tooltip-container flex-1 min-w-0 hover:bg-fuchsia-50 transition relative"
                         >
                             <span
-                                class="block text-[8px] sm:text-[9px] lg:text-[10px] font-bold text-purple-600 uppercase truncate"
+                                class="block text-[8px] sm:text-[9px] lg:text-[10px] font-bold text-fuchsia-600 uppercase truncate"
                                 >Zelle</span
                             >
                             <span
                                 id="zelleTotalDisplay"
-                                class="block text-xs sm:text-sm lg:text-xl font-black text-purple-600"
+                                class="block text-xs sm:text-sm lg:text-xl font-black text-fuchsia-600"
                                 >$0.00</span
                             >
-                            <div class="tooltip-box">
-                                <div id="zelleBreakdown">Zelle: $0.00</div>
-                            </div>
+                            <div id="zelleTooltip" class="tooltip-box"></div>
+                        </div>
+
+                        <div
+                            class="p-1 sm:p-2 lg:px-5 lg:py-3 tooltip-container flex-1 min-w-0 hover:bg-emerald-50 transition relative"
+                        >
+                            <span
+                                class="block text-[8px] sm:text-[9px] lg:text-[10px] font-bold text-emerald-500 uppercase truncate"
+                                >Tips</span
+                            >
+                            <span
+                                id="tipTotalDisplay"
+                                class="block text-xs sm:text-sm lg:text-xl font-black text-emerald-500"
+                                >$0.00</span
+                            >
+                            <div id="tipTooltip" class="tooltip-box"></div>
                         </div>
 
                         <div
@@ -269,18 +271,7 @@
                                 class="block text-xs sm:text-sm lg:text-xl font-black text-gray-800"
                                 >$0.00</span
                             >
-                            <div class="tooltip-box">
-                                <div
-                                    class="text-gray-300 text-[10px] mb-1 uppercase tracking-wider"
-                                >
-                                    Gross Revenue
-                                </div>
-                                <div id="grossSalesBreakdown" class="mb-1">Sales: $0.00</div>
-                                <div id="grossTaxBreakdown" class="text-yellow-400 mb-1">
-                                    Tax: $0.00
-                                </div>
-                                <div id="grossTipBreakdown" class="text-green-400">Tips: $0.00</div>
-                            </div>
+                            <div id="grossTooltip" class="tooltip-box"></div>
                         </div>
 
                         <div
@@ -295,33 +286,7 @@
                                 class="block text-xs sm:text-sm lg:text-xl font-black text-brand-blue"
                                 >$0.00</span
                             >
-                            <div class="tooltip-box">
-                                <div
-                                    class="text-gray-300 text-[10px] mb-1 uppercase tracking-wider"
-                                >
-                                    Net Income
-                                </div>
-                                <div id="netTipBreakdown" class="text-green-400 mb-1">
-                                    Tips: $0.00
-                                </div>
-                                <div id="taxBreakdown" class="text-yellow-400">Tax: $0.00</div>
-                                <div id="feeBreakdown" class="text-red-400 mt-1">Fees: $0.00</div>
-                                <div
-                                    id="netVenmoFee"
-                                    class="text-red-400/80 text-[10px] pl-2 border-l border-gray-600"
-                                >
-                                    - Venmo: $0.00
-                                </div>
-                                <div
-                                    id="netCcFee"
-                                    class="text-red-400/80 text-[10px] pl-2 border-l border-gray-600"
-                                >
-                                    - CC: $0.00
-                                </div>
-                                <div id="expenseBreakdown" class="text-orange-400 mb-1 mt-1">
-                                    Expenses: $0.00
-                                </div>
-                            </div>
+                            <div id="netTooltip" class="tooltip-box"></div>
                         </div>
                     </div>
                 </div>
@@ -338,12 +303,10 @@
                             </h2>
                         </div>
 
-                        <div
-                            class="p-3 lg:p-4 overflow-y-auto scroller flex-1 space-y-4 lg:space-y-6"
-                        >
+                        <div class="p-3 lg:p-4 overflow-y-auto scroller flex-1 space-y-3">
                             <div>
                                 <span
-                                    class="text-[10px] font-bold text-gray-400 uppercase mb-2 block"
+                                    class="text-[10px] font-bold text-gray-400 uppercase mb-1.5 block"
                                     >Category</span
                                 >
                                 <div
@@ -354,7 +317,7 @@
 
                             <div id="subCatWrapper" class="hidden">
                                 <span
-                                    class="text-[10px] font-bold text-gray-400 uppercase mb-2 block"
+                                    class="text-[10px] font-bold text-gray-400 uppercase mb-1.5 block"
                                     >Item Type</span
                                 >
                                 <div
@@ -365,11 +328,11 @@
 
                             <div
                                 id="beverageModifiersWrapper"
-                                class="hidden bg-white border border-gray-200 rounded-lg p-3 space-y-4 shadow-sm"
+                                class="hidden bg-white border border-gray-200 rounded-lg p-2.5 space-y-3 shadow-sm"
                             >
                                 <div id="teaTypeWrapper">
                                     <span
-                                        class="text-[10px] font-bold text-gray-400 uppercase mb-2 block"
+                                        class="text-[10px] font-bold text-gray-400 uppercase mb-1.5 block"
                                         >Tea Base</span
                                     >
                                     <div id="teaTypeContainer" class="flex flex-wrap gap-1.5"></div>
@@ -377,28 +340,28 @@
                                 <div class="grid grid-cols-2 gap-3 lg:gap-4">
                                     <div>
                                         <span
-                                            class="text-[10px] font-bold text-gray-400 uppercase mb-2 block"
+                                            class="text-[10px] font-bold text-gray-400 uppercase mb-1.5 block"
                                             >Additions (+$1)</span
                                         >
                                         <div
                                             id="additionsContainer"
-                                            class="flex flex-col gap-1.5"
+                                            class="flex flex-wrap gap-1.5"
                                         ></div>
                                     </div>
                                     <div>
                                         <span
-                                            class="text-[10px] font-bold text-gray-400 uppercase mb-2 block"
+                                            class="text-[10px] font-bold text-gray-400 uppercase mb-1.5 block"
                                             >Toppings (+$1)</span
                                         >
                                         <div
                                             id="toppingsContainer"
-                                            class="flex flex-col gap-1.5"
+                                            class="flex flex-wrap gap-1.5"
                                         ></div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="space-y-4">
+                            <div class="space-y-2.5">
                                 <div>
                                     <span
                                         class="text-[10px] font-bold text-gray-400 uppercase mb-1 block"
@@ -407,7 +370,7 @@
                                     <input
                                         type="text"
                                         id="itemInput"
-                                        class="w-full px-3 py-2 bg-white border border-gray-300 rounded text-base lg:text-sm focus:border-brand-blue outline-none transition"
+                                        class="w-full px-3 py-1.5 bg-white border border-gray-300 rounded text-sm focus:border-brand-blue outline-none transition shadow-inner"
                                     />
                                 </div>
                                 <div class="grid grid-cols-2 gap-3 lg:gap-4">
@@ -417,23 +380,23 @@
                                             >Value / Price</span
                                         >
                                         <div
-                                            class="flex items-center bg-white border border-gray-300 rounded overflow-hidden"
+                                            class="flex items-center bg-white border border-gray-300 rounded overflow-hidden shadow-inner h-[34px]"
                                         >
                                             <button
                                                 onclick="App.adjPrice(-1)"
-                                                class="px-3 py-2 bg-gray-50 hover:bg-gray-100 border-r text-lg font-bold text-gray-500 transition-colors"
+                                                class="px-3 bg-gray-50 hover:bg-gray-100 border-r text-lg font-bold text-gray-500 transition-colors h-full flex items-center justify-center"
                                             >
                                                 -
                                             </button>
                                             <input
                                                 type="number"
                                                 id="unitPriceInput"
-                                                class="w-full text-center py-2 bg-white font-bold text-brand-blue text-base lg:text-lg outline-none"
+                                                class="w-full text-center bg-transparent font-bold text-brand-blue text-sm outline-none h-full"
                                                 step="0.25"
                                             />
                                             <button
                                                 onclick="App.adjPrice(1)"
-                                                class="px-3 py-2 bg-gray-50 hover:bg-gray-100 border-l text-lg font-bold text-gray-500 transition-colors"
+                                                class="px-3 bg-gray-50 hover:bg-gray-100 border-l text-lg font-bold text-gray-500 transition-colors h-full flex items-center justify-center"
                                             >
                                                 +
                                             </button>
@@ -446,11 +409,11 @@
                                             >Quantity</span
                                         >
                                         <div
-                                            class="flex items-center bg-white border border-gray-300 rounded overflow-hidden"
+                                            class="flex items-center bg-white border border-gray-300 rounded overflow-hidden shadow-inner h-[34px]"
                                         >
                                             <button
                                                 onclick="App.adjQty(-1)"
-                                                class="px-3 py-2 bg-gray-50 hover:bg-gray-100 border-r text-lg"
+                                                class="px-3 bg-gray-50 hover:bg-gray-100 border-r text-lg h-full flex items-center justify-center"
                                             >
                                                 -
                                             </button>
@@ -459,11 +422,11 @@
                                                 id="qtyInput"
                                                 value="1"
                                                 min="1"
-                                                class="w-full text-center font-bold text-base lg:text-sm outline-none"
+                                                class="w-full text-center font-bold text-sm bg-transparent outline-none h-full"
                                             />
                                             <button
                                                 onclick="App.adjQty(1)"
-                                                class="px-3 py-2 bg-gray-50 hover:bg-gray-100 border-l text-lg"
+                                                class="px-3 bg-gray-50 hover:bg-gray-100 border-l text-lg h-full flex items-center justify-center"
                                             >
                                                 +
                                             </button>
@@ -473,7 +436,7 @@
 
                                 <div
                                     id="globalModifiersWrapper"
-                                    class="hidden bg-white border border-gray-200 rounded-lg p-3 shadow-sm"
+                                    class="hidden bg-white border border-gray-200 rounded-lg p-2.5 shadow-sm"
                                 >
                                     <div
                                         id="globalContainer"
@@ -608,6 +571,39 @@
                                 <div id="paymentTypeContainer" class="flex flex-wrap gap-1.5"></div>
                             </div>
 
+                            <div class="pt-2">
+                                <button
+                                    id="venmoLinkBtn"
+                                    onclick="App.launchVenmoLink()"
+                                    class="w-full py-2 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-lg text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition shadow-sm"
+                                >
+                                    <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                                        <path
+                                            d="M19.74 3H4.26A1.26 1.26 0 003 4.26v15.48A1.26 1.26 0 004.26 21h15.48A1.26 1.26 0 0021 19.74V4.26A1.26 1.26 0 0019.74 3zM9.13 16.63H7.21L5.1 7.42h2.1l1.1 5.37 1.05-5.37h1.93l-2.26 9.21z"
+                                        />
+                                    </svg>
+                                    Launch Venmo Transaction
+                                </button>
+                            </div>
+                            <div
+                                class="flex justify-between items-center text-sm pt-3 pb-1 mt-2 border-t border-gray-100"
+                            >
+                                <span class="text-[10px] font-bold text-gray-400 uppercase"
+                                    >Mass Duplicate (Orders)</span
+                                >
+                                <div class="flex items-center">
+                                    <span class="text-gray-400 mr-1 font-bold">x</span>
+                                    <input
+                                        type="number"
+                                        id="massOrderCount"
+                                        value="1"
+                                        min="1"
+                                        class="w-16 text-center bg-gray-50 border border-gray-200 rounded px-1.5 py-0.5 font-bold text-brand-blue text-base lg:text-sm outline-none focus:border-brand-blue transition"
+                                        onfocus="this.select()"
+                                    />
+                                </div>
+                            </div>
+
                             <button
                                 onclick="App.checkout()"
                                 id="checkoutBtn"
@@ -672,10 +668,10 @@
                                         <th class="p-2 lg:p-3 w-full">Items / Details</th>
                                         <th class="p-2 lg:p-3 text-center">Qty</th>
                                         <th class="p-2 lg:p-3 text-right">Unit $</th>
-                                        <th class="p-2 lg:p-3 text-center border-l">Source</th>
-                                        <th class="p-2 lg:p-3 text-right">Disc.</th>
+                                        <th class="p-2 lg:p-3 text-right border-l">Disc.</th>
                                         <th class="p-2 lg:p-3 text-right">Tip</th>
                                         <th class="p-2 lg:p-3 text-right">Tax</th>
+                                        <th class="p-2 lg:p-3 text-right">Fee</th>
                                         <th class="p-2 lg:p-3 text-right">Gross</th>
                                         <th class="p-2 lg:p-3 text-right text-brand-blue">Net</th>
                                         <th class="p-2 lg:p-3"></th>

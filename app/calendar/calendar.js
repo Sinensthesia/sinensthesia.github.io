@@ -6,73 +6,77 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const calendarEl = document.getElementById('calendar');
     const BRAND_DEFAULT_LOGO =
-    '../../Resources/Web/Icon/Blue/Sinensthesia-Logo-Teacup-Icon-RGB.png';
+        '../../Resources/Web/Icon/Blue/Sinensthesia-Logo-Teacup-Icon-RGB.png';
 
     function buildLegend() {
         fetch('./events.json')
-        .then((response) => response.json())
-        .then((data) => {
-            const marketsContainer = document.getElementById('legend-markets');
-            const eventsContainer = document.getElementById('legend-events');
-            const cancelledContainer = document.getElementById('legend-cancelled');
+            .then((response) => response.json())
+            .then((data) => {
+                const marketsContainer = document.getElementById('legend-markets');
+                const eventsContainer = document.getElementById('legend-events');
+                const cancelledContainer = document.getElementById('legend-cancelled');
 
-            let marketsHtml = '',
-            eventsHtml = '',
-            cancelledHtml = '';
-            const dayNames = [
-                'Sundays',
-                'Mondays',
-                'Tuesdays',
-                'Wednesdays',
-                'Thursdays',
-                'Fridays',
-                'Saturdays',
-            ];
+                let marketsHtml = '',
+                    eventsHtml = '',
+                    cancelledHtml = '';
+                const dayNames = [
+                    'Sundays',
+                    'Mondays',
+                    'Tuesdays',
+                    'Wednesdays',
+                    'Thursdays',
+                    'Fridays',
+                    'Saturdays',
+                ];
 
-            const now = new Date();
-            data.forEach((event) => {
-                // Filter out past cancellations
-                if (event.cancelled && event.start) {
-                    const eventDate = new Date(event.start);
-                    if (eventDate < now) {
-                        return;
+                const now = new Date();
+                data.forEach((event) => {
+                    // Filter out past cancellations
+                    if (event.cancelled && event.start) {
+                        const eventDate = new Date(event.start);
+                        if (eventDate < now) {
+                            return;
+                        }
                     }
-                }
 
-                let dateString = '',
-                isRecurringMarket = false;
-                if (event.daysOfWeek && event.daysOfWeek.length > 0) {
-                    dateString = event.daysOfWeek.map((num) => dayNames[num]).join(', ');
-                    isRecurringMarket = true;
-                } else if (event.start && event.end) {
-                    dateString = `${event.start} to ${event.end}`;
-                } else if (event.start) {
-                    dateString = `${event.start}`;
-                }
+                    let dateString = '',
+                        isRecurringMarket = false;
+                    if (event.daysOfWeek && event.daysOfWeek.length > 0) {
+                        dateString = event.daysOfWeek.map((num) => dayNames[num]).join(', ');
+                        isRecurringMarket = true;
+                    } else if (event.start && event.end) {
+                        dateString = `${event.start} to ${event.end}`;
+                    } else if (event.start) {
+                        dateString = `${event.start}`;
+                    }
 
-                let locationHtml = '';
-                if (event.location) {
-                    const mapQuery = encodeURIComponent(event.location);
-                    const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${mapQuery}`;
-                    locationHtml = event.cancelled
-                    ? `<span class="legend-location">📍 ${event.location}</span>`
-                    : `<a href="${mapsUrl}" target="_blank" class="legend-location">📍 ${event.location}</a>`;
-                }
+                    if (event.hours) {
+                        dateString += ` ${event.hours}`;
+                    }
 
-                const finalLegendImageUrl = event.image || BRAND_DEFAULT_LOGO;
-                const titleStyle = event.cancelled
-                ? 'text-decoration: line-through; opacity: 0.6;'
-                : '';
-                const cancelledBadge = event.cancelled
-                ? `<span style="color: #b30000; font-weight: bold; font-size: 0.85em;">CANCELLED</span>`
-                : '';
+                    let locationHtml = '';
+                    if (event.location) {
+                        const mapQuery = encodeURIComponent(event.location);
+                        const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${mapQuery}`;
+                        locationHtml = event.cancelled
+                            ? `<span class="legend-location">📍 ${event.location}</span>`
+                            : `<a href="${mapsUrl}" target="_blank" class="legend-location">📍 ${event.location}</a>`;
+                    }
 
-                // Make the image a link if a URL is provided
-                const imageMarkup = event.url
-                ? `<a href="${event.url}" target="_blank" style="flex-shrink: 0; display: flex;"><img src="${finalLegendImageUrl}" alt="${event.title}" class="legend-logo" style="${event.cancelled ? 'filter: grayscale(100%);' : ''}"></a>`
-                : `<img src="${finalLegendImageUrl}" alt="${event.title}" class="legend-logo" style="${event.cancelled ? 'filter: grayscale(100%);' : ''}">`;
+                    const finalLegendImageUrl = event.image || BRAND_DEFAULT_LOGO;
+                    const titleStyle = event.cancelled
+                        ? 'text-decoration: line-through; opacity: 0.6;'
+                        : '';
+                    const cancelledBadge = event.cancelled
+                        ? `<span style="color: #b30000; font-weight: bold; font-size: 0.85em;">CANCELLED</span>`
+                        : '';
 
-                const itemHtml = `
+                    // Make the image a link if a URL is provided
+                    const imageMarkup = event.url
+                        ? `<a href="${event.url}" target="_blank" style="flex-shrink: 0; display: flex;"><img src="${finalLegendImageUrl}" alt="${event.title}" class="legend-logo" style="${event.cancelled ? 'filter: grayscale(100%);' : ''}"></a>`
+                        : `<img src="${finalLegendImageUrl}" alt="${event.title}" class="legend-logo" style="${event.cancelled ? 'filter: grayscale(100%);' : ''}">`;
+
+                    const itemHtml = `
                 <li class="legend-item" style="${event.cancelled ? 'opacity: 0.8;' : ''}">
                 ${imageMarkup}
                 <div class="legend-text">
@@ -84,19 +88,19 @@ document.addEventListener('DOMContentLoaded', function () {
                 </li>
                 `;
 
-                if (event.cancelled) cancelledHtml += itemHtml;
-                else if (isRecurringMarket) marketsHtml += itemHtml;
-                else eventsHtml += itemHtml;
-            });
+                    if (event.cancelled) cancelledHtml += itemHtml;
+                    else if (isRecurringMarket) marketsHtml += itemHtml;
+                    else eventsHtml += itemHtml;
+                });
 
                 marketsContainer.innerHTML =
-                marketsHtml ||
-                `<span class="legend-empty">No recurring markets scheduled.</span>`;
+                    marketsHtml ||
+                    `<span class="legend-empty">No recurring markets scheduled.</span>`;
                 eventsContainer.innerHTML =
-                eventsHtml || `<span class="legend-empty">No special events scheduled.</span>`;
+                    eventsHtml || `<span class="legend-empty">No special events scheduled.</span>`;
                 cancelledContainer.innerHTML =
-                cancelledHtml || `<span class="legend-empty">No upcoming cancellations.</span>`;
-        });
+                    cancelledHtml || `<span class="legend-empty">No upcoming cancellations.</span>`;
+            });
     }
 
     buildLegend();
@@ -116,54 +120,54 @@ document.addEventListener('DOMContentLoaded', function () {
         },
         events: function (fetchInfo, successCallback, failureCallback) {
             fetch('./events.json')
-            .then((r) => r.json())
-            .then((data) => {
-                const processedEvents = [],
-                cancellationsMap = {};
-                data.forEach((e) => {
-                    if (e.cancelled && e.start)
-                        cancellationsMap[`${e.start}|${e.title}`] = true;
-                    // Strip URL to remove link behavior in the calendar grid
-                    if (e.cancelled) processedEvents.push({ ...e, url: '' });
-                });
-                data.forEach((e) => {
-                    if (e.cancelled) return;
-                    if (e.daysOfWeek) {
-                        let cur = new Date(
-                            (e.startRecur || e.start || '2025-01-01') + 'T00:00:00'
-                        );
-                        let end = new Date((e.endRecur || e.end || '2030-12-31') + 'T00:00:00');
-                        while (cur <= end) {
-                            if (e.daysOfWeek.includes(cur.getDay())) {
+                .then((r) => r.json())
+                .then((data) => {
+                    const processedEvents = [],
+                        cancellationsMap = {};
+                    data.forEach((e) => {
+                        if (e.cancelled && e.start)
+                            cancellationsMap[`${e.start}|${e.title}`] = true;
+                        // Strip URL to remove link behavior in the calendar grid
+                        if (e.cancelled) processedEvents.push({ ...e, url: '' });
+                    });
+                    data.forEach((e) => {
+                        if (e.cancelled) return;
+                        if (e.daysOfWeek) {
+                            let cur = new Date(
+                                (e.startRecur || e.start || '2025-01-01') + 'T00:00:00'
+                            );
+                            let end = new Date((e.endRecur || e.end || '2030-12-31') + 'T00:00:00');
+                            while (cur <= end) {
+                                if (e.daysOfWeek.includes(cur.getDay())) {
+                                    let ds = cur.toISOString().split('T')[0];
+                                    if (!cancellationsMap[`${ds}|${e.title}`])
+                                        // Strip URL
+                                        processedEvents.push({
+                                            ...e,
+                                            start: ds,
+                                            end: null,
+                                            daysOfWeek: undefined,
+                                            url: '',
+                                        });
+                                }
+                                cur.setDate(cur.getDate() + 1);
+                            }
+                        } else if (e.start && e.end) {
+                            let cur = new Date(e.start + 'T00:00:00'),
+                                end = new Date(e.end + 'T00:00:00');
+                            while (cur <= end) {
                                 let ds = cur.toISOString().split('T')[0];
                                 if (!cancellationsMap[`${ds}|${e.title}`])
                                     // Strip URL
-                                    processedEvents.push({
-                                        ...e,
-                                        start: ds,
-                                        end: null,
-                                        daysOfWeek: undefined,
-                                        url: ''
-                                    });
+                                    processedEvents.push({ ...e, start: ds, end: null, url: '' });
+                                cur.setDate(cur.getDate() + 1);
                             }
-                            cur.setDate(cur.getDate() + 1);
-                        }
-                    } else if (e.start && e.end) {
-                        let cur = new Date(e.start + 'T00:00:00'),
-                             end = new Date(e.end + 'T00:00:00');
-                             while (cur <= end) {
-                                 let ds = cur.toISOString().split('T')[0];
-                                 if (!cancellationsMap[`${ds}|${e.title}`])
-                                     // Strip URL
-                                     processedEvents.push({ ...e, start: ds, end: null, url: '' });
-                                     cur.setDate(cur.getDate() + 1);
-                             }
-                    } else if (!cancellationsMap[`${e.start}|${e.title}`])
-                        // Strip URL
-                        processedEvents.push({ ...e, url: '' });
+                        } else if (!cancellationsMap[`${e.start}|${e.title}`])
+                            // Strip URL
+                            processedEvents.push({ ...e, url: '' });
+                    });
+                    successCallback(processedEvents);
                 });
-                successCallback(processedEvents);
-            });
         },
 
         eventContent: function (arg) {
@@ -185,7 +189,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     </div>`,
                 };
             }
-        }
+        },
     });
 
     calendar.render();
@@ -195,10 +199,7 @@ document.addEventListener('DOMContentLoaded', function () {
         initParticles({
             containerId: 'particle-container',
             textSelector: '#scatter-particles',
-            imagePaths: [
-                '../../Resources/KrikosInner.png',
-                '../../Resources/StellaInner.png'
-            ]
+            imagePaths: ['../../Resources/KrikosInner.png', '../../Resources/StellaInner.png'],
         });
     } else {
         console.warn('initParticles is not defined. Ensure utilities/particles.js is loaded.');

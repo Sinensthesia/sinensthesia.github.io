@@ -108,9 +108,13 @@ const App = {
         const isRetro = document.getElementById('retroToggle').checked;
         const clock = document.getElementById('sessionClock');
         const dateInput = document.getElementById('retroDateInput');
+        const overrideBtn = document.getElementById('retroOverrideBtn'); // Grab the new button
+
         if (isRetro) {
             clock.classList.add('hidden');
             dateInput.classList.remove('hidden');
+            if (overrideBtn) overrideBtn.classList.remove('hidden'); // Show button
+
             if (!dateInput.value) {
                 const today = new Date();
                 const offset = today.getTimezoneOffset() * 60000;
@@ -119,6 +123,29 @@ const App = {
         } else {
             clock.classList.remove('hidden');
             dateInput.classList.add('hidden');
+            if (overrideBtn) overrideBtn.classList.add('hidden'); // Hide button
+        }
+    },
+
+    overrideOrderDates() {
+        const dateVal = document.getElementById('retroDateInput').value;
+
+        if (!dateVal) return alert('Please select a date first.');
+        if (this.state.sales.length === 0) return alert('There are no existing orders to update.');
+
+        if (
+            confirm(
+                `Overwrite ALL existing orders to ${dateVal} (removing times)? This cannot be undone.`
+            )
+        ) {
+            // String manipulation is much faster and avoids timezone bugs
+            const [y, m, d] = dateVal.split('-');
+            const cleanDate = `${parseInt(m)}/${parseInt(d)}/${y.slice(2)}`;
+
+            this.state.sales.forEach((order) => (order.timestamp = cleanDate));
+
+            this.save();
+            this.updateHistory();
         }
     },
 
@@ -322,7 +349,8 @@ const App = {
             if (item.category !== 'Expense') taxableSubtotal += lineTotal;
 
             const div = document.createElement('div');
-            div.className = 'cart-item bg-white border border-gray-100 p-2 lg:p-3 rounded-xl flex justify-between items-center shadow-sm hover:border-gray-300 transition';
+            div.className =
+                'cart-item bg-white border border-gray-100 p-2 lg:p-3 rounded-xl flex justify-between items-center shadow-sm hover:border-gray-300 transition';
             div.innerHTML = `
             <div class="flex flex-col min-w-0 pr-2">
             <div class="flex items-center gap-1.5 flex-wrap">
@@ -346,18 +374,22 @@ const App = {
 
         // TAX INCLUSIVE MATH: Extract tax backwards out of the subtotal
         const finalTaxable = taxableSubtotal > 0 ? Math.max(0, taxableSubtotal - disc) : 0;
-        const taxAmount = roundToCent(finalTaxable - (finalTaxable / (1 + CONFIG.taxRate)));
+        const taxAmount = roundToCent(finalTaxable - finalTaxable / (1 + CONFIG.taxRate));
 
         // Final total does NOT add tax again (it's already in the subtotal)
         const finalTotal = roundToCent(finalSubtotal + tip);
 
         empty.classList.toggle('hidden', this.state.cart.length > 0);
         document.getElementById('cartSubtotalText').innerText = fmt(subtotal);
-        if (document.getElementById('cartTaxText')) document.getElementById('cartTaxText').innerText = fmt(taxAmount);
+        if (document.getElementById('cartTaxText'))
+            document.getElementById('cartTaxText').innerText = fmt(taxAmount);
 
         const totalElem = document.getElementById('cartTotalText');
         totalElem.innerText = fmt(finalTotal);
-        totalElem.className = finalTotal < 0 ? 'text-xl lg:text-2xl font-black text-red-600' : 'text-xl lg:text-2xl font-black text-gray-800';
+        totalElem.className =
+            finalTotal < 0
+                ? 'text-xl lg:text-2xl font-black text-red-600'
+                : 'text-xl lg:text-2xl font-black text-gray-800';
 
         document.getElementById('cartCount').innerText = this.state.cart.length;
         document.getElementById('checkoutBtn').disabled = this.state.cart.length === 0;
@@ -397,15 +429,15 @@ const App = {
             if (item.category !== 'Expense') taxableSubtotal += lineTotal;
         });
 
-            const discount = parseFloat(document.getElementById('discountInput').value) || 0;
-            const tip = parseFloat(document.getElementById('tipInput').value) || 0;
+        const discount = parseFloat(document.getElementById('discountInput').value) || 0;
+        const tip = parseFloat(document.getElementById('tipInput').value) || 0;
 
-            let finalSubtotal = subtotal;
-            if (subtotal > 0) finalSubtotal = Math.max(0, subtotal - discount);
+        let finalSubtotal = subtotal;
+        if (subtotal > 0) finalSubtotal = Math.max(0, subtotal - discount);
 
-            // TAX INCLUSIVE MATH: Extract tax backwards
-            const finalTaxable = taxableSubtotal > 0 ? Math.max(0, taxableSubtotal - discount) : 0;
-        const tax = roundToCent(finalTaxable - (finalTaxable / (1 + CONFIG.taxRate)));
+        // TAX INCLUSIVE MATH: Extract tax backwards
+        const finalTaxable = taxableSubtotal > 0 ? Math.max(0, taxableSubtotal - discount) : 0;
+        const tax = roundToCent(finalTaxable - finalTaxable / (1 + CONFIG.taxRate));
 
         // Final total does NOT add tax again
         const orderTotal = roundToCent(finalSubtotal + tip);
@@ -413,38 +445,95 @@ const App = {
         let fee = 0;
         const feeConfig = CONFIG.fees[this.state.payType];
         if (orderTotal > 0 && feeConfig) {
-            fee = roundToCent((orderTotal * feeConfig.percent) + feeConfig.fixed);
+            fee = roundToCent(orderTotal * feeConfig.percent + feeConfig.fixed);
         }
 
         const isRetro = document.getElementById('retroToggle').checked;
         let ts = '';
         if (isRetro) {
             const val = document.getElementById('retroDateInput').value;
-            ts = new Date(val + 'T12:00:00').toLocaleString([], { month: 'numeric', day: 'numeric', year: '2-digit', hour: '2-digit', minute: '2-digit' });
+            const [y, m, d] = val.split('-');
+            ts = `${parseInt(m)}/${parseInt(d)}/${y.slice(2)}`;
         } else {
-            ts = new Date().toLocaleString([], { month: 'numeric', day: 'numeric', year: '2-digit', hour: '2-digit', minute: '2-digit' });
+            ts = new Date().toLocaleString([], {
+                month: 'numeric',
+                day: 'numeric',
+                year: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+            });
         }
 
-        const order = {
-            id: Date.now(),
-            timestamp: ts,
-            items: [...this.state.cart],
-            subtotal,
-            discount,
-            tip,
-            total: orderTotal,
-            payment: this.state.payType,
-            fee,
-            tax,
-        };
+        // Get the multiplier value (default to 1 if empty/invalid)
+        const massCount = parseInt(document.getElementById('massOrderCount').value) || 1;
 
-        this.state.sales.push(order);
+        // Loop through the creation process based on the massCount
+        for (let i = 0; i < massCount; i++) {
+            const order = {
+                id: Date.now() + i, // Add 'i' to ensure unique IDs for mass additions
+                timestamp: ts,
+                items: JSON.parse(JSON.stringify(this.state.cart)), // Deep copy the cart
+                subtotal,
+                discount,
+                tip,
+                total: orderTotal,
+                payment: this.state.payType,
+                fee,
+                tax,
+            };
+
+            this.state.sales.push(order);
+        }
+
+        // Reset the cart and inputs
         this.state.cart = [];
         document.getElementById('discountInput').value = '0';
         document.getElementById('tipInput').value = '0';
+        document.getElementById('massOrderCount').value = '1'; // Reset mass count to 1 for safety
+
         this.save();
         this.renderCart();
         this.updateHistory();
+    },
+
+    launchVenmoLink() {
+        // 1. Ensure there are items in the cart to pay for
+        if (this.state.cart.length === 0) {
+            return alert('Your cart is empty.');
+        }
+
+        // 2. Set your Venmo business/personal handle here (without the '@')
+        const venmoHandle = 'YOUR_VENMO_HANDLE_HERE';
+
+        // 3. Automatically select 'Venmo' as the payment type in the UI
+        this.state.payType = 'Venmo';
+        this.renderPayments();
+
+        // 4. Calculate the total matching your exact checkout math
+        let subtotal = 0;
+        let taxableSubtotal = 0;
+        this.state.cart.forEach((item) => {
+            const lineTotal = item.unitPrice * item.qty;
+            subtotal += lineTotal;
+            if (item.category !== 'Expense') taxableSubtotal += lineTotal;
+        });
+
+        const discount = parseFloat(document.getElementById('discountInput').value) || 0;
+        const tip = parseFloat(document.getElementById('tipInput').value) || 0;
+
+        let finalSubtotal = subtotal;
+        if (subtotal > 0) finalSubtotal = Math.max(0, subtotal - discount);
+        const orderTotal = roundToCent(finalSubtotal + tip);
+
+        // 5. Generate a clean text summary of the items for the Venmo receipt note
+        const itemSummary = this.state.cart.map((item) => `${item.qty}x ${item.name}`).join(', ');
+        const noteText = encodeURIComponent(`Order: ${itemSummary}`);
+
+        // 6. Build the official universal deep link URI
+        const venmoUrl = `venmo://paycharge?txn=pay&recipients=${venmoHandle}&amount=${orderTotal.toFixed(2)}&note=${noteText}`;
+
+        // 7. Fire the link to open the app
+        window.location.href = venmoUrl;
     },
 
     editOrder(id) {
@@ -481,62 +570,115 @@ const App = {
         const body = document.getElementById('salesTableBody');
         body.innerHTML = '';
 
+        // prettier-ignore
         let s = {
             collected: 0, gross: 0, cashGroup: 0, venmoGroup: 0, zelle: 0,
             fees: 0, venmoFees: 0, ccFees: 0, tax: 0,
             exactCash: 0, mb: 0, exactVenmo: 0, cc: 0,
             expenses: 0, tips: 0,
-            cashTips: 0, venmoTips: 0, zelleTips: 0, ccTips: 0,
-            cashExpenses: 0, venmoExpenses: 0, zelleExpenses: 0, ccExpenses: 0, mbExpenses: 0
+            cashTips: 0, venmoTips: 0, zelleTips: 0, ccTips: 0, mbTips: 0,
+            cashExpenses: 0, venmoExpenses: 0, zelleExpenses: 0, ccExpenses: 0, mbExpenses: 0,
+            cashNet: 0, venmoNet: 0, zelleNet: 0, ccNet: 0, mbNet: 0,
+            cashTax: 0, venmoTax: 0, zelleTax: 0, ccTax: 0, mbTax: 0,
+            cashCount: 0, venmoCount: 0, zelleCount: 0, ccCount: 0, mbCount: 0
         };
-        const payColors = { Cash: 'green', Venmo: 'blue', Zelle: 'purple', CC: 'yellow', MB: 'gray' };
+
+        const payColors = {
+            Cash: 'green',
+            Venmo: 'blue',
+            Zelle: 'fuchsia',
+            CC: 'yellow',
+            MB: 'slate',
+        };
 
         [...this.state.sales].reverse().forEach((order, orderIndex) => {
-            const orderExpense = Math.abs(order.items.filter((i) => i.category === 'Expense').reduce((sum, i) => sum + i.unitPrice * i.qty, 0));
+            const orderExpense = Math.abs(
+                order.items
+                    .filter((i) => i.category === 'Expense')
+                    .reduce((sum, i) => sum + i.unitPrice * i.qty, 0)
+            );
             const orderTip = order.tip || 0;
 
             // Raw collected revenue (ignoring internal accounting)
-            s.collected += (order.total + orderExpense);
+            s.collected += order.total + orderExpense;
             s.expenses += orderExpense;
             s.tax += order.tax;
             s.fees += order.fee;
             s.tips += orderTip;
+            // Category Net: order.total implicitly accounts for tips (added) and expenses (subtracted)
+            const orderNet = roundToCent(order.total - order.tax - order.fee);
 
             // Payment buckets
             if (order.payment === 'Cash') {
-                s.cashGroup += order.total; s.exactCash += order.total; s.cashTips += orderTip; s.cashExpenses += orderExpense;
-            }
-            else if (order.payment === 'MB') {
-                s.cashGroup += order.total; s.mb += order.total; s.mbExpenses += orderExpense;
-            }
-            else if (order.payment === 'Venmo') {
-                s.venmoGroup += order.total; s.exactVenmo += order.total; s.venmoFees += order.fee; s.venmoTips += orderTip; s.venmoExpenses += orderExpense;
-            }
-            else if (order.payment === 'CC') {
-                s.venmoGroup += order.total; s.cc += order.total; s.ccFees += order.fee; s.ccTips += orderTip; s.ccExpenses += orderExpense;
-            }
-            else if (order.payment === 'Zelle') {
-                s.zelle += order.total; s.zelleTips += orderTip; s.zelleExpenses += orderExpense;
+                s.cashGroup += order.total;
+                s.exactCash += order.total;
+                s.cashTips += orderTip;
+                s.cashExpenses += orderExpense;
+                s.cashNet += orderNet;
+                s.cashTax += order.tax;
+                s.cashCount++;
+            } else if (order.payment === 'MB') {
+                s.cashGroup += order.total;
+                s.mb += order.total;
+                s.mbTips += orderTip;
+                s.mbExpenses += orderExpense;
+                s.mbNet += orderNet;
+                s.mbTax += order.tax;
+                s.mbCount++;
+            } else if (order.payment === 'Venmo') {
+                s.venmoGroup += order.total;
+                s.exactVenmo += order.total;
+                s.venmoFees += order.fee;
+                s.venmoTips += orderTip;
+                s.venmoExpenses += orderExpense;
+                s.venmoNet += orderNet;
+                s.venmoTax += order.tax;
+                s.venmoCount++;
+            } else if (order.payment === 'CC') {
+                s.venmoGroup += order.total;
+                s.cc += order.total;
+                s.ccFees += order.fee;
+                s.ccTips += orderTip;
+                s.ccExpenses += orderExpense;
+                s.ccNet += orderNet;
+                s.ccTax += order.tax;
+                s.ccCount++;
+            } else if (order.payment === 'Zelle') {
+                s.zelle += order.total;
+                s.zelleTips += orderTip;
+                s.zelleExpenses += orderExpense;
+                s.zelleNet += orderNet;
+                s.zelleTax += order.tax;
+                s.zelleCount++;
             }
 
-            const pColor = payColors[order.payment] || 'gray';
-            // True net per order deducts tax, fees, AND tips (since tips belong to staff, not business)
-            const netAmt = roundToCent(order.total - order.fee - order.tax - orderTip);
+            const pColor = payColors[order.payment];
+
+            const rowBg = orderIndex % 2 === 0 ? `bg-${pColor}-50` : `bg-${pColor}-100`;
+
+            // True net per order deducts tax and fees (Tips are kept by owner)
+            const netAmt = roundToCent(order.total - order.fee - order.tax);
             const rowspan = order.items.length;
-            const rowBg = orderIndex % 2 === 0 ? 'bg-white' : 'bg-cream';
 
             order.items.forEach((item, index) => {
                 const tr = document.createElement('tr');
                 tr.className = `${rowBg} hover:brightness-95 transition border-b border-gray-100`;
-                const catTheme = CONFIG.themes[item.category] || { bg: 'gray-100', text: 'gray-700' };
+                const catTheme = CONFIG.themes[item.category] || {
+                    bg: 'gray-100',
+                    text: 'gray-700',
+                };
                 let html = '';
 
-                if (index === 0) html += `<td class="p-2 lg:p-3 text-[9px] lg:text-[10px] text-gray-500 font-mono align-top border-r border-gray-100" rowspan="${rowspan}">${order.timestamp}</td>`;
+                if (index === 0)
+                    html += `<td class="p-2 lg:p-3 text-[9px] lg:text-[10px] text-gray-600 font-mono align-top border-r border-gray-200" rowspan="${rowspan}">${order.timestamp}</td>`;
 
                 html += `
                 <td class="p-2 lg:p-3 w-full align-top">
                 <div class="text-[11px] lg:text-xs font-bold ${item.category === 'Expense' ? 'text-red-500' : 'text-gray-800'}">${item.name}</div>
-                <div class="mt-1"><span class="text-[8px] uppercase font-bold bg-${catTheme.bg} text-${catTheme.text} px-1.5 py-0.5 rounded">${item.category}</span></div>
+                <div class="mt-1 flex items-center gap-1.5 flex-wrap">
+                <span class="text-[8px] uppercase font-bold bg-${catTheme.bg} text-${catTheme.text} px-1.5 py-0.5 rounded">${item.category}</span>
+                ${index === 0 ? `<span class="text-[8px] font-black uppercase px-2 py-0.5 rounded-full border border-${pColor}-200 bg-white text-${pColor}-700 shadow-sm">${order.payment}</span>` : ''}
+                </div>
                 </td>
                 <td class="p-2 lg:p-3 text-center font-bold text-xs align-top">${item.qty}</td>
                 <td class="p-2 lg:p-3 text-right font-mono text-xs ${item.category === 'Expense' ? 'text-red-500' : 'text-gray-500'} align-top">${fmt(item.unitPrice)}</td>
@@ -546,12 +688,13 @@ const App = {
                     const discountText = order.discount > 0 ? '-' + order.discount.toFixed(2) : '—';
                     const tipText = order.tip > 0 ? '+' + order.tip.toFixed(2) : '—';
                     const taxText = order.tax > 0 ? fmt(order.tax) : '—';
+                    const feeText = order.fee > 0 ? fmt(order.fee) : '—';
 
                     html += `
-                    <td class="p-2 lg:p-3 text-center align-top border-l border-gray-100" rowspan="${rowspan}"><span class="text-[8px] font-black uppercase px-2 py-0.5 rounded-full border border-${pColor}-200 bg-${pColor}-50 text-${pColor}-700">${order.payment}</span></td>
-                    <td class="p-2 lg:p-3 text-right font-mono text-xs text-red-500 align-top" rowspan="${rowspan}">${discountText}</td>
+                    <td class="p-2 lg:p-3 text-right font-mono text-xs text-red-500 align-top border-l border-gray-200" rowspan="${rowspan}">${discountText}</td>
                     <td class="p-2 lg:p-3 text-right font-mono text-xs text-green-600 align-top" rowspan="${rowspan}">${tipText}</td>
                     <td class="p-2 lg:p-3 text-right font-mono text-xs text-yellow-600 align-top" rowspan="${rowspan}">${taxText}</td>
+                    <td class="p-2 lg:p-3 text-right font-mono text-xs text-orange-500 align-top" rowspan="${rowspan}">${feeText}</td>
                     <td class="p-2 lg:p-3 text-right font-mono text-xs font-black align-top ${order.total < 0 ? 'text-red-600' : ''}" rowspan="${rowspan}">${fmt(order.total)}</td>
                     <td class="p-2 lg:p-3 text-right font-mono text-xs font-black text-brand-blue align-top ${netAmt < 0 ? 'text-red-600' : ''}" rowspan="${rowspan}">${fmt(netAmt)}</td>
                     <td class="p-2 lg:p-3 align-top" rowspan="${rowspan}">
@@ -559,7 +702,7 @@ const App = {
                     <button onclick="App.editOrder(${order.id})" class="text-blue-400 hover:text-brand-blue transition" title="Edit Order">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                     </button>
-                    <button onclick="App.deleteOrder(${order.id})" class="text-gray-300 hover:text-red-500 font-bold text-lg transition" title="Delete Order">&times;</button>
+                    <button onclick="App.deleteOrder(${order.id})" class="text-gray-400 hover:text-red-500 font-bold text-lg transition" title="Delete Order">&times;</button>
                     </div>
                     </td>`;
                 }
@@ -567,39 +710,75 @@ const App = {
                 body.appendChild(tr);
             });
         });
+        // TAX INCLUSIVE MATH: True Gross is total collected MINUS tips
+        s.gross = s.collected - s.tips;
 
-        // TAX INCLUSIVE MATH: True Gross is total collected MINUS tips and tax
-        s.gross = s.collected - s.tips - s.tax;
-        s.net = s.gross - s.fees - s.expenses;
+        // OWNER TAKE HOME (NET): All money collected MINUS money owed out
+        s.takeHome = s.collected - s.tax - s.fees - s.expenses;
+
+        // NET TAXABLE: Business Profit (Gross Sales - Fees - Expenses)
+        s.netTaxable = s.gross - s.fees - s.expenses;
 
         document.getElementById('cashTotalDisplay').innerText = fmt(s.cashGroup);
         document.getElementById('venmoTotalDisplay').innerText = fmt(s.venmoGroup);
         document.getElementById('zelleTotalDisplay').innerText = fmt(s.zelle);
+        document.getElementById('tipTotalDisplay').innerText = fmt(s.tips);
         document.getElementById('grandTotalDisplay').innerText = fmt(s.gross);
-        document.getElementById('netTotalDisplay').innerText = fmt(s.net);
+        document.getElementById('netTotalDisplay').innerText = fmt(s.takeHome);
 
         // --- TOOLTIP BREAKDOWNS ---
-        const nestedTipClass = "text-green-400 text-[10px] pl-2 border-l border-gray-600 mt-1 mb-0.5";
-        const nestedExpClass = "text-orange-400 text-[10px] pl-2 border-l border-gray-600 mt-1 mb-0.5";
+        const nestedCountClass =
+            'text-gray-400 text-[10px] pl-2 border-l border-gray-600 mt-1 mb-0.5'; // Added Count Class
+        const nestedTipClass =
+            'text-green-400 text-[10px] pl-2 border-l border-gray-600 mt-1 mb-0.5';
+        const nestedTaxClass =
+            'text-yellow-400 text-[10px] pl-2 border-l border-gray-600 mt-1 mb-0.5';
+        const nestedExpClass =
+            'text-orange-400 text-[10px] pl-2 border-l border-gray-600 mt-1 mb-0.5';
+        const nestedFeeClass = 'text-red-400 text-[10px] pl-2 border-l border-gray-600 mt-1 mb-0.5';
 
-        document.getElementById('cashBreakdown').innerHTML = `Cash: ${fmt(s.exactCash)}${s.cashTips > 0 ? `<div class="${nestedTipClass}">Tips: ${fmt(s.cashTips)}</div>` : ''}${s.cashExpenses > 0 ? `<div class="${nestedExpClass}">Expenses: -${fmt(s.cashExpenses)}</div>` : ''}`;
-        document.getElementById('mbBreakdown').innerHTML = `MarketBucks: ${fmt(s.mb)}${s.mbExpenses > 0 ? `<div class="${nestedExpClass}">Expenses: -${fmt(s.mbExpenses)}</div>` : ''}`;
-        document.getElementById('venmoBreakdown').innerHTML = `Venmo: ${fmt(s.exactVenmo)}${s.venmoTips > 0 ? `<div class="${nestedTipClass}">Tips: ${fmt(s.venmoTips)}</div>` : ''}${s.venmoExpenses > 0 ? `<div class="${nestedExpClass}">Expenses: -${fmt(s.venmoExpenses)}</div>` : ''}`;
-        document.getElementById('venmoFeeBreakdown').innerText = `Fee: ${fmt(s.venmoFees)}`;
-        document.getElementById('ccBreakdown').innerHTML = `Credit Card: ${fmt(s.cc)}${s.ccTips > 0 ? `<div class="${nestedTipClass}">Tips: ${fmt(s.ccTips)}</div>` : ''}${s.ccExpenses > 0 ? `<div class="${nestedExpClass}">Expenses: -${fmt(s.ccExpenses)}</div>` : ''}`;
-        document.getElementById('ccFeeBreakdown').innerText = `Fee: ${fmt(s.ccFees)}`;
-        document.getElementById('zelleBreakdown').innerHTML = `Zelle: ${fmt(s.zelle)}${s.zelleTips > 0 ? `<div class="${nestedTipClass}">Tips: ${fmt(s.zelleTips)}</div>` : ''}${s.zelleExpenses > 0 ? `<div class="${nestedExpClass}">Expenses: -${fmt(s.zelleExpenses)}</div>` : ''}`;
+        document.getElementById('cashTooltip').innerHTML = `
+        <div>Cash: ${fmt(s.cashNet)}
+        <div class="${nestedCountClass}">Orders: ${s.cashCount}</div>
+        <div class="${nestedTipClass}">Tips: ${fmt(s.cashTips)}</div>
+        <div class="${nestedTaxClass}">Tax: ${fmt(s.cashTax)}</div>
+        ${s.cashExpenses > 0 ? `<div class="${nestedExpClass}">Expenses: -${fmt(s.cashExpenses)}</div>` : ''}
+        </div>
+        <div class="border-t border-gray-600 my-1"></div>
+        <div>MarketBucks: ${fmt(s.mbNet)}
+        <div class="${nestedCountClass}">Orders: ${s.mbCount}</div>
+        <div class="${nestedTipClass}">Tips: ${fmt(s.mbTips)}</div>
+        <div class="${nestedTaxClass}">Tax: ${fmt(s.mbTax)}</div>
+        ${s.mbExpenses > 0 ? `<div class="${nestedExpClass}">Expenses: -${fmt(s.mbExpenses)}</div>` : ''}
+        </div>
+        `;
 
-        document.getElementById('grossSalesBreakdown').innerText = `Sales: ${fmt(s.gross)}`;
-        document.getElementById('grossTaxBreakdown').innerText = `Tax Collected: ${fmt(s.tax)}`;
-        document.getElementById('grossTipBreakdown').innerText = `Tips Collected: ${fmt(s.tips)}`;
+        document.getElementById('venmoTooltip').innerHTML = `
+        <div>Venmo: ${fmt(s.venmoNet)}
+        <div class="${nestedCountClass}">Orders: ${s.venmoCount}</div>
+        <div class="${nestedTipClass}">Tips: ${fmt(s.venmoTips)}</div>
+        <div class="${nestedTaxClass}">Tax: ${fmt(s.venmoTax)}</div>
+        <div class="${nestedFeeClass}">Fees: -${fmt(s.venmoFees)}</div>
+        ${s.venmoExpenses > 0 ? `<div class="${nestedExpClass}">Expenses: -${fmt(s.venmoExpenses)}</div>` : ''}
+        </div>
+        <div class="border-t border-gray-600 my-1"></div>
+        <div>Credit Card: ${fmt(s.ccNet)}
+        <div class="${nestedCountClass}">Orders: ${s.ccCount}</div>
+        <div class="${nestedTipClass}">Tips: ${fmt(s.ccTips)}</div>
+        <div class="${nestedTaxClass}">Tax: ${fmt(s.ccTax)}</div>
+        <div class="${nestedFeeClass}">Fees: -${fmt(s.ccFees)}</div>
+        ${s.ccExpenses > 0 ? `<div class="${nestedExpClass}">Expenses: -${fmt(s.ccExpenses)}</div>` : ''}
+        </div>
+        `;
 
-        document.getElementById('netTipBreakdown').innerText = `Tips: ${fmt(s.tips)}`;
-        document.getElementById('taxBreakdown').innerText = `Tax: ${fmt(s.tax)}`;
-        document.getElementById('feeBreakdown').innerText = `Total Fees: ${fmt(s.fees)}`;
-        document.getElementById('netVenmoFee').innerText = `- Venmo: ${fmt(s.venmoFees)}`;
-        document.getElementById('netCcFee').innerText = `- CC: ${fmt(s.ccFees)}`;
-        document.getElementById('expenseBreakdown').innerText = `Expenses: -${fmt(s.expenses)}`;
+        document.getElementById('zelleTooltip').innerHTML = `
+        <div>Zelle: ${fmt(s.zelleNet)}
+        <div class="${nestedCountClass}">Orders: ${s.zelleCount}</div>
+        <div class="${nestedTipClass}">Tips: ${fmt(s.zelleTips)}</div>
+        <div class="${nestedTaxClass}">Tax: ${fmt(s.zelleTax)}</div>
+        ${s.zelleExpenses > 0 ? `<div class="${nestedExpClass}">Expenses: -${fmt(s.zelleExpenses)}</div>` : ''}
+        </div>
+        `;
     },
     save() {
         localStorage.setItem('salesData_v8', JSON.stringify(this.state.sales));
@@ -616,16 +795,21 @@ const App = {
     exportToCSV() {
         if (this.state.sales.length === 0) return alert('No data to export.');
 
-        let csv = 'Order ID,Date/Time,Category,Subcategory,Item Name,Item Gross Price,Item Qty,Item Line Total,Order Subtotal,Order Discount,Order Tip,Order Gross Total,Order Net Total,Order Tax,Order Fees,Payment Method\n';
+        let csv =
+            'Order ID,Date/Time,Category,Subcategory,Item Name,Item Gross Price,Item Qty,Item Line Total,Order Subtotal,Order Discount,Order Tip,Order Gross Total,Order Net Total,Order Tax,Order Fees,Payment Method\n';
 
         this.state.sales.forEach((o) => {
             const ts = o.timestamp.replace(/,/g, '');
 
-            const orderExpense = Math.abs(o.items.filter((i) => i.category === 'Expense').reduce((sum, i) => sum + i.unitPrice * i.qty, 0));
+            const orderExpense = Math.abs(
+                o.items
+                    .filter((i) => i.category === 'Expense')
+                    .reduce((sum, i) => sum + i.unitPrice * i.qty, 0)
+            );
             const orderTip = o.tip || 0;
 
-            // Order Gross isolates pure item sales (backs out tip and tax)
-            const orderGross = (o.total + orderExpense) - o.tax - orderTip;
+            // Order Gross isolates pure item sales (backs out tip)
+            const orderGross = o.total + orderExpense - orderTip;
             // Order Net additionally backs out fees
             const net = orderGross - o.fee;
 
@@ -692,14 +876,23 @@ const App = {
                 const orderId = parseInt(row[0], 10);
                 if (!orderId || isNaN(orderId)) continue;
 
+                // Safely recalculate the true receipt total (Subtotal - Discount + Tip)
+                const impSubtotal = parseFloat(row[8]) || 0;
+                const impDiscount = parseFloat(row[9]) || 0;
+                const impTip = parseFloat(row[10]) || 0;
+
+                let impFinalSubtotal = impSubtotal;
+                if (impSubtotal > 0) impFinalSubtotal = Math.max(0, impSubtotal - impDiscount);
+                const trueOrderTotal = impFinalSubtotal + impTip;
+
                 if (!ordersMap.has(orderId)) {
                     ordersMap.set(orderId, {
                         id: orderId,
                         timestamp: row[1],
-                        subtotal: parseFloat(row[8]) || 0,
-                        discount: parseFloat(row[9]) || 0,
-                        tip: parseFloat(row[10]) || 0,
-                        total: parseFloat(row[11]) || 0,
+                        subtotal: impSubtotal,
+                        discount: impDiscount,
+                        tip: impTip,
+                        total: trueOrderTotal,
                         payment: row[15] || 'Unknown',
                         fee: parseFloat(row[14]) || 0,
                         tax: parseFloat(row[13]) || 0,
@@ -707,11 +900,12 @@ const App = {
                     });
                 } else {
                     const existing = ordersMap.get(orderId);
-                    if (row[11] && !isNaN(parseFloat(row[11]))) {
-                        existing.subtotal = parseFloat(row[8]) || 0;
-                        existing.discount = parseFloat(row[9]) || 0;
-                        existing.tip = parseFloat(row[10]) || 0;
-                        existing.total = parseFloat(row[11]) || 0;
+                    // If this row has an order subtotal (meaning it's the master row for the order)
+                    if (row[8] && row[8].trim() !== '') {
+                        existing.subtotal = impSubtotal;
+                        existing.discount = impDiscount;
+                        existing.tip = impTip;
+                        existing.total = trueOrderTotal;
                         existing.tax = parseFloat(row[13]) || 0;
                         existing.fee = parseFloat(row[14]) || 0;
                         existing.payment = row[15] || existing.payment;
