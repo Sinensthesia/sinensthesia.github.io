@@ -781,7 +781,13 @@ const App = {
             `;
         }
     },
+
     save() {
+        // FAILSAFE: Automatically destroy any order that has an empty items array
+        this.state.sales = this.state.sales.filter(
+            (order) => order.items && order.items.length > 0
+        );
+
         localStorage.setItem('salesData_v8', JSON.stringify(this.state.sales));
     },
 
