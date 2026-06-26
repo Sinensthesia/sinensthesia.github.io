@@ -661,8 +661,8 @@ const App = {
         // OWNER TAKE HOME (NET): All money collected MINUS money owed out
         s.takeHome = s.collected - s.tax - s.fees - s.expenses;
 
-        // NET TAXABLE: Business Profit (Gross Sales - Fees - Expenses)
-        s.netTaxable = s.gross - s.fees - s.expenses;
+        // NET TAXABLE: Business Profit (Gross Sales - Fees) ** EXPENSES REMOVED, WILL BE CALCULATED AT ACCOUNTANT LEVEL
+        s.netTaxable = s.gross - s.fees;
 
         document.getElementById('cashTotalDisplay').innerText = fmt(s.cashGroup);
         document.getElementById('venmoTotalDisplay').innerText = fmt(s.venmoGroup);
